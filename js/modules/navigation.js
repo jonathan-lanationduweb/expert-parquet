@@ -83,20 +83,13 @@ function initHeaderScroll() {
   const header = document.querySelector('[data-header]');
   if (!header) return;
 
-  let ticking = false;
-  const update = () => {
-    header.classList.toggle('is-scrolled', window.scrollY > 12);
-    ticking = false;
-  };
-  window.addEventListener(
-    'scroll',
-    () => {
-      if (!ticking) {
-        ticking = true;
-        window.requestAnimationFrame(update);
-      }
-    },
-    { passive: true }
-  );
+  // Mise à jour directe plutôt que via requestAnimationFrame : la lecture de
+  // window.scrollY ne force aucun recalcul de mise en page, et le header ne
+  // dépend donc pas d'un rAF (gelé dans un onglet en arrière-plan). Sur les
+  // pages à header transparent, cet état conditionne la lisibilité.
+  const update = () => header.classList.toggle('is-scrolled', window.scrollY > 12);
+
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
   update();
 }
