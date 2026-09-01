@@ -1,0 +1,184 @@
+/* Expert Parquet — Pré-diagnostic interactif et pages de formulaire */
+
+/* ==========================================================================
+   Pré-diagnostic
+   Panneau clair posé sur une section sombre : le contraste fait le travail,
+   pas la bordure ni l'ombre.
+   ========================================================================== */
+.diagnostic {
+  background: var(--bg-page);
+  color: var(--text-body);
+  padding: clamp(var(--space-lg), 3.5vw, var(--space-2xl));
+}
+.section--inverse .diagnostic,
+.prediag .diagnostic { color: var(--text-body); }
+.prediag .diagnostic h3,
+.prediag .diagnostic h4 { color: var(--text-strong); }
+
+.diagnostic__step { display: grid; gap: var(--space-lg); }
+.diagnostic__step[hidden] { display: none; }
+
+.diagnostic__question {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 1.1rem + 1vw, 1.9rem);
+  font-weight: var(--fw-regular);
+  letter-spacing: var(--ls-display);
+  line-height: var(--lh-heading);
+  color: var(--text-strong);
+}
+.diagnostic__help { font-size: var(--fs-sm); color: var(--text-muted); margin-top: var(--space-xs); }
+
+.diagnostic__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-hair);
+}
+.diagnostic__nav-right { display: flex; gap: var(--space-2xs); margin-left: auto; }
+
+/* Résultat */
+.diagnostic__result { display: grid; gap: var(--space-md); }
+.diagnostic__result-head { display: grid; gap: var(--space-2xs); }
+
+.diagnostic__summary {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--border-hair);
+  font-size: var(--fs-sm);
+}
+.diagnostic__summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border-hair);
+}
+.diagnostic__summary-key { color: var(--text-muted); min-width: 12rem; }
+.diagnostic__summary-val { color: var(--text-strong); }
+
+/* Progression */
+.diagnostic__dots { display: flex; gap: 6px; }
+.diagnostic__dot {
+  width: 18px;
+  height: 1px;
+  background: var(--border-default);
+  transition: background-color var(--dur-base) var(--ease-out);
+}
+.diagnostic__dot.is-done,
+.diagnostic__dot.is-current { background: var(--color-terra); }
+
+/* ==========================================================================
+   Page devis (formulaire multi-étapes)
+   ========================================================================== */
+.quote-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: clamp(var(--space-xl), 5vw, var(--space-3xl));
+  align-items: start;
+}
+@media (max-width: 1024px) {
+  .quote-layout { grid-template-columns: minmax(0, 1fr); }
+}
+
+.form-panel { background: transparent; }
+
+.form-step { display: grid; gap: var(--space-lg); }
+.form-step[hidden] { display: none; }
+.form-step__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-d2);
+  font-weight: var(--fw-regular);
+  letter-spacing: var(--ls-display);
+  color: var(--text-strong);
+}
+.form-step__intro { font-size: var(--fs-sm); color: var(--text-muted); margin-top: var(--space-xs); }
+
+.form-section-title {
+  font-size: var(--fs-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-caps);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+  padding-bottom: var(--space-2xs);
+  border-bottom: 1px solid var(--border-hair);
+}
+
+/* Récapitulatif latéral */
+.quote-aside { display: grid; gap: var(--space-xl); }
+@media (min-width: 1025px) {
+  .quote-aside { position: sticky; top: calc(var(--header-h) + var(--space-md)); }
+}
+.recap { border-top: 1px solid var(--color-ink); padding-top: var(--space-md); }
+.recap__title {
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-sm);
+}
+.recap__list { display: grid; gap: 0; font-size: var(--fs-xs); list-style: none; }
+.recap__list li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-hair);
+}
+.recap__key { color: var(--text-muted); }
+.recap__val { color: var(--text-strong); text-align: right; }
+.recap__empty { font-size: var(--fs-xs); color: var(--text-muted); }
+
+.aside-note { border-top: 1px solid var(--border-hair); padding-top: var(--space-md); }
+.aside-note h3 { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: var(--fw-semi); color: var(--text-strong); }
+.aside-note p { font-size: var(--fs-xs); color: var(--text-muted); margin-top: var(--space-2xs); }
+.aside-note .btn { margin-top: var(--space-sm); }
+
+/* Écran de confirmation */
+.form-done { display: grid; gap: var(--space-md); justify-items: start; padding-block: var(--space-lg); }
+.form-done h2 { font-size: var(--fs-d2); }
+.form-done pre {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  background: var(--color-ink);
+  color: #D6D2CA;
+  padding: var(--space-md);
+  overflow-x: auto;
+  max-width: 100%;
+  width: 100%;
+  line-height: 1.55;
+}
+.form-done__icon {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-success);
+  color: var(--color-success);
+  display: grid;
+  place-items: center;
+}
+.form-done__icon svg { width: 22px; height: 22px; }
+
+/* ==========================================================================
+   Page contact
+   ========================================================================== */
+.contact-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: clamp(var(--space-xl), 5vw, var(--space-3xl));
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .contact-layout { grid-template-columns: minmax(0, 1fr); }
+}
+.contact-info { display: grid; gap: 0; border-top: 1px solid var(--color-ink); }
+.contact-info__block { padding: var(--space-md) 0; border-bottom: 1px solid var(--border-hair); }
+.contact-info__label {
+  font-size: var(--fs-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-caps);
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+}
+.contact-info__value { font-size: var(--fs-sm); color: var(--text-strong); }

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Expert Parquet">
+  <rect width="32" height="32" rx="7" fill="#1E2124"/>
+  <path d="M7 11.5h11.5M7 16h18M13.5 20.5H25" stroke="#FBFAF7" stroke-width="1.7" stroke-linecap="round" fill="none"/>
+  <circle cx="22.4" cy="11.5" r="2.7" stroke="#B0603A" stroke-width="1.7" fill="none"/>
+</svg>
