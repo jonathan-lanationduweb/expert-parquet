@@ -1,0 +1,171 @@
+/* ==========================================================================
+   Expert Parquet — Design tokens
+   Direction : cabinet d'expertise / architecture. Grandes surfaces presque
+   monochromes, typographie grotesque, angles droits, accent terre cuite rare.
+   Source unique de vérité : ne coder aucune valeur en dur ailleurs.
+   ========================================================================== */
+
+:root {
+  /* --- Neutres minéraux ---------------------------------------------------
+     Base de tout le site. Le blanc n'est pas pur : il est très légèrement
+     réchauffé pour éviter l'effet clinique, sans virer au beige. */
+  --color-paper:      #F6F5F3;  /* fond principal, blanc minéral */
+  --color-paper-2:    #EFEEEB;  /* fond alterné, gris pierre très clair */
+  --color-paper-3:    #E4E2DE;  /* aplats, séparateurs pleins */
+  --color-stone:      #C6C3BD;  /* gris pierre, bordures visibles */
+  --color-stone-2:    #6E6B66;  /* gris moyen, texte secondaire — 4,9:1 sur le fond ivoire */
+  --color-graphite:   #4A4845;  /* gris foncé, texte courant */
+  --color-ink:        #17181A;  /* noir doux, texte principal */
+  --color-ink-2:      #212326;  /* surfaces sombres */
+  --color-ink-3:      #2E3033;  /* séparateurs sur fond sombre */
+  --color-white:      #FFFFFF;
+
+  /* --- Accent (usage rare et volontaire) ---------------------------------
+     Réservé aux CTA, à quelques titres de section, aux numéros et aux
+     micro-détails d'interaction. Jamais pour teinter une surface entière. */
+  --color-terra:      #B04A1E;
+  --color-terra-dark: #8E3A16;
+  --color-terra-soft: #F0E5DF;
+
+  /* --- États --------------------------------------------------------------- */
+  --color-success:      #2F5D42;
+  --color-success-soft: #E6EEE9;
+  --color-warning:      #7A5A18;
+  --color-warning-soft: #F3EEDF;
+  --color-error:        #932E22;
+  --color-error-soft:   #F6E6E3;
+
+  /* --- Rôles sémantiques ---------------------------------------------------- */
+  --bg-page:        var(--color-paper);
+  --bg-alt:         var(--color-paper-2);
+  --bg-fill:        var(--color-paper-3);
+  --bg-surface:     var(--color-white);
+  --bg-inverse:     var(--color-ink);
+
+  --text-strong:    var(--color-ink);
+  --text-body:      var(--color-graphite);
+  --text-muted:     var(--color-stone-2);
+  --text-inverse:   #E8E6E2;
+  --text-inverse-muted: #98958F;
+  --text-accent:    var(--color-terra);
+
+  --border-hair:    #DCDAD5;   /* filet discret, omniprésent */
+  --border-default: var(--color-stone);
+  --border-strong:  #9C9992;
+  --border-inverse: var(--color-ink-3);
+
+  --focus-ring:     var(--color-terra);
+
+  /* --- Typographie ----------------------------------------------------------
+     Une seule famille, deux optiques : Inter Tight pour les titres (dessin
+     resserré, proche d'une grotesque de labeur suisse) et Inter pour le texte.
+     Aucune serif : c'est elle qui donnait l'impression « magazine ». */
+  --font-display: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body:    "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono:    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Échelle : peu de tailles, de grands écarts.
+     Les titres sont grands ET en graisse normale : c'est ce qui produit
+     l'effet architectural plutôt que publicitaire. */
+  --fs-hero:    clamp(3rem, 1.1rem + 7.6vw, 7.5rem);
+  --fs-d1:      clamp(2.25rem, 1.25rem + 4vw, 4.25rem);
+  --fs-d2:      clamp(1.85rem, 1.25rem + 2.4vw, 3rem);
+  --fs-h3:      clamp(1.3rem, 1.1rem + 0.8vw, 1.75rem);
+  --fs-h4:      1.0625rem;
+  --fs-lead:    clamp(1.0625rem, 0.98rem + 0.45vw, 1.3125rem);
+  --fs-base:    1rem;
+  --fs-sm:      0.9375rem;
+  --fs-xs:      0.8125rem;
+  --fs-2xs:     0.75rem;
+
+  /* Numéros de section : composant graphique à part entière */
+  --fs-numeral: clamp(2rem, 1.2rem + 3.2vw, 3.75rem);
+
+  --lh-hero:    0.98;
+  --lh-display: 1.04;
+  --lh-heading: 1.14;
+  --lh-snug:    1.35;
+  --lh-body:    1.62;
+
+  --ls-hero:    -0.03em;
+  --ls-display: -0.024em;
+  --ls-tight:   -0.015em;
+  --ls-normal:  0;
+  --ls-caps:    0.1em;
+
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semi:    600;
+
+  /* --- Espacements (échelle 4px) --------------------------------------------- */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs:  0.75rem;
+  --space-sm:  1rem;
+  --space-md:  1.5rem;
+  --space-lg:  2rem;
+  --space-xl:  3rem;
+  --space-2xl: 4.5rem;
+  --space-3xl: 7rem;
+  --space-4xl: 10rem;
+
+  /* Rythme vertical : beaucoup plus ample qu'avant, c'est le cœur du sujet. */
+  --section-y:       clamp(4rem, 2rem + 6.5vw, 8rem);
+  --section-y-tight: clamp(3rem, 1.8rem + 4.5vw, 5.5rem);
+  --section-y-large: clamp(5rem, 2.5rem + 8.5vw, 10rem);
+
+  /* --- Conteneurs ------------------------------------------------------------ */
+  --container-max:  1360px;
+  --container-mid:  1120px;
+  --container-text: 700px;
+  --container-pad:  clamp(1.25rem, 0.4rem + 3.4vw, 4rem);
+
+  /* --- Rayons ----------------------------------------------------------------
+     Architectural : quasiment tout est à angle droit. Seuls les boutons sont
+     en pilule, comme sur la référence. */
+  --radius-none: 0;
+  --radius-xs:   2px;
+  --radius-sm:   3px;
+  --radius-pill: 999px;
+
+  /* --- Filets ---------------------------------------------------------------- */
+  --rule-hair:  1px solid var(--border-hair);
+  --rule-solid: 1px solid var(--border-default);
+  --rule-ink:   1px solid var(--color-ink);
+  --rule-inverse: 1px solid var(--border-inverse);
+
+  /* --- Ombres (presque inexistantes : la profondeur vient du contraste) ------ */
+  --shadow-none: none;
+  --shadow-sm:   0 1px 2px rgba(23, 24, 26, 0.05);
+  --shadow-md:   0 18px 40px -30px rgba(23, 24, 26, 0.45);
+  --shadow-lg:   0 40px 80px -50px rgba(23, 24, 26, 0.55);
+
+  /* --- Animation ------------------------------------------------------------- */
+  --dur-fast:  150ms;
+  --dur-base:  320ms;
+  --dur-slow:  620ms;
+  --dur-xslow: 1100ms;
+  --ease-out:  cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* --- Divers ---------------------------------------------------------------- */
+  --header-h:       84px;
+  --header-h-small: 66px;
+  --z-header: 100;
+  --z-drawer: 200;
+  --z-overlay: 190;
+}
+
+/* Breakpoints de référence utilisés dans les @media des autres fichiers :
+   380 / 480 / 640 / 768 / 1024 / 1280 / 1440.
+   CSS n'autorisant pas var() dans les media queries, ces valeurs y sont
+   répétées littéralement — seule exception à la centralisation. */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0.01ms;
+    --dur-base: 0.01ms;
+    --dur-slow: 0.01ms;
+    --dur-xslow: 0.01ms;
+  }
+}

@@ -1,0 +1,230 @@
+/* Expert Parquet — Typographie de base, éléments HTML, utilitaires */
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 2rem);
+}
+
+body {
+  background-color: var(--bg-page);
+  color: var(--text-body);
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: var(--lh-body);
+  font-weight: var(--fw-regular);
+  font-feature-settings: "kern" 1, "liga" 1, "cv05" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* `hidden` ferait du body un conteneur de défilement (window.scrollY figé,
+     sticky perturbé) : `clip` coupe le débordement sans créer de scroller. */
+  overflow-x: hidden;
+}
+@supports (overflow: clip) {
+  body { overflow-x: clip; }
+}
+
+/* --- Titres ----------------------------------------------------------------
+   Tous les titres sont en graisse normale ou medium. Une grande taille en
+   graisse normale lit « architecture » ; la même taille en gras lit
+   « publicité ». C'est le réglage central de cette identité. */
+h1, h2, h3, h4, .display-1, .display-2, .hero-title {
+  font-family: var(--font-display);
+  color: var(--text-strong);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--ls-tight);
+  text-wrap: balance;
+}
+
+.hero-title {
+  font-size: var(--fs-hero);
+  line-height: var(--lh-hero);
+  letter-spacing: var(--ls-hero);
+}
+.display-1, h1 {
+  font-size: var(--fs-d1);
+  line-height: var(--lh-display);
+  letter-spacing: var(--ls-display);
+}
+.display-2, h2 {
+  font-size: var(--fs-d2);
+  line-height: var(--lh-display);
+  letter-spacing: var(--ls-display);
+}
+h3 { font-size: var(--fs-h3); line-height: var(--lh-heading); }
+h4 {
+  font-family: var(--font-body);
+  font-size: var(--fs-h4);
+  font-weight: var(--fw-semi);
+  letter-spacing: var(--ls-normal);
+  line-height: var(--lh-snug);
+}
+
+/* Titre de section coloré : l'accent vit ici, pas dans des micro-labels. */
+.display-1--accent, .display-2--accent { color: var(--text-accent); }
+
+/* --- Texte ------------------------------------------------------------------ */
+p { text-wrap: pretty; }
+p + p { margin-top: var(--space-sm); }
+
+.lead {
+  font-size: var(--fs-lead);
+  line-height: 1.52;
+  color: var(--text-body);
+}
+
+.text-muted { color: var(--text-muted); }
+.text-strong { color: var(--text-strong); }
+.text-accent { color: var(--text-accent); }
+.text-sm { font-size: var(--fs-sm); }
+.text-xs { font-size: var(--fs-xs); }
+
+/* Intitulé de section : sobre, en casse normale, jamais orange.
+   Il n'apparaît que là où il apporte réellement une information. */
+.kicker {
+  font-family: var(--font-display);
+  font-size: clamp(1.0625rem, 0.95rem + 0.5vw, 1.375rem);
+  font-weight: var(--fw-regular);
+  color: var(--text-strong);
+  letter-spacing: var(--ls-tight);
+  line-height: 1.3;
+}
+
+/* Étiquette technique en capitales : réservée aux repères (numéros, index,
+   compteurs de carrousel). Volontairement rare. */
+.label {
+  font-family: var(--font-body);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.label--ink { color: var(--text-strong); }
+.label--inverse { color: var(--text-inverse-muted); }
+
+/* Numéro de repère, composant graphique */
+.numeral {
+  font-family: var(--font-display);
+  font-size: var(--fs-numeral);
+  font-weight: var(--fw-regular);
+  line-height: 1;
+  letter-spacing: var(--ls-display);
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+.numeral--muted { color: var(--border-default); }
+.numeral--accent { color: var(--text-accent); }
+
+/* --- Liens ------------------------------------------------------------------ */
+a { text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+
+.link {
+  color: var(--text-strong);
+  text-decoration: underline;
+  text-decoration-color: var(--border-default);
+  transition: text-decoration-color var(--dur-fast) var(--ease-out);
+}
+.link:hover { text-decoration-color: var(--color-terra); }
+
+/* Lien fléché : un filet qui s'étire, pas une icône ronde. */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-strong);
+  text-decoration: none;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--color-ink);
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.link-arrow::after {
+  content: "";
+  width: 18px;
+  height: 9px;
+  background: currentColor;
+  -webkit-mask: var(--icon-arrow) center / contain no-repeat;
+  mask: var(--icon-arrow) center / contain no-repeat;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.link-arrow:hover { color: var(--color-terra); border-color: var(--color-terra); }
+.link-arrow:hover::after { transform: translateX(5px); }
+.link-arrow--inverse { color: var(--color-white); border-color: rgba(255, 255, 255, 0.4); }
+.link-arrow--inverse:hover { color: var(--color-white); border-color: var(--color-white); }
+
+:root {
+  --icon-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 9'%3E%3Cpath d='M0 4.1h14.6L11.2.7l.8-.7 4.6 4.5-4.6 4.5-.8-.7 3.4-3.4H0z'/%3E%3C/svg%3E");
+  --icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6.2 12.6 1.6 8l1.1-1.1 3.5 3.5L13.3 3.3l1.1 1.1z'/%3E%3C/svg%3E");
+}
+
+/* --- Listes de contenu ------------------------------------------------------- */
+.rich-list { list-style: none; display: grid; gap: var(--space-2xs); }
+.rich-list li { position: relative; padding-left: 1.5rem; }
+.rich-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 12px;
+  height: 1px;
+  background: var(--color-terra);
+}
+.rich-list--check li::before {
+  width: 14px;
+  height: 14px;
+  top: 0.4em;
+  background: var(--color-ink);
+  -webkit-mask: var(--icon-check) center / contain no-repeat;
+  mask: var(--icon-check) center / contain no-repeat;
+}
+
+/* --- Filets ------------------------------------------------------------------ */
+hr, .rule { border: 0; height: 1px; background: var(--border-hair); margin: var(--space-lg) 0; }
+.rule--ink { background: var(--color-ink); }
+
+/* --- Accessibilité ------------------------------------------------------------ */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: var(--space-2xs);
+  left: var(--space-2xs);
+  z-index: 999;
+  transform: translateY(-200%);
+  background: var(--color-ink);
+  color: var(--color-white);
+  padding: var(--space-2xs) var(--space-sm);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.skip-link:focus { transform: translateY(0); }
+
+/* --- Utilitaires --------------------------------------------------------------- */
+.u-center { text-align: center; }
+.u-mt-0 { margin-top: 0; }
+.u-mt-xs { margin-top: var(--space-xs); }
+.u-mt-sm { margin-top: var(--space-sm); }
+.u-mt-md { margin-top: var(--space-md); }
+.u-mt-lg { margin-top: var(--space-lg); }
+.u-mt-xl { margin-top: var(--space-xl); }
+.u-mt-2xl { margin-top: var(--space-2xl); }
+.u-maxw-text { max-width: var(--container-text); }
+.u-maxw-60 { max-width: 60ch; }
+.u-maxw-46 { max-width: 46ch; }
+.u-mx-auto { margin-inline: auto; }
+.u-nowrap { white-space: nowrap; }

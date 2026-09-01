@@ -1,0 +1,6 @@
+# Expert Parquet — robots.txt
+User-agent: *
+Allow: /
+Disallow: /tools/
+
+Sitemap: https://expert-parquet.com/sitemap.xml

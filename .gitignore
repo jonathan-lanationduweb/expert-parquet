@@ -1,0 +1,17 @@
+# Système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Éditeurs — configuration locale, hors périmètre du projet
+.vscode/
+.idea/
+*.code-workspace
+
+# Dépendances (le projet n'en a aucune, filet de sécurité)
+node_modules/
+
+# Fichiers temporaires
+*.log
+*.tmp
+_*.html

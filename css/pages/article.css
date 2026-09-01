@@ -1,0 +1,156 @@
+/* Expert Parquet — Gabarit éditorial : articles, pages de contenu long, problèmes */
+
+.article-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: clamp(var(--space-xl), 6vw, var(--space-3xl));
+  align-items: start;
+}
+@media (max-width: 1024px) {
+  .article-layout { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* --- Colonne de contenu ------------------------------------------------------ */
+.prose {
+  max-width: 66ch;
+  font-size: 1.0625rem;
+  line-height: var(--lh-body);
+  color: var(--text-body);
+}
+.prose > * + * { margin-top: var(--space-md); }
+.prose h2 {
+  font-size: clamp(1.55rem, 1.2rem + 1.2vw, 2.1rem);
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-hair);
+  scroll-margin-top: calc(var(--header-h) + 2rem);
+}
+.prose h3 {
+  font-size: var(--fs-h3);
+  margin-top: var(--space-xl);
+  scroll-margin-top: calc(var(--header-h) + 2rem);
+}
+.prose h4 { margin-top: var(--space-lg); }
+.prose h2 + p, .prose h3 + p, .prose h4 + p { margin-top: var(--space-sm); }
+
+.prose ul, .prose ol { padding-left: 1.3rem; display: grid; gap: 0.45rem; }
+.prose ul { list-style: none; padding-left: 0; }
+.prose ul li { position: relative; padding-left: 1.5rem; }
+.prose ul li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.78em;
+  width: 12px;
+  height: 1px;
+  background: var(--color-terra);
+}
+.prose ol { list-style: decimal; }
+.prose ol li::marker { color: var(--color-terra); }
+
+.prose a:not(.btn):not(.link-arrow) {
+  color: var(--text-strong);
+  text-decoration: underline;
+  text-decoration-color: var(--color-terra);
+  text-underline-offset: 0.22em;
+}
+.prose a:not(.btn):not(.link-arrow):hover { color: var(--text-accent); }
+
+.prose blockquote {
+  margin-inline: 0;
+  padding-left: var(--space-lg);
+  border-left: 1px solid var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: var(--fw-regular);
+  letter-spacing: var(--ls-tight);
+  color: var(--text-strong);
+  line-height: 1.4;
+}
+
+.prose table { font-size: var(--fs-sm); }
+.prose th, .prose td { padding: 0.75rem 1rem 0.75rem 0; border-bottom: 1px solid var(--border-hair); text-align: left; vertical-align: top; }
+.prose th { font-weight: var(--fw-medium); color: var(--text-strong); border-bottom-color: var(--color-ink); }
+.table-scroll { overflow-x: auto; }
+
+/* --- En-tête d’article -------------------------------------------------------- */
+.article-head { max-width: none; }
+/* La limite de mesure est portée par le titre lui-même : `ch` s'y calcule
+   dans sa propre taille de police, pas dans celle du conteneur. */
+.article-head__title { margin-top: var(--space-md); max-width: 17ch; }
+.article-head__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2xs) var(--space-md);
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: var(--space-lg);
+}
+.article-head__standfirst {
+  margin-top: var(--space-lg);
+  font-size: var(--fs-lead);
+  line-height: 1.5;
+  color: var(--text-body);
+  max-width: 52ch;
+}
+.article__cover { margin-top: var(--space-xl); }
+
+/* --- Sommaire ----------------------------------------------------------------- */
+.toc { border-top: 1px solid var(--color-ink); padding-top: var(--space-md); }
+.toc__title {
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-sm);
+}
+.toc__list { display: grid; gap: 0; list-style: none; font-size: var(--fs-sm); }
+.toc__list a {
+  color: var(--text-muted);
+  text-decoration: none;
+  display: block;
+  padding: 0.35rem 0;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.toc__list a:hover { color: var(--text-strong); }
+.toc__list a.is-current { color: var(--text-accent); }
+.toc__list .toc__sub { padding-left: 1rem; font-size: var(--fs-xs); }
+
+/* --- Colonne latérale --------------------------------------------------------- */
+.article-aside { display: grid; gap: var(--space-xl); }
+@media (min-width: 1025px) {
+  .article-aside { position: sticky; top: calc(var(--header-h) + var(--space-md)); }
+}
+
+.aside-card { border-top: 1px solid var(--color-ink); padding-top: var(--space-md); }
+.aside-card__title { font-size: var(--fs-sm); font-weight: var(--fw-semi); color: var(--text-strong); margin-bottom: var(--space-2xs); }
+.aside-card p { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.6; }
+.aside-card .btn { margin-top: var(--space-md); }
+.aside-card--accent { border-top-color: var(--color-terra); }
+
+/* --- Panneaux « symptômes » ---------------------------------------------------- */
+.symptom-block {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-xl);
+  border-top: 1px solid var(--border-hair);
+  padding-top: var(--space-lg);
+}
+.symptom-panel h3 {
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semi);
+  letter-spacing: var(--ls-normal);
+  margin-bottom: var(--space-sm);
+  padding-bottom: var(--space-2xs);
+  border-bottom: 1px solid var(--border-hair);
+}
+.symptom-panel ul { font-size: var(--fs-sm); }
+
+/* --- Pied d’article ------------------------------------------------------------ */
+.article-foot { margin-top: var(--space-2xl); padding-top: var(--space-lg); border-top: 1px solid var(--color-ink); }
+.article-nav { display: flex; flex-wrap: wrap; gap: var(--space-lg); justify-content: space-between; }
