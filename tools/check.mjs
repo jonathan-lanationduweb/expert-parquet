@@ -12,8 +12,12 @@
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname, resolve, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { STAMP_PARAM, verifyStamp } from './fingerprint.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+
+/** Ressources vues avec une empreinte de contenu valide, toutes pages confondues. */
+const stamped = new Set();
 const errors = [];
 const warnings = [];
 
@@ -87,11 +91,24 @@ for (const file of pages) {
       }
       continue;
     }
-    const [path, hash] = href.split('#');
+    const [pathAndQuery, hash] = href.split('#');
+    // Les feuilles de style et le script d’entrée portent une empreinte de
+    // contenu (`?v=…`, voir tools/fingerprint.mjs) : on la retire pour
+    // résoudre le fichier, puis on la vérifie.
+    const [path, query] = pathAndQuery.split('?');
     const target = resolve(dirname(file), path);
     if (!existsSync(target)) {
       fail(`lien cassé : ${href}`);
       continue;
+    }
+    if (query) {
+      const stamp = new URLSearchParams(query).get(STAMP_PARAM);
+      const projectPath = relative(ROOT, target).split(sep).join('/');
+      const valid = stamp && verifyStamp(projectPath, stamp);
+      if (valid === false) {
+        fail(`empreinte périmée sur ${path} — relancer node tools/build.mjs`);
+      }
+      stamped.add(projectPath);
     }
     if (hash && target.endsWith('.html')) {
       const ids = anchorsByFile.get(target);
@@ -118,6 +135,38 @@ for (const file of pages) {
     if (!/loading="lazy"/.test(attrs) && !/fetchpriority="high"/.test(attrs)) {
       warn(`img sans stratégie de chargement : ${src[1]}`);
     }
+  }
+
+  // --- Ressources estampillées ---------------------------------------------
+  // Le script d’entrée doit exister ET porter une empreinte à jour : c’est ce
+  // qui garantit qu’un HTML neuf ne puisse pas être servi avec un ancien JS.
+  for (const match of html.matchAll(/<script[^>]*src="([^"]+)"/g)) {
+    const src = match[1];
+    if (/^https?:/.test(src)) continue;
+    const [path, query] = src.split('?');
+    const target = resolve(dirname(file), path);
+    if (!existsSync(target)) {
+      fail(`script introuvable : ${src}`);
+      continue;
+    }
+    const projectPath = relative(ROOT, target).split(sep).join('/');
+    const stamp = query ? new URLSearchParams(query).get(STAMP_PARAM) : null;
+    if (!stamp) {
+      fail(`script sans empreinte de contenu : ${src}`);
+      continue;
+    }
+    if (verifyStamp(projectPath, stamp) === false) {
+      fail(`empreinte périmée sur ${path} — relancer node tools/build.mjs`);
+      continue;
+    }
+    stamped.add(projectPath);
+  }
+
+  // Toute feuille de style locale doit être estampillée.
+  for (const match of html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)) {
+    const href = match[1];
+    if (/^https?:/.test(href)) continue;
+    if (!href.includes(`?${STAMP_PARAM}=`)) fail(`feuille de style sans empreinte : ${href}`);
   }
 
   // --- Champs de formulaire ------------------------------------------------
@@ -147,7 +196,9 @@ for (const page of pageSet) {
 }
 
 // --- Rapport ---------------------------------------------------------------
-console.log(`${pages.length} pages analysées.\n`);
+console.log(`${pages.length} pages analysées.`);
+console.log(`${stamped.size} ressources estampillées, empreintes de contenu à jour.`);
+console.log("");
 if (warnings.length) {
   console.log(`AVERTISSEMENTS (${warnings.length}) :`);
   warnings.forEach((w) => console.log(`  - ${w}`));

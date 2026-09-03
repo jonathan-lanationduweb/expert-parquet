@@ -162,7 +162,7 @@ function quotePage() {
                 </div>
                 <div class="file-previews" data-upload-previews></div>
                 <p class="field__hint" data-upload-count aria-live="polite"></p>
-                <p class="disclaimer">${ICONS.alert} Aucun serveur de stockage n’est connecté pour le moment&nbsp;: vos photos sont uniquement affichées dans votre navigateur et ne sont pas envoyées.</p>
+                <p class="disclaimer">${ICONS.alert} Vos photos restent dans votre navigateur&nbsp;: elles servent uniquement à l’aperçu ci-dessous et ne sont pas envoyées.</p>
               </div>
 
               <div class="form-nav">
@@ -208,12 +208,12 @@ function quotePage() {
               <div class="field">
                 <label class="consent" for="consentement">
                   <input type="checkbox" id="consentement" name="consentement" value="oui" required data-error-required="Votre accord est nécessaire pour traiter la demande.">
-                  <span>J’accepte que les informations transmises soient utilisées pour traiter ma demande et me recontacter. Elles ne sont ni revendues ni transmises à des tiers. Conformément au RGPD, je peux demander leur accès, leur rectification ou leur suppression. <em>Texte provisoire&nbsp;: à valider avec les mentions définitives du responsable de traitement.</em></span>
+                  <span>J’accepte que les informations transmises soient utilisées pour traiter ma demande et me recontacter. Elles ne sont ni revendues ni transmises à des tiers. Conformément au RGPD, je peux demander leur accès, leur rectification ou leur suppression&nbsp;— voir les <a href="mentions-legales.html">mentions légales</a>.</span>
                 </label>
                 <p class="field__error" role="alert"></p>
               </div>
 
-              <p class="disclaimer">${ICONS.help} Aucun backend n’est branché à ce formulaire pour l’instant. À la validation, les données saisies s’affichent telles quelles seraient transmises — rien ne quitte votre navigateur.</p>
+              <p class="disclaimer">${ICONS.help} Formulaire de démonstration&nbsp;: aucune demande n’est transmise pour le moment.</p>
 
               <div class="form-nav">
                 <button class="btn btn--ghost" type="button" data-form-prev>Retour</button>
@@ -266,16 +266,12 @@ function quotePage() {
 
 const CONTACT_FAQ = [
   {
-    q: 'Quel est le délai de réponse&nbsp;?',
-    a: '<p>Le délai de réponse n’est pas encore défini&nbsp;: <span class="placeholder-value">[À renseigner]</span>. Il sera précisé une fois l’organisation du suivi arrêtée.</p>',
-  },
-  {
     q: 'Contact ou demande de devis&nbsp;: lequel choisir&nbsp;?',
     a: '<p>Le formulaire de contact convient à une question générale ou au suivi d’un échange. Si votre demande concerne un problème précis sur un parquet, le <a href="devis.html">formulaire de demande</a> collecte directement les bonnes informations et vous fera gagner un aller-retour.</p>',
   },
   {
     q: 'Puis-je joindre des photos à un message de contact&nbsp;?',
-    a: '<p>Pas depuis ce formulaire&nbsp;: la sélection de photos est réservée à la demande d’expertise, où elle a un sens. À noter que tant qu’aucun serveur n’est connecté, aucun fichier ne peut être réellement transmis depuis ce site.</p>',
+    a: '<p>Pas depuis ce formulaire&nbsp;: la sélection de photos est réservée à la <a href="devis.html">demande d’expertise</a>, où elle a un sens. Les deux formulaires sont pour l’instant des démonstrations&nbsp;: rien n’est transmis.</p>',
   },
   {
     q: 'Que deviennent les informations envoyées&nbsp;?',
@@ -335,12 +331,12 @@ function contactPage() {
             <div class="field">
               <label class="consent" for="c-consentement">
                 <input type="checkbox" id="c-consentement" name="consentement" value="oui" required data-error-required="Votre accord est nécessaire pour traiter la demande.">
-                <span>J’accepte que mes informations soient utilisées pour répondre à ce message. Elles ne sont ni revendues ni transmises à des tiers. <em>Texte provisoire&nbsp;: à valider avec les mentions définitives.</em></span>
+                <span>J’accepte que mes informations soient utilisées pour répondre à ce message. Elles ne sont ni revendues ni transmises à des tiers.</span>
               </label>
               <p class="field__error" role="alert"></p>
             </div>
 
-            <p class="disclaimer">${ICONS.help} Ce formulaire n’est pas encore relié à un serveur. À la validation, le contenu s’affiche tel qu’il serait transmis&nbsp;; rien n’est envoyé.</p>
+            <p class="disclaimer">${ICONS.help} Formulaire de démonstration&nbsp;: aucun message n’est transmis pour le moment.</p>
 
             <div class="form-nav">
               <span></span>
@@ -351,27 +347,37 @@ function contactPage() {
         </div>
 
         <div class="contact-info">
+          <div data-contact-group>
+            <div class="contact-info__block" data-contact-block>
+              <p class="contact-info__label">E-mail</p>
+              <p class="contact-info__value"><a data-contact="email" data-contact-as="link" href="#">e-mail</a></p>
+            </div>
+            <div class="contact-info__block" data-contact-block>
+              <p class="contact-info__label">Téléphone</p>
+              <p class="contact-info__value"><span data-contact="phone"></span></p>
+            </div>
+            <div class="contact-info__block" data-contact-block>
+              <p class="contact-info__label">Adresse</p>
+              <p class="contact-info__value"><span data-contact="address"></span></p>
+            </div>
+            <div class="contact-info__block" data-contact-block>
+              <p class="contact-info__label">Horaires</p>
+              <p class="contact-info__value"><span data-contact="hours"></span></p>
+            </div>
+            <div class="contact-info__block" data-contact-block>
+              <p class="contact-info__label">Zone d’intervention</p>
+              <p class="contact-info__value"><span data-contact="coverage"></span></p>
+            </div>
+          </div>
+
           <div class="contact-info__block">
-            <p class="contact-info__label">E-mail</p>
-            <p class="contact-info__value"><a data-contact="email" data-contact-as="link" href="#">e-mail</a></p>
+            <p class="contact-info__label">Par où passer</p>
+            <p class="contact-info__value contact-info__value--text">Pour un problème de parquet, la <a href="${rel(D, 'pages/devis.html')}">demande d’expertise</a> est la voie la plus directe&nbsp;: elle rassemble d’emblée les éléments nécessaires à une réponse utile.</p>
           </div>
           <div class="contact-info__block">
-            <p class="contact-info__label">Téléphone</p>
-            <p class="contact-info__value"><span data-contact="phone"></span></p>
+            <p class="contact-info__label">Avant d’écrire</p>
+            <p class="contact-info__value contact-info__value--text">Le <a href="${rel(D, 'pages/diagnostic.html')}">pré-diagnostic</a> prend deux minutes et indique déjà les vérifications à mener. Il répond à une bonne partie des questions courantes.</p>
           </div>
-          <div class="contact-info__block">
-            <p class="contact-info__label">Adresse</p>
-            <p class="contact-info__value"><span data-contact="address"></span></p>
-          </div>
-          <div class="contact-info__block">
-            <p class="contact-info__label">Horaires</p>
-            <p class="contact-info__value"><span data-contact="hours"></span></p>
-          </div>
-          <div class="contact-info__block">
-            <p class="contact-info__label">Zone d’intervention</p>
-            <p class="contact-info__value"><span data-contact="coverage"></span></p>
-          </div>
-          <p class="disclaimer">Ces coordonnées sont volontairement laissées vides&nbsp;: aucune information de contact n’a été inventée. Elles se renseignent en un seul endroit, dans <code>js/config/site.js</code>.</p>
         </div>
       </div>
     </div>
