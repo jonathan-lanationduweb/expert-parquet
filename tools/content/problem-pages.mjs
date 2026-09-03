@@ -159,7 +159,7 @@ const PROBLEM_PAGES = [
     lead: 'Remontée, condensation ou infiltration&nbsp;: trois phénomènes différents, trois réponses techniques différentes. Se tromper d’origine, c’est traiter pendant des mois sans résultat.',
     image: 'degat-eaux.jpg',
     description:
-      'Humidité et parquet : distinguer remontée capillaire, condensation et infiltration. Signes, vérifications et erreurs fréquentes.',
+      'Humidité et parquet&nbsp;: distinguer remontée capillaire, condensation et infiltration. Signes, vérifications et erreurs fréquentes.',
     symptomes: [
       'Des auréoles ou des zones plus sombres, souvent en périphérie.',
       'Un gonflement progressif sans incident d’eau identifié.',
@@ -203,7 +203,7 @@ const PROBLEM_PAGES = [
   },
   {
     slug: 'parquet-abime',
-    title: 'Parquet abîmé : taches et rayures',
+    title: 'Parquet abîmé&nbsp;: taches et rayures',
     h1: 'Parquet abîmé&nbsp;: taches, rayures et usure',
     lead: 'Presque tout se joue sur une question&nbsp;: le défaut s’arrête-t-il à la finition, ou atteint-il le bois&nbsp;? La réponse sépare un raccord de trente minutes d’une rénovation complète.',
     image: 'taches.jpg',
