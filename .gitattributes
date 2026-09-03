@@ -1,0 +1,27 @@
+# Politique de fins de ligne du projet.
+#
+# Les sources texte sont stockées ET restituées en LF, sur toutes les machines.
+# Sans cette règle, `core.autocrlf` réécrit les fins de ligne au checkout, mais
+# seulement sur les fichiers que Git touche : l'arbre devient mixte après un
+# changement de branche. Les empreintes de contenu (tools/fingerprint.mjs)
+# normalisent déjà en LF avant de hacher ; ce fichier supprime l'ambiguïté à la
+# source plutôt que de la rattraper.
+
+*.html  text eol=lf
+*.css   text eol=lf
+*.js    text eol=lf
+*.mjs   text eol=lf
+*.json  text eol=lf
+*.xml   text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
+
+.gitignore      text eol=lf
+.gitattributes  text eol=lf
+
+# Binaires : aucune conversion, aucun diff textuel.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.ico   binary

@@ -449,6 +449,22 @@ rôle. Dès qu'il change, l'URL change et le navigateur est *obligé* de retél�
 HTML neuf ne peut plus être associé à un CSS ancien, puisqu'il ne cite même plus
 l'ancienne URL.
 
+**Empreinte calculée sur un contenu normalisé en LF.** Le hachage passe par
+`normaliseEol()` : les fins de ligne sont ramenées à `\n` **pour le calcul
+seulement**, aucun fichier source n'est réécrit. Sans cela l'empreinte dépendait
+des octets du disque, donc de `core.autocrlf` — Git réécrit les fins de ligne au
+checkout, mais seulement sur les fichiers qu'il touche, et l'arbre devenait mixte
+après un changement de branche. Conséquence : `check.mjs` signalait des
+« empreintes périmées » sur un clone neuf, et chaque machine produisait des diffs
+parasites sur les 26 pages. L'empreinte est désormais indépendante du système, de
+`core.autocrlf` et du mode de checkout.
+
+`.gitattributes` impose par ailleurs `text eol=lf` aux sources texte, pour
+supprimer l'ambiguïté à la source plutôt que de la rattraper. `check.mjs` vérifie
+l'invariant : le même contenu en LF, en CRLF ou en CR doit donner exactement la
+même empreinte.
+
+
 **Pas d'horodatage.** `?v=Date.now()` produirait une URL neuve à chaque build, y compris
 quand rien n'a bougé, et annulerait tout le bénéfice du cache. Deux builds successifs
 sans modification produisent ici un HTML **identique à l'octet**.
