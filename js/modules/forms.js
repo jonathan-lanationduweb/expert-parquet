@@ -378,24 +378,100 @@ function renderSuccess(form, output) {
   void panel;
 }
 
+/**
+ * Libellé lisible d’un champ : son libellé de récapitulatif s’il en a un,
+ * sinon le texte de son <label>, débarrassé de l’astérisque des champs
+ * obligatoires. Un visiteur ne doit jamais lire un nom technique de champ.
+ */
+function fieldLabel(form, field) {
+  if (field.dataset.recapKey) return field.dataset.recapKey;
+  const label = field.id ? form.querySelector(`label[for="${field.id}"]`) : field.closest('label');
+  if (!label) return null;
+  const clone = label.cloneNode(true);
+  clone.querySelectorAll('.field__required, input, .field__error').forEach((node) => node.remove());
+  return clone.textContent.replace(/\s+/g, ' ').trim().replace(/\s*\*$/, '');
+}
+
+/** Valeur affichable d’un champ (le texte de l’option pour un select). */
+function fieldValue(field) {
+  if (field.tagName === 'SELECT') {
+    if (!field.value) return '';
+    return field.selectedOptions[0] ? field.selectedOptions[0].textContent.trim() : '';
+  }
+  if (field.type === 'checkbox' || field.type === 'radio') return '';
+  return String(field.value || '').trim();
+}
+
+/**
+ * Récapitulatif lisible de ce que le visiteur vient de saisir.
+ * Remplace le vidage JSON de la première version : un visiteur n’a rien à
+ * faire d’un payload, mais relire sa demande a du sens.
+ */
+function recapList(form) {
+  const list = document.createElement('dl');
+  list.className = 'form-recap';
+  let count = 0;
+
+  form.querySelectorAll('input, select, textarea').forEach((field) => {
+    if (!field.name || field.disabled) return;
+    const value = fieldValue(field);
+    if (!value) return;
+    const label = fieldLabel(form, field);
+    if (!label) return;
+    const term = document.createElement('dt');
+    term.textContent = label;
+    const desc = document.createElement('dd');
+    desc.textContent = value;
+    list.append(term, desc);
+    count += 1;
+  });
+
+  // Grilles de choix : un seul intitulé par groupe, valeurs jointes.
+  form.querySelectorAll('[data-options][data-control]').forEach((group) => {
+    const checked = [...group.querySelectorAll('input:checked')];
+    if (!checked.length) return;
+    const field = group.closest('.field');
+    const legend = field && field.querySelector('.field__label');
+    const term = document.createElement('dt');
+    term.textContent = legend ? legend.textContent.replace(/\s*\*$/, '').trim() : 'Sélection';
+    const desc = document.createElement('dd');
+    desc.textContent = checked
+      .map((input) => {
+        const wrap = input.closest('.choice');
+        const label = wrap && wrap.querySelector('.choice__label');
+        return label ? label.textContent.trim() : input.value;
+      })
+      .join(', ');
+    list.append(term, desc);
+    count += 1;
+  });
+
+  return count ? list : null;
+}
+
 function renderDemoResult(form, output, payload, photoCount) {
   if (!output) return;
   form.hidden = true;
   const block = doneBlock(
-    'Formulaire validé côté navigateur',
-    'Aucun serveur n’est connecté pour le moment : rien n’a été envoyé et aucune donnée n’a quitté cette page. Voici exactement ce qui serait transmis une fois le backend branché.'
+    'Votre demande n’a pas été transmise',
+    'Ce formulaire est une démonstration : aucun envoi n’est actif pour le moment. Vos réponses sont restées dans votre navigateur — relisez-les ci-dessous, ou revenez les modifier.'
   );
 
   if (photoCount > 0) {
     const note = document.createElement('p');
     note.className = 'disclaimer';
-    note.textContent = `${photoCount} photo${photoCount > 1 ? 's ont' : ' a'} été sélectionnée${photoCount > 1 ? 's' : ''} et prévisualisée${photoCount > 1 ? 's' : ''} localement. Les fichiers n’ont pas été téléversés : aucun service de stockage n’est encore configuré.`;
+    const plural = photoCount > 1 ? 's' : '';
+    note.textContent = `${photoCount} photo${plural} affichée${plural} en aperçu, non envoyée${plural}.`;
     block.append(note);
   }
 
-  const pre = document.createElement('pre');
-  pre.textContent = JSON.stringify(payload, null, 2);
-  block.append(pre);
+  const recap = recapList(form);
+  if (recap) {
+    const heading = document.createElement('p');
+    heading.className = 'form-recap__title';
+    heading.textContent = 'Ce que vous avez saisi';
+    block.append(heading, recap);
+  }
 
   const again = document.createElement('button');
   again.type = 'button';
@@ -411,6 +487,7 @@ function renderDemoResult(form, output, payload, photoCount) {
   output.innerHTML = '';
   output.append(block);
   block.querySelector('h2').focus();
+  void payload;
 }
 
 function doneBlock(title, text) {

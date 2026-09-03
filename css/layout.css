@@ -352,3 +352,16 @@ body.nav-open .nav-overlay { opacity: 1; pointer-events: auto; }
 @media (max-width: 640px) {
   .footer__cols { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
 }
+
+/* --- Confort tactile ---------------------------------------------------------------
+   Les listes du pied et le fil d'Ariane alignent des liens de 19 px de haut espacés
+   de 15 px : conformes au critère d'espacement, mais serrés au doigt. Sur pointeur
+   grossier, le pas passe à environ 42 px en transférant l'écart des `gap` vers le
+   padding des liens — le rythme visuel reste proche, chaque cible devient confortable. */
+@media (pointer: coarse) {
+  .footer__list { gap: 0; }
+  .footer__list a { display: block; padding-block: 0.7rem; }
+  .footer__legal-links a { display: inline-block; padding-block: 0.6rem; }
+  .breadcrumb a,
+  .breadcrumb [aria-current="page"] { display: inline-block; padding-block: 0.5rem; }
+}

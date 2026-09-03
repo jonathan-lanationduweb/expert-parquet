@@ -6,6 +6,8 @@
  * HTML statiques livrés à la racine du projet. Voir tools/build.mjs.
  */
 
+import { assetStamps, STAMP_PARAM } from './fingerprint.mjs';
+
 export const SITE = {
   name: 'Expert Parquet',
   baseUrl: 'https://expert-parquet.com',
@@ -53,10 +55,38 @@ const FOOTER_COLUMNS = [
   },
 ];
 
+/**
+ * Texte nu, pour les données structurées : elles sont lues par des machines,
+ * pas rendues comme du HTML. Un `&nbsp;` y resterait littéral et se
+ * retrouverait indexé tel quel dans un fil d’Ariane ou un titre d’article.
+ */
+export function plainText(value) {
+  return String(value)
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/[ \t\n]+/g, ' ')
+    .trim();
+}
+
 /** Chemin relatif depuis une page située à `depth` niveaux sous la racine. */
 export function rel(depth, path) {
   const prefix = depth === 0 ? '' : '../'.repeat(depth);
   return prefix + path;
+}
+
+/**
+ * Empreintes de contenu des feuilles de style et du script d’entrée,
+ * calculées une seule fois par build. Voir tools/fingerprint.mjs pour le
+ * raisonnement.
+ */
+const STAMPS = assetStamps();
+
+/** Chemin relatif estampillé de l’empreinte du contenu, s’il y en a une. */
+export function relAsset(depth, path) {
+  const stamp = STAMPS.get(path);
+  const href = rel(depth, path);
+  return stamp ? `${href}?${STAMP_PARAM}=${stamp}` : href;
 }
 
 /**
@@ -119,6 +149,18 @@ ${items}
 <div class="nav-overlay" data-nav-overlay></div>`;
 }
 
+/**
+ * Rappel d’action mobile. Non émis sur la page de demande elle-même : y
+ * proposer « demander une expertise » n’aurait aucun sens.
+ */
+function stickyCta(depth, path) {
+  if (path === 'pages/devis.html') return '';
+  return `<a class="sticky-cta" href="${rel(depth, 'pages/devis.html')}" data-sticky-cta>
+  <span>Demander une expertise</span>
+  <span class="sticky-cta__arrow" aria-hidden="true"></span>
+</a>`;
+}
+
 function footer(depth) {
   const columns = FOOTER_COLUMNS.map(
     (column) => `        <div>
@@ -176,7 +218,7 @@ export function breadcrumb(depth, trail) {
     itemListElement: trail.map((item, index) => ({
       '@type': 'ListItem',
       position: index + 1,
-      name: item.label,
+      name: plainText(item.label),
       ...(item.href ? { item: `${SITE.baseUrl}/${item.href}` } : {}),
     })),
   };
@@ -225,7 +267,7 @@ export function renderPage(page) {
   const canonical = `${SITE.baseUrl}/${path === 'index.html' ? '' : path}`;
   const headTitle = fullTitle || `${title} | Expert Parquet`;
   const styles = ['variables.css', 'reset.css', 'base.css', 'layout.css', 'components.css', ...css]
-    .map((file) => `  <link rel="stylesheet" href="${rel(depth, `css/${file}`)}">`)
+    .map((file) => `  <link rel="stylesheet" href="${relAsset(depth, `css/${file}`)}">`)
     .join('\n');
 
   const structured = jsonLd
@@ -269,7 +311,7 @@ export function renderPage(page) {
 
 ${styles}
 
-  <script type="module" src="${rel(depth, 'js/main.js')}"></script>
+  <script type="module" src="${relAsset(depth, 'js/main.js')}"></script>
 ${structured}
 </head>
 <body${classes ? ` class="${classes}"` : ''}>
@@ -281,11 +323,25 @@ ${body}
   </main>
 
 ${footer(depth)}
+${stickyCta(depth, path)}
 </body>
 </html>
 `;
 }
 
+/**
+ * Échappe une valeur d’attribut.
+ *
+ * Les titres et descriptions contiennent des `&nbsp;` (typographie française :
+ * espace insécable devant les deux-points). Les échapper tels quels donnait
+ * `&amp;nbsp;`, et les aperçus de partage affichaient littéralement
+ * « parquet&nbsp;: … ». L’entité est donc d’abord ramenée au vrai caractère
+ * insécable, AVANT l’échappement des esperluettes — l’ordre compte.
+ */
 export function escapeAttr(value) {
-  return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  return String(value)
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;');
 }

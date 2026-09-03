@@ -39,12 +39,12 @@ function expertisePage() {
       <div class="article-layout">
         <div class="prose" id="article-body">
           <h2 id="pourquoi">Pourquoi demander une expertise&nbsp;?</h2>
-          <p>Dans beaucoup de situations, la question posée n’est pas « comment réparer&nbsp;? » mais « qu’est-ce qui se passe réellement&nbsp;? ». Tant que la cause n’est pas identifiée, toute réparation reste un pari : elle peut tenir, ou reproduire le même désordre quelques mois plus tard.</p>
+          <p>Dans beaucoup de situations, la question posée n’est pas « comment réparer&nbsp;? » mais « qu’est-ce qui se passe réellement&nbsp;? ». Tant que la cause n’est pas identifiée, toute réparation reste un pari&nbsp;: elle peut tenir, ou reproduire le même désordre quelques mois plus tard.</p>
           <p>Une expertise se justifie particulièrement lorsque plusieurs hypothèses restent ouvertes, lorsque le budget de travaux envisagé est significatif, ou lorsqu’un tiers est impliqué — entreprise de pose, assurance, bailleur, copropriété.</p>
 
           <div class="callout">
             <p class="callout__title">${ICONS.alert} Ce que l’expertise n’est pas</p>
-            <p>Ce site propose une analyse technique. Il ne délivre pas de rapport judiciaire, d’attestation officielle ni d’avis d’assurance. Si votre situation relève d’une procédure, dites-le dès votre demande : la réponse précisera ce qui est possible et ce qui ne lest pas.</p>
+            <p>Ce site propose une analyse technique. Il ne délivre pas de rapport judiciaire, d’attestation officielle ni d’avis d’assurance. Si votre situation relève d’une procédure, dites-le dès votre demande&nbsp;: la réponse précisera ce qui est possible et ce qui ne lest pas.</p>
           </div>
 
           <h2 id="situations">Dans quelles situations&nbsp;?</h2>
@@ -72,7 +72,7 @@ function expertisePage() {
             <div class="symptom-panel">
               <h3>${ICONS.check} Le support</h3>
               <ul class="rich-list">
-                <li>Nature : dalle, chape, plancher bois</li>
+                <li>Nature&nbsp;: dalle, chape, plancher bois</li>
                 <li>Planéité relevée à la règle</li>
                 <li>Humidité résiduelle</li>
                 <li>Présence d’une barrière anti-humidité</li>
@@ -91,7 +91,7 @@ function expertisePage() {
               <h3>${ICONS.search} La mise en œuvre</h3>
               <ul class="rich-list">
                 <li>Jeux périphériques et joints de fractionnement</li>
-                <li>Type de pose : collée, flottante, clouée</li>
+                <li>Type de pose&nbsp;: collée, flottante, clouée</li>
                 <li>Acclimatation du bois avant pose</li>
                 <li>Documents et fiches techniques du chantier</li>
               </ul>
@@ -165,7 +165,7 @@ ${ctaBand(D)}
     path: 'pages/expertise.html',
     depth: D,
     navCurrent: 'pages/expertise.html',
-    title: 'Expertise parquet : comprendre l’origine d’un problème',
+    title: 'Expertise parquet&nbsp;: comprendre l’origine d’un problème',
     description:
       'Pourquoi et quand demander une expertise de parquet, ce qui est observé, la différence entre symptôme et cause, le rôle du support et de l’humidité.',
     css: ['pages/home.css', 'pages/article.css'],
@@ -320,7 +320,7 @@ ${ctaBand(D, {
     path: 'pages/diagnostic.html',
     depth: D,
     navCurrent: 'pages/diagnostic.html',
-    title: 'Diagnostic parquet : méthode et pré-diagnostic en ligne',
+    title: 'Diagnostic parquet&nbsp;: méthode et pré-diagnostic en ligne',
     description:
       'Méthode de diagnostic d’un problème de parquet : où, depuis quand, évolution, contexte. Observations à faire soi-même et pré-diagnostic guidé en 5 questions.',
     css: ['pages/home.css', 'pages/article.css', 'pages/diagnostic.css'],
@@ -401,7 +401,7 @@ ${ctaBand(D)}
     path: 'pages/problemes.html',
     depth: D,
     navCurrent: 'pages/problemes.html',
-    title: 'Problèmes de parquet : symptômes, causes et vérifications',
+    title: 'Problèmes de parquet&nbsp;: symptômes, causes et vérifications',
     description:
       'Parquet qui grince, gondole, lames qui bougent, humidité, taches, dégât des eaux, défaut de pose : causes possibles et premières vérifications pour chaque symptôme.',
     css: ['pages/home.css'],
@@ -431,13 +431,13 @@ export const ADVICE_CATEGORIES = [
     slug: 'pose',
     label: 'Pose',
     image: 'pose-support.jpg',
-    teaser: 'Support, acclimatation, jeux périphériques : les conditions qui font tenir un parquet.',
+    teaser: 'Support, acclimatation, jeux périphériques&nbsp;: les conditions qui font tenir un parquet.',
   },
   {
     slug: 'choisir-parquet',
     label: 'Choisir un parquet',
     image: 'interieur-clair.jpg',
-    teaser: 'Massif, contrecollé, stratifié : ce qui distingue réellement ces familles.',
+    teaser: 'Massif, contrecollé, stratifié&nbsp;: ce qui distingue réellement ces familles.',
   },
 ];
 
@@ -506,7 +506,7 @@ ${ctaBand(D)}
     path: 'pages/conseils.html',
     depth: D,
     navCurrent: 'pages/conseils.html',
-    title: 'Conseils parquet : entretien, rénovation, pose, humidité',
+    title: 'Conseils parquet&nbsp;: entretien, rénovation, pose, humidité',
     description:
       'Articles techniques sur le parquet : diagnostic, entretien, rénovation, pose, humidité, défauts et choix du revêtement. Contenus pédagogiques et concrets.',
     css: ['pages/home.css'],
@@ -558,31 +558,15 @@ function aboutPage() {
   </section>
 
   <section class="section section--alt">
-    <div class="container">
+    <div class="container container--text">
       <div class="sec-head" data-reveal>
-        <p class="kicker">${ICONS.alert} Informations à compléter</p>
-        <h2>Cette page attend vos informations réelles</h2>
-        <p class="lead">Rien de ce qui suit n’a été inventé. Ces emplacements sont prévus pour recevoir des informations vérifiables avant la mise en ligne.</p>
+        <p class="kicker">Ce que nous n’affichons pas</p>
+        <h2>Aucun chiffre que nous ne pouvons prouver</h2>
       </div>
-      <div class="grid grid--2 u-mt-lg" data-reveal>
-        <div class="stage">
-          <p class="card__title">Structure juridique</p>
-          <p class="card__text">Raison sociale, forme juridique, SIRET, adresse du siège&nbsp;: <span class="placeholder-value">[À renseigner]</span></p>
-        </div>
-        <div class="stage">
-          <p class="card__title">Parcours et qualifications</p>
-          <p class="card__text">Formation, expérience, éventuelles certifications&nbsp;: <span class="placeholder-value">[À renseigner]</span>. Aucune qualification ne sera affichée sans justificatif.</p>
-        </div>
-        <div class="stage">
-          <p class="card__title">Assurance professionnelle</p>
-          <p class="card__text">Assureur, numéro de contrat, étendue de la couverture&nbsp;: <span class="placeholder-value">[À renseigner]</span></p>
-        </div>
-        <div class="stage">
-          <p class="card__title">Zone d’intervention</p>
-          <p class="card__text">Départements ou régions couverts, conditions de déplacement&nbsp;: <span class="placeholder-value">[À renseigner]</span></p>
-        </div>
+      <div class="prose u-mt-lg" data-reveal>
+        <p>Vous ne trouverez sur ce site ni nombre d’expertises réalisées, ni années d’expérience, ni témoignages, ni logos de partenaires. Non par modestie&nbsp;: parce que ces éléments ne valent que s’ils sont vérifiables, et qu’un visiteur n’a aucun moyen de les vérifier.</p>
+        <p>Le même principe s’applique aux qualifications&nbsp;: aucune certification ne sera mentionnée ici sans justificatif à l’appui. Ce que vous lisez sur ce site relève de la méthode et du raisonnement technique — c’est précisément ce qui peut se juger sur pièces.</p>
       </div>
-      <p class="disclaimer u-mt-lg">Tant que ces champs ne sont pas remplis, aucun chiffre, aucune date de création, aucun nombre de clients et aucune distinction ne figure sur ce site. Les valeurs sont centralisées dans <code>js/config/site.js</code>.</p>
     </div>
   </section>
 
@@ -598,9 +582,9 @@ ${ctaBand(D, {
     path: 'pages/a-propos.html',
     depth: D,
     navCurrent: 'pages/a-propos.html',
-    title: 'À propos dExpert Parquet',
+    title: 'À propos d’Expert Parquet',
     description:
-      'Le positionnement dExpert Parquet : traiter le parquet comme un système — revêtement, support, environnement, conditions de pose — et distinguer le symptôme de sa cause.',
+      'Le positionnement d’Expert Parquet : traiter le parquet comme un système — revêtement, support, environnement, conditions de pose — et distinguer le symptôme de sa cause.',
     css: ['pages/home.css', 'pages/article.css'],
     ogImage: 'assets/images/interieur-clair.jpg',
     body,
@@ -667,7 +651,7 @@ const FAQ_GROUPS = [
       },
       {
         q: 'Puis-je envoyer des photos avant une intervention&nbsp;?',
-        a: '<p>Oui, c’est recommandé. Le formulaire de demande prévoit une sélection de photos. Précision importante&nbsp;: tant qu’aucun serveur n’est connecté à ce site, les photos sont uniquement prévisualisées dans votre navigateur et ne sont pas transmises.</p>',
+        a: '<p>Oui, c’est recommandé&nbsp;: une photo d’ensemble, une photo rasante et un détail du désordre orientent souvent la lecture plus vite qu’une description. Le formulaire de demande prévoit une sélection de photos. Précision&nbsp;: ce formulaire est pour l’instant une démonstration, les photos restent affichées dans votre navigateur et ne sont pas transmises.</p>',
       },
       {
         q: 'Quelles informations préparer avant une demande&nbsp;?',
@@ -675,11 +659,11 @@ const FAQ_GROUPS = [
       },
       {
         q: 'Combien coûte une expertise&nbsp;?',
-        a: '<p>Aucun tarif n’est affiché sur ce site tant que la grille n’a pas été arrêtée&nbsp;: <span class="placeholder-value">[À renseigner]</span>. Le coût dépend de la nature de la demande, de la surface concernée et du déplacement. Il est communiqué avant toute intervention.</p>',
+        a: '<p>Le coût dépend de la nature de la demande, de la surface concernée et du déplacement&nbsp;: un avis sur photos et un relevé sur place avec mesures d’humidité ne représentent pas le même travail. Aucun montant n’est donc affiché ici, mais rien n’est engagé sans qu’un prix vous ait été communiqué et accepté au préalable.</p>',
       },
       {
         q: 'Intervenez-vous dans ma région&nbsp;?',
-        a: '<p>La zone d’intervention n’est pas encore renseignée&nbsp;: <span class="placeholder-value">[À renseigner]</span>. Indiquez votre code postal dans votre demande, la réponse précisera ce qui est possible.</p>',
+        a: '<p>Indiquez votre code postal dans votre demande&nbsp;: la réponse précisera ce qui est possible, et à quelles conditions de déplacement. Une partie des situations peut d’ailleurs être dégrossie à distance, sur description et photos, avant d’envisager une visite.</p>',
       },
     ],
   },
@@ -723,7 +707,7 @@ ${ctaBand(D)}
     path: 'pages/faq.html',
     depth: D,
     navCurrent: null,
-    title: 'FAQ parquet : symptômes, travaux et expertise',
+    title: 'FAQ parquet&nbsp;: symptômes, travaux et expertise',
     description:
       'Réponses aux questions fréquentes sur le parquet : grincement, lames qui se soulèvent, humidité, remplacement, réparation partielle et déroulement d’une expertise.',
     css: ['pages/home.css', 'pages/article.css'],
@@ -746,36 +730,32 @@ function legalPage() {
     crumbHtml: crumb.html,
     kicker: 'Informations légales',
     title: 'Mentions légales',
-    lead: 'Cette page est un gabarit. Elle doit être complétée avec des informations réelles et vérifiées avant toute mise en ligne publique.',
+    lead: 'Informations légales, traitement des données et portée des contenus publiés sur ce site.',
   })}
 
   <section class="section">
     <div class="container container--text">
-      <div class="callout callout--warning">
-        <p class="callout__title">${ICONS.alert} Document non finalisé</p>
-        <p>Aucune information juridique n’a été inventée. Chaque mention <span class="placeholder-value">[À renseigner]</span> doit être remplie par l’éditeur du site, si nécessaire avec l’aide d’un conseil.</p>
+      <div class="callout">
+        <p class="callout__title">Site en préparation</p>
+        <p>Ce site n’est pas encore exploité&nbsp;: aucune prestation n’y est vendue et aucun formulaire n’y transmet de données. Les mentions relatives à l’éditeur et à l’hébergeur seront publiées sur cette page avant son ouverture. Aucune information juridique n’a été inventée dans l’intervalle.</p>
       </div>
 
       <div class="prose u-mt-xl">
         <h2>Éditeur du site</h2>
-        <p>Raison sociale&nbsp;: <span class="placeholder-value">[À renseigner]</span><br>
-        Forme juridique&nbsp;: <span class="placeholder-value">[À renseigner]</span><br>
-        Siège social&nbsp;: <span class="placeholder-value">[À renseigner]</span><br>
-        SIRET&nbsp;: <span class="placeholder-value">[À renseigner]</span><br>
-        Directeur de la publication&nbsp;: <span class="placeholder-value">[À renseigner]</span><br>
-        Contact&nbsp;: <span data-contact="email"></span></p>
+        <p>L’identité de l’éditeur, sa forme juridique, son siège, son numéro d’immatriculation et le nom du directeur de la publication seront renseignés ici avant toute ouverture au public.</p>
+        <p data-contact-block>Contact&nbsp;: <span data-contact="email"></span></p>
+        <p>D’ici là, vous pouvez écrire via le <a href="contact.html">formulaire de contact</a>.</p>
 
         <h2>Hébergement</h2>
-        <p>Hébergeur&nbsp;: <span class="placeholder-value">[À renseigner]</span><br>
-        Adresse&nbsp;: <span class="placeholder-value">[À renseigner]</span></p>
+        <p>Le site est publié sous forme de fichiers statiques. Le nom et l’adresse de l’hébergeur seront précisés ici en même temps que les mentions de l’éditeur.</p>
 
         <h2>Propriété intellectuelle</h2>
         <p>Les textes de ce site sont originaux. Les photographies proviennent de banques d’images libres de droits&nbsp;; leurs sources sont listées dans le fichier <code>assets/images/CREDITS.md</code> du projet. Toute réutilisation des contenus rédactionnels nécessite l’accord préalable de l’éditeur.</p>
 
         <h2>Données personnelles</h2>
-        <p>Les formulaires de ce site collectent des données destinées uniquement au traitement des demandes. Responsable de traitement&nbsp;: <span class="placeholder-value">[À renseigner]</span>. Durée de conservation&nbsp;: <span class="placeholder-value">[À renseigner]</span>. Destinataires&nbsp;: <span class="placeholder-value">[À renseigner]</span>.</p>
-        <p>Conformément au règlement général sur la protection des données, vous disposez d’un droit d’accès, de rectification, d’effacement, de limitation, d’opposition et de portabilité, exerçable à l’adresse suivante&nbsp;: <span data-contact="email"></span>.</p>
-        <p><strong>État actuel&nbsp;:</strong> aucun formulaire de ce site n’est connecté à un serveur. Aucune donnée saisie n’est transmise ni stockée&nbsp;; tout reste dans le navigateur du visiteur.</p>
+        <p><strong>Aucune donnée n’est collectée à ce jour.</strong> Les formulaires du site fonctionnent en démonstration&nbsp;: ce que vous y saisissez reste dans votre navigateur, n’est ni transmis, ni enregistré, ni consulté par personne. Les photographies éventuellement sélectionnées ne sont pas téléversées.</p>
+        <p>Lorsque les demandes seront réellement traitées, cette page précisera le responsable du traitement, la finalité, les destinataires et la durée de conservation, avant toute mise en service.</p>
+        <p>Le règlement général sur la protection des données ouvre un droit d’accès, de rectification, d’effacement, de limitation, d’opposition et de portabilité. Il s’exercera auprès du responsable du traitement dès que celui-ci sera identifié&nbsp;; d’ici là, aucune donnée personnelle n’est détenue par ce site.</p>
 
         <h2>Cookies et mesure d’audience</h2>
         <p>Ce site n’utilise actuellement aucun cookie, aucun traceur et aucun outil de mesure d’audience. Si un outil d’analyse est ajouté ultérieurement, un dispositif de recueil du consentement sera mis en place au préalable.</p>

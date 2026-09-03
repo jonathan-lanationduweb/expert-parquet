@@ -6,7 +6,7 @@
  * HTML éditorial ; tout le reste est produit par le gabarit.
  */
 
-import { rel, breadcrumb, SITE } from '../layout.mjs';
+import { rel, breadcrumb, SITE, plainText } from '../layout.mjs';
 import { ICONS, ARTICLES, articleCard, faqAccordion, faqJsonLd, ctaBand } from '../partials.mjs';
 
 const D = 1;
@@ -389,7 +389,7 @@ ${ctaBand(D)}
       {
         '@context': 'https://schema.org',
         '@type': 'Article',
-        headline: article.title,
+        headline: plainText(article.title),
         description: content.standfirst.replace(/&nbsp;/g, ' ').replace(/<[^>]+>/g, ''),
         image: `${SITE.baseUrl}/assets/images/${article.image}`,
         datePublished: article.date,

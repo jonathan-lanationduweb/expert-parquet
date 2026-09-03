@@ -155,7 +155,8 @@ variables.css → reset.css → base.css → layout.css → components.css → p
 | --- | --- | --- |
 | `navigation.js` | `[data-nav-toggle]`, `[data-nav]` | Drawer mobile (piège de focus, `Escape`, `inert`, overlay), état du header au scroll |
 | `index-list.js` | `[data-index-list]` | Vignette suivant le curseur sur la liste éditoriale. Strictement desktop, pointeur fin, hors `prefers-reduced-motion` ; purement décoratif (`aria-hidden`) |
-| `contact-info.js` | `[data-contact="…"]` | Injecte les coordonnées ou le placeholder `[À renseigner]` |
+| `contact-info.js` | `[data-contact="…"]` | Injecte les coordonnées réelles, **ou masque le bloc** si l'information n'est pas fournie (voir §14) |
+| `sticky-cta.js` | `[data-sticky-cta]` | Rappel d'action mobile : visible seulement entre le hero et le bandeau final (voir §15) |
 | `animations.js` | `[data-reveal]` | Apparition au scroll via `IntersectionObserver`, désactivée si `prefers-reduced-motion` |
 | `accordion.js` | `[data-accordion]` | FAQ accessible : `aria-expanded`, flèches haut/bas, `Home`/`End`, ouverture par ancre |
 | `carousel.js` | `[data-showcase]` | Carrousel « Situations à analyser » : scroll natif + `scroll-snap`, boutons, clavier, compteur 01/05, barre de progression. Mesures mises en cache au redimensionnement pour ne pas dépendre de `requestAnimationFrame` |
@@ -190,11 +191,14 @@ Résumé des tokens (`css/variables.css`) :
   `prefers-reduced-motion`.
 
 Composants disponibles : boutons (7 variantes × 3 tailles), badges, media ratios,
-cartes d'article (standard, vedette, ligne), encadrés (`callout`, `disclaimer`,
-`placeholder-value`), colonnes d'étapes numérotées (`.stages`), liste éditoriale
-numérotée avec vignette au survol (`.index-list`), carrousel plein format
-(`.showcase`), champs de formulaire soulignés, tuiles de choix, zone de dépôt de
-photos, stepper, bandeau CTA, chips de filtre, accordéon.
+cartes d'article (standard, vedette, ligne), encadrés (`callout`, `disclaimer`),
+colonnes d'étapes numérotées (`.stages`), liste éditoriale numérotée avec vignette au
+survol (`.index-list`), carrousel plein format (`.showcase`), champs de formulaire
+soulignés, tuiles de choix, zone de dépôt de photos, stepper, bandeau CTA, chips de
+filtre, accordéon, rappel d'action mobile (`.sticky-cta`, voir §15).
+
+Le composant `placeholder-value` a été retiré : plus aucune page publique n'affiche
+de valeur à renseigner (voir §14).
 
 ### Compositions de page d'accueil (`css/pages/home.css`)
 
@@ -334,6 +338,9 @@ Un seul point à modifier pour brancher un backend : `FORMS.endpoint` dans
   lien d'évitement ;
 - JSON-LD syntaxiquement valide ;
 - chaque champ de formulaire associé à un `label` ;
+- **empreintes de contenu** : chaque feuille de style et le script d'entrée doivent en
+  porter une, et elle doit correspondre au fichier actuel — un HTML généré avant une
+  modification de CSS ou de JS est donc signalé comme « empreinte périmée » (voir §13) ;
 - cohérence bidirectionnelle entre `sitemap.xml` et les fichiers présents.
 
 ---
@@ -418,3 +425,122 @@ reste celui du fichier, le logo ne peut donc pas être étiré.
 page a un hero sombre (`headerOver`), c'est-à-dire l'accueil seul. La bascule entre
 les deux versions est purement CSS, pilotée par les classes que `navigation.js` pose
 déjà (`.site-header--over`, `.is-scrolled`) — aucun JavaScript ajouté.
+
+---
+
+## 13. Empreintes de contenu (cache)
+
+**Problème.** GitHub Pages sert **tout** en `Cache-Control: max-age=600`, HTML compris
+(vérifié sur `index.html`, `layout.css` et `main.js`). Un visiteur pouvait donc recevoir
+un HTML fraîchement déployé accompagné d'une feuille de style mise en cache jusqu'à dix
+minutes plus tôt, et voir la page avec l'ancien CSS. C'est exactement ce qui est arrivé
+au déploiement du logo.
+
+**Solution.** `tools/fingerprint.mjs` calcule une empreinte SHA-256 (8 hexadécimaux) du
+**contenu**, et `relAsset()` dans `tools/layout.mjs` l'ajoute à l'URL :
+
+```html
+<link rel="stylesheet" href="../css/layout.css?v=d0c52ad4">
+<script type="module" src="../js/main.js?v=2a6f865b"></script>
+```
+
+Tant qu'un fichier ne change pas, son URL ne change pas et le cache joue pleinement son
+rôle. Dès qu'il change, l'URL change et le navigateur est *obligé* de retélécharger : un
+HTML neuf ne peut plus être associé à un CSS ancien, puisqu'il ne cite même plus
+l'ancienne URL.
+
+**Empreinte calculée sur un contenu normalisé en LF.** Le hachage passe par
+`normaliseEol()` : les fins de ligne sont ramenées à `\n` **pour le calcul
+seulement**, aucun fichier source n'est réécrit. Sans cela l'empreinte dépendait
+des octets du disque, donc de `core.autocrlf` — Git réécrit les fins de ligne au
+checkout, mais seulement sur les fichiers qu'il touche, et l'arbre devenait mixte
+après un changement de branche. Conséquence : `check.mjs` signalait des
+« empreintes périmées » sur un clone neuf, et chaque machine produisait des diffs
+parasites sur les 26 pages. L'empreinte est désormais indépendante du système, de
+`core.autocrlf` et du mode de checkout.
+
+`.gitattributes` impose par ailleurs `text eol=lf` aux sources texte, pour
+supprimer l'ambiguïté à la source plutôt que de la rattraper. `check.mjs` vérifie
+l'invariant : le même contenu en LF, en CRLF ou en CR doit donner exactement la
+même empreinte.
+
+
+**Pas d'horodatage.** `?v=Date.now()` produirait une URL neuve à chaque build, y compris
+quand rien n'a bougé, et annulerait tout le bénéfice du cache. Deux builds successifs
+sans modification produisent ici un HTML **identique à l'octet**.
+
+**Deux granularités, pour une raison précise :**
+
+- **une empreinte par feuille de style** — elles sont indépendantes (aucun `@import`
+  dans ce projet), modifier `home.css` ne doit donc pas invalider `base.css` ;
+- **une seule empreinte pour tout `js/`, portée par `main.js`** — les modules
+  s'importent entre eux (`main.js` → `modules/*.js` → `config/*.js`). Une empreinte par
+  fichier laisserait `main.js` inchangé quand seul `navigation.js` bouge, et l'URL citée
+  par le HTML ne bougerait pas. En couvrant l'arbre entier, la modification de n'importe
+  quel module change l'URL du point d'entrée.
+
+**Limite connue et assumée.** Les sous-modules sont chargés par des `import` statiques, à
+des URL sans empreinte : ils restent soumis au `max-age=600` de GitHub Pages, comme le
+HTML lui-même. Fermer complètement cette fenêtre imposerait de réécrire les
+spécificateurs d'import, donc de servir des copies générées des sources — un dossier de
+build que ce projet n'a pas. Le gain visé, la désynchronisation HTML / CSS, est acquis.
+
+`node tools/check.mjs` refuse une ressource sans empreinte **et** une empreinte qui ne
+correspond plus au fichier : un build oublié est donc détecté avant le déploiement.
+
+---
+
+## 14. Informations absentes
+
+Le site ne doit **jamais** afficher de valeur inventée, mais il ne doit pas non plus
+afficher de libellé technique à sa place. La règle est : soit l'information est réelle et
+affichée, soit elle n'existe pas et **rien ne s'affiche**.
+
+- `js/modules/contact-info.js` masque le bloc `[data-contact-block]` d'une coordonnée
+  absente, et masque le groupe `[data-contact-group]` entier si toutes le sont. Le jour
+  où `js/config/site.js` est rempli, les blocs réapparaissent seuls, sans toucher au HTML.
+- Les pages publiques ne contiennent plus aucun `[À renseigner]`, aucun nom de fichier de
+  configuration, aucune mention de serveur ou de *backend*. Ce qui devait être dit l'est
+  en langue naturelle : « Formulaire de démonstration : aucune demande n'est
+  transmise pour le moment. »
+- L'écran de fin des formulaires affiche un **récapitulatif lisible** de la saisie, et non
+  le JSON qui serait transmis. Son titre dit explicitement que la demande n'a pas été
+  envoyée.
+- Ce qui reste à brancher est consigné dans [TODO-INTEGRATIONS.md](TODO-INTEGRATIONS.md),
+  pas sur les pages publiques.
+
+---
+
+## 15. Rappel d'action mobile
+
+`js/modules/sticky-cta.js` + `.sticky-cta` dans `components.css`.
+
+Barre graphite fixée en bas d'écran, **sous 768 px uniquement**. Volontairement pas un
+bandeau terre cuite : l'accent doit rester rare, et une barre orange présente sur
+toutes les pages mobiles en ferait l'élément dominant du site.
+
+Elle n'apparaît que dans la zone où le visiteur lit du contenu **sans aucun appel à
+l'action sous les yeux** — deux `IntersectionObserver` (et non un écouteur de défilement)
+la masquent tant que le hero est visible, et de nouveau dès que le bandeau final ou le
+pied de page approche à moins de 140 px. Hors de cette zone elle est en
+`visibility: hidden`, donc pas focalisable au clavier. La page de demande n'en reçoit pas.
+
+`padding-bottom` intègre `env(safe-area-inset-bottom)` pour l'encoche iOS.
+
+---
+
+## 16. Confort tactile
+
+Trois blocs `@media (pointer: coarse)`, un par fichier concerné — le desktop n'est jamais
+touché :
+
+- `base.css` — le lien fléché mesure 31 px de haut et porte son trait en `border-bottom` :
+  on ne peut donc pas l'espacer par du padding sans décoller le trait du texte. Une couche
+  absolue centrée porte la zone tactile à 44 px **sans rien déplacer à l'écran**.
+- `components.css` — `.btn--sm` passe de 37 px à `min-height: 44px`.
+- `layout.css` — listes du pied, liens légaux et fil d'Ariane : l'écart des `gap` est
+  transféré vers le padding des liens, le pas passe de 34 px à environ 42 px. Le rythme
+  visuel reste proche, chaque cible devient confortable.
+
+Les cartes d'article n'ont pas besoin de règle : `.card__link::after { inset: 0 }` rend
+déjà la carte entière cliquable.
