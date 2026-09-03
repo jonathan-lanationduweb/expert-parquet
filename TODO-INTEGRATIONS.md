@@ -150,8 +150,9 @@ de bandeau de consentement.
 ### 10. Données structurées `Organization`
 
 Volontairement absentes : elles exigent des informations d'entreprise réelles.
-À ajouter dans `tools/layout.mjs` (nom légal, URL, logo, `contactPoint`, zone desservie)
-une fois le point 1 réglé.
+À ajouter dans `tools/layout.mjs` (nom légal, URL, `contactPoint`, zone desservie) une
+fois le point 1 réglé. Le `logo` est désormais disponible :
+`assets/brand/expert-parquet-logo-on-light.png`.
 
 ### 11. Vidéo du hero
 

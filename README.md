@@ -96,6 +96,19 @@ node tools/check.mjs
 > Le HTML généré est le livrable : il peut être édité directement si l'on renonce au
 > générateur. Dans ce cas, supprimer `tools/` et maintenir les pages à la main.
 
+### Régénérer le logo et les favicons
+
+Les deux masters de l'identité vivent dans `assets/brand/` :
+`expert-parquet-mark.png` (symbole) et `expert-parquet-logo.png` (logotype
+horizontal). Toutes les déclinaisons servies au visiteur en sont dérivées :
+
+```bash
+node tools/make-icons.mjs
+```
+
+Ne pas retoucher les fichiers produits à la main : ils seraient écrasés au prochain
+lancement. Pour changer le logo, remplacer un master puis relancer la commande.
+
 ---
 
 ## 5. Structure
@@ -117,8 +130,9 @@ expert-parquet.com/
 │   └── conseils/                 4 pages catégorie
 ├── articles/                     5 articles de fond
 ├── assets/
+│   ├── brand/                    Logo : masters + déclinaisons générées
 │   ├── images/                   Photographies (+ CREDITS.md)
-│   ├── icons/                    Favicon SVG + apple-touch-icon
+│   ├── icons/                    Favicons PNG + ICO + apple-touch-icon
 │   └── video/                    Vide — voir VIDEO_BRIEF.md
 ├── css/
 │   ├── variables.css             Design tokens (source unique)

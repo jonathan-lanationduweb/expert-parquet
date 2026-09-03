@@ -68,6 +68,7 @@ garantirait des divergences.
 tools/
 ├── build.mjs            Orchestration + sitemap + robots
 ├── check.mjs            Contrôle qualité (voir §9)
+├── make-icons.mjs       Déclinaisons du logo et des favicons (voir §12)
 ├── layout.mjs           <head>, header, footer, breadcrumb, JSON-LD
 ├── partials.mjs         Icônes SVG, liste éditoriale, CTA, processus, carrousel,
 │                        catalogue d'articles, accordéon FAQ, en-têtes de page
@@ -308,7 +309,7 @@ Un seul point à modifier pour brancher un backend : `FORMS.endpoint` dans
 - HTML sémantique, **un seul `h1` par page**, hiérarchie `h2`/`h3` cohérente.
 - `title` et `meta description` spécifiques, `canonical` absolu.
 - Open Graph complet + Twitter Card `summary_large_image`.
-- Favicon SVG + `apple-touch-icon`, `theme-color`.
+- Favicons PNG 16/32 + `favicon.ico` (16/32/48) + `apple-touch-icon`, `theme-color`.
 - `robots.txt` (bloque `/tools/`) et `sitemap.xml` générés, priorités différenciées.
 - Fils d'Ariane visibles **et** balisés `BreadcrumbList`.
 - Données structurées : `WebSite` (accueil), `Article` (articles), `FAQPage` (pages
@@ -362,3 +363,58 @@ Un seul point à modifier pour brancher un backend : `FORMS.endpoint` dans
 - Polices : `preconnect` vers Google Fonts, `display=swap`, deux familles, quatre graisses.
 - Animations limitées à `opacity` et `transform`.
 - Aucun bundle, aucune bibliothèque tierce, aucun traceur.
+
+---
+
+## 12. Identité visuelle
+
+Deux **masters** dans `assets/brand/`, seuls fichiers à conserver et à remplacer si
+l'identité évolue : `expert-parquet-mark.png` (symbole) et `expert-parquet-logo.png`
+(logotype horizontal). Ils ne sont pas servis aux visiteurs.
+
+Tout le reste est **dérivé** par `node tools/make-icons.mjs` (zéro dépendance :
+décodeur / encodeur PNG, Lanczos-3 et écriture ICO sont dans le fichier) :
+
+| Sortie | Dimensions | Emploi |
+| --- | --- | --- |
+| `brand/expert-parquet-logo-on-light.png` | 338 × 128 | En-tête sur fond clair |
+| `brand/expert-parquet-logo-on-dark.png` | 338 × 128 | En-tête sur le hero, pied de page |
+| `icons/favicon-16x16.png` · `favicon-32x32.png` | 16, 32 | Onglet |
+| `icons/favicon.ico` | 16 + 32 + 48 | Onglet, favoris, Windows |
+| `icons/apple-touch-icon.png` | 180 × 180 | Écran d'accueil iOS |
+
+Les deux fichiers de logotype font 338 × 128 pour couvrir en 2× leur plus grande
+utilisation (la signature du pied, 64 px). Le CSS ne pose **que la hauteur**
+(`--brand-h`, `--brand-h-small`, `--brand-logo-h`), jamais la largeur : le rapport
+reste celui du fichier, le logo ne peut donc pas être étiré.
+
+### Trois décisions non évidentes
+
+1. **Sur fond sombre, seul le logotype est inversé.** Le texte du logo est graphite :
+   sur le hero il tomberait à ~2:1 de contraste. Mais éclaircir *aussi* le « P » du
+   symbole le transforme en pièce métallique et change la matière de la marque. Le
+   « P » sombre reste parfaitement lisible sur fond sombre, car les lames crème et la
+   lame terre cuite en dessinent le contour. C'est donc `lightenInk()` appliqué à
+   partir de la césure symbole / logotype seulement — césure détectée
+   automatiquement, pas codée en dur.
+
+2. **Les favicons sont une déclinaison simplifiée, sur tuile opaque.** Le symbole mêle
+   du crème et du graphite : en transparence il perd ses lames sur fond clair et son
+   « P » sur fond sombre. La tuile crème (`--color-white`) lui donne un rendu
+   identique quel que soit le thème du navigateur, et supprime toute question de
+   frange. À 16 px les lames crème (#E8E1D6) disparaissent dans cette tuile : elles
+   sont donc ramenées au gris pierre de la charte (`--color-stone`) — assez sombre
+   pour se lire, assez clair pour ne pas concurrencer le « P ».
+
+3. **Pas de SVG.** Le symbole est un rendu matiéré (veinage, chants, biseaux), pas un
+   logotype à aplats. Une vectorisation par segmentation des trois matières est
+   géométriquement fidèle, mais elle perd l'épaisseur des lames et le veinage : ce
+   n'est plus le même dessin. Les PNG sont donc la seule forme livrée. Ne pas
+   « rattraper » ce point par une vectorisation automatique.
+
+### La version réservée n'est émise que là où elle sert
+
+`brand()` dans `tools/layout.mjs` ne place le second `<img>` dans l'en-tête que si la
+page a un hero sombre (`headerOver`), c'est-à-dire l'accueil seul. La bascule entre
+les deux versions est purement CSS, pilotée par les classes que `navigation.js` pose
+déjà (`.site-header--over`, `.is-scrolled`) — aucun JavaScript ajouté.

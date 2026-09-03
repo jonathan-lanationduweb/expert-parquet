@@ -151,6 +151,12 @@
   /* --- Divers ---------------------------------------------------------------- */
   --header-h:       84px;
   --header-h-small: 66px;
+  /* Logo. Le logotype horizontal tient deux lignes de texte : sa hauteur de
+     capitale ne vaut que 0,30 de sa hauteur totale. 42 px donnent donc une
+     capitale d’environ 13 px, équilibrée avec la navigation. */
+  --brand-h:        42px;
+  --brand-h-small:  34px;
+  --brand-logo-h:   clamp(3.5rem, 2rem + 4vw, 5.5rem); /* signature du pied */
   --z-header: 100;
   --z-drawer: 200;
   --z-overlay: 190;

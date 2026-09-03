@@ -59,9 +59,38 @@ export function rel(depth, path) {
   return prefix + path;
 }
 
-function brand(depth, { footer = false } = {}) {
-  const cls = footer ? 'footer__wordmark' : 'brand';
-  return `<a class="${cls}" href="${rel(depth, 'index.html')}"${footer ? '' : ' aria-label="Expert Parquet, retour à l’accueil"'}><span class="brand__strong">Expert</span><span class="brand__light">Parquet</span></a>`;
+/**
+ * Logotype horizontal, en deux versions produites par tools/make-icons.mjs.
+ * Sur fond sombre seul le LOGOTYPE est inversé, le symbole reste intact :
+ * éclaircir le « P » en changerait la matière (voir make-icons.mjs).
+ *
+ * La version réservée n’est émise dans l’en-tête que sur les pages à hero
+ * sombre — ailleurs elle serait chargée pour rien. C’est le même fichier que
+ * celui du pied de page, donc une seule requête par visite.
+ */
+const LOGO = { width: 338, height: 128 };
+const LOGO_ON_LIGHT = 'assets/brand/expert-parquet-logo-on-light.png';
+const LOGO_ON_DARK = 'assets/brand/expert-parquet-logo-on-dark.png';
+
+function logoImg(depth, { inverse = false, className, priority }) {
+  const src = inverse ? LOGO_ON_DARK : LOGO_ON_LIGHT;
+  const loading = priority ? ' fetchpriority="high"' : ' loading="lazy"';
+  return `<img class="${className}" src="${rel(depth, src)}" alt="" width="${LOGO.width}" height="${LOGO.height}"${loading} decoding="async">`;
+}
+
+function brand(depth, { over = false } = {}) {
+  const light = logoImg(depth, { className: 'brand__logo', priority: true });
+  const dark = over
+    ? `
+      ${logoImg(depth, { inverse: true, className: 'brand__logo brand__logo--inverse', priority: true })}`
+    : '';
+  return `<a class="brand" href="${rel(depth, 'index.html')}" aria-label="Expert Parquet, retour à l’accueil">
+      ${light}${dark}
+    </a>`;
+}
+
+function footerBrand(depth) {
+  return `<a class="footer__wordmark" href="${rel(depth, 'index.html')}" aria-label="Expert Parquet, retour à l’accueil">${logoImg(depth, { inverse: true, className: 'footer__logo' })}</a>`;
 }
 
 function header(depth, current, over) {
@@ -71,7 +100,7 @@ function header(depth, current, over) {
 
   return `<header class="site-header${over ? ' site-header--over' : ''}" data-header>
   <div class="container site-header__inner">
-    ${brand(depth)}
+    ${brand(depth, { over })}
     <nav class="nav" id="site-nav" data-nav aria-label="Navigation principale">
       <ul class="nav__list">
 ${items}
@@ -104,7 +133,7 @@ ${column.links.map((link) => `            <li><a href="${rel(depth, link.href)}"
   <div class="container">
     <div class="footer__top">
       <div>
-        ${brand(depth, { footer: true })}
+        ${footerBrand(depth)}
         <p class="footer__pitch">Comprendre l’origine d’un problème de parquet avant de décider comment intervenir.</p>
         <p class="footer__cta"><a class="btn btn--on-dark" href="${rel(depth, 'pages/contact.html')}">Nous écrire</a></p>
       </div>
@@ -228,8 +257,10 @@ export function renderPage(page) {
   <meta name="twitter:description" content="${escapeAttr(description)}">
   <meta name="twitter:image" content="${SITE.baseUrl}/${ogImage}">
 
-  <link rel="icon" href="${rel(depth, 'assets/icons/favicon.svg')}" type="image/svg+xml">
+  <link rel="icon" type="image/png" sizes="32x32" href="${rel(depth, 'assets/icons/favicon-32x32.png')}">
+  <link rel="icon" type="image/png" sizes="16x16" href="${rel(depth, 'assets/icons/favicon-16x16.png')}">
   <link rel="apple-touch-icon" href="${rel(depth, 'assets/icons/apple-touch-icon.png')}">
+  <link rel="shortcut icon" href="${rel(depth, 'assets/icons/favicon.ico')}">
   <meta name="theme-color" content="#17181A">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
