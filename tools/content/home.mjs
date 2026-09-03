@@ -19,16 +19,16 @@ const DOMAINS = [
   {
     num: '01',
     title: 'Diagnostic du parquet',
-    text: 'Identifier ce que l’on observe réellement, puis remonter aux causes possibles. Un grincement, une lame qui bouge ou une tache sont des signaux : leur origine se trouve presque toujours ailleurs que là où on les voit.',
+    text: 'Identifier ce que l’on observe réellement, puis remonter aux causes possibles. Un grincement, une lame qui bouge ou une tache sont des signaux&nbsp;: leur origine se trouve presque toujours ailleurs que là où on les voit.',
     points: ['Lecture des symptômes', 'Mesures d’humidité', 'Contrôle des jeux et de la planéité'],
-    image: 'inspection.jpg',
+    image: 'domaine-diagnostic.jpg',
     href: 'pages/diagnostic.html',
     cta: 'La méthode de diagnostic',
   },
   {
     num: '02',
     title: 'Désordres et défauts',
-    text: 'Humidité, soulèvement, grincement, lames mobiles, défauts de pose. Chaque désordre a sa grille de lecture : étendue, chronologie, réversibilité. Ce sont ces trois questions qui réduisent le champ des hypothèses.',
+    text: 'Humidité, soulèvement, grincement, lames mobiles, défauts de pose. Chaque désordre a sa grille de lecture&nbsp;: étendue, chronologie, réversibilité. Ce sont ces trois questions qui réduisent le champ des hypothèses.',
     points: ['Sept familles de désordres documentées', 'Erreurs fréquentes à éviter', 'Vérifications réalisables sans outillage'],
     image: 'domaine-desordres.jpg',
     href: 'pages/problemes.html',
@@ -45,33 +45,22 @@ const DOMAINS = [
   },
 ];
 
-const EXPERTISES = [
-  'Diagnostic parquet',
-  'Humidité et déformations',
-  'Défauts de pose',
-  'Parquet après dégât des eaux',
-  'Expertise avant rénovation',
-  'Analyse d’un parquet ancien',
-  'Désordres esthétiques',
-  'Préparation avant remplacement',
-];
-
 const FAQ = [
   {
     q: 'Le pré-diagnostic en ligne remplace-t-il une expertise&nbsp;?',
-    a: '<p>Non. Il oriente : à partir de quelques réponses, il propose des causes possibles et des vérifications utiles. Seule une observation sur place, avec des mesures, permet d’identifier une cause. C’est écrit à la fin du parcours.</p>',
+    a: '<p>Non. Il oriente&nbsp;: à partir de quelques réponses, il propose des causes possibles et des vérifications utiles. Seule une observation sur place, avec des mesures, permet d’identifier une cause. C’est écrit à la fin du parcours.</p>',
   },
   {
     q: 'Faut-il démonter le parquet pour comprendre un problème&nbsp;?',
-    a: '<p>Dans la plupart des cas, non. Beaucoup d’informations s’obtiennent sans dépose : jeux périphériques, planéité, mesures d’humidité de l’air et du support, sondage au niveau d’un seuil ou d’une bouche d’aération. Une dépose ponctuelle n’intervient que si elle est indispensable et après accord.</p>',
+    a: '<p>Dans la plupart des cas, non. Beaucoup d’informations s’obtiennent sans dépose&nbsp;: jeux périphériques, planéité, mesures d’humidité de l’air et du support, sondage au niveau d’un seuil ou d’une bouche d’aération. Une dépose ponctuelle n’intervient que si elle est indispensable et après accord.</p>',
   },
   {
     q: 'Puis-je envoyer des photos avant une intervention&nbsp;?',
-    a: '<p>Oui, c’est recommandé : elles font gagner du temps et permettent de préparer la visite. Le formulaire de demande prévoit une sélection de photos. <strong>À noter :</strong> tant qu’aucun serveur n’est connecté, les photos sont uniquement prévisualisées dans votre navigateur et ne sont pas transmises.</p>',
+    a: '<p>Oui, c’est recommandé&nbsp;: elles font gagner du temps et permettent de préparer la visite. Le formulaire de demande prévoit une sélection de photos. <strong>À noter&nbsp;:</strong> ce formulaire est pour l’instant une démonstration, les photos restent affichées dans votre navigateur et ne sont pas transmises.</p>',
   },
   {
     q: 'Intervenez-vous partout en France&nbsp;?',
-    a: '<p>La zone d’intervention n’est pas encore renseignée sur ce site. Précisez votre code postal dans votre demande : la réponse indiquera ce qui est possible pour votre secteur.</p>',
+    a: '<p>La zone d’intervention n’est pas encore renseignée sur ce site. Précisez votre code postal dans votre demande&nbsp;: la réponse indiquera ce qui est possible pour votre secteur.</p>',
   },
 ];
 
@@ -93,13 +82,6 @@ ${domain.points.map((point) => `              <li>${point}</li>`).join('\n')}
         </article>`
   ).join('\n');
 
-  const expertises = EXPERTISES.map(
-    (item, index) => `          <li class="index-row" data-static>
-            <span class="index-row__num">${String(index + 1).padStart(2, '0')}</span>
-            <span class="index-row__title">${item}</span>
-          </li>`
-  ).join('\n');
-
   const body = `  <!-- ============================================== HERO IMMERSIF -->
   <section class="hero">
     <!--
@@ -116,7 +98,7 @@ ${domain.points.map((point) => `              <li>${point}</li>`).join('\n')}
         </video>
 
       Aucune vidéo n’est fournie à ce stade et aucun fichier factice n’a été créé.
-      Cahier des charges du tournage : VIDEO_BRIEF.md.
+      Cahier des charges du tournage&nbsp;: VIDEO_BRIEF.md.
     -->
     <div class="hero__media">
       <img src="${rel(D, 'assets/images/hero.jpg')}" alt="" width="2000" height="1333" fetchpriority="high" decoding="async">
@@ -161,7 +143,7 @@ ${domain.points.map((point) => `              <li>${point}</li>`).join('\n')}
 ${sectionHead({
     kicker: 'Nos domaines',
     title: 'Trois manières d’aborder un parquet',
-    text: 'Selon l’avancement de votre réflexion, l’entrée n’est pas la même : identifier un symptôme, comprendre un désordre installé, ou évaluer une situation avant travaux.',
+    text: 'Selon l’avancement de votre réflexion, l’entrée n’est pas la même&nbsp;: identifier un symptôme, comprendre un désordre installé, ou évaluer une situation avant travaux.',
   })}
       <div class="u-mt-2xl">
 ${domains}
@@ -175,7 +157,7 @@ ${domains}
 ${sectionHead({
     kicker: 'Par symptôme',
     title: 'Quel problème rencontrez-vous&nbsp;?',
-    text: 'Huit désordres courants, chacun traité de la même façon : symptômes, causes possibles, erreurs fréquentes, premières vérifications.',
+    text: 'Huit désordres courants, chacun traité de la même façon&nbsp;: symptômes, causes possibles, erreurs fréquentes, premières vérifications.',
     link: `<a class="link-arrow" href="${rel(D, 'pages/problemes.html')}">Voir tous les problèmes</a>`,
   })}
       <div class="u-mt-2xl" data-reveal>
@@ -193,7 +175,7 @@ ${indexList(D)}
       <div data-reveal>
         <p class="kicker">Notre approche</p>
         <h2 class="u-mt-md">L’expertise commence par l’observation</h2>
-        <p>Un même symptôme peut avoir plusieurs origines, et deux symptômes très différents peuvent partager la même cause. C’est pourquoi l’analyse ne part jamais de la solution : elle part de ce qui est mesurable.</p>
+        <p>Six facteurs suffisent, dans la plupart des cas, à expliquer ce qui arrive à un parquet. Les relever dans l’ordre évite de s’arrêter au premier qui semble coupable.</p>
         <ul class="observation__factors">
           <li><span>01</span> Le support</li>
           <li><span>02</span> L’humidité</li>
@@ -245,30 +227,10 @@ ${processSection(D)}
 ${sectionHead({
     kicker: 'Cas de figure',
     title: 'Situations à analyser',
-    text: 'Les configurations qui reviennent le plus souvent. Ce ne sont pas des réalisations : ce sont les situations types sur lesquelles porte une expertise.',
+    text: 'Les configurations qui reviennent le plus souvent. Ce ne sont pas des réalisations&nbsp;: ce sont les situations types sur lesquelles porte une expertise.',
   })}
       <div class="u-mt-2xl" data-reveal>
 ${showcase(D)}
-      </div>
-    </div>
-  </section>
-
-  <!-- ================================================== NOS EXPERTISES -->
-  <section class="section">
-    <div class="container">
-      <div class="split split--wide-text split--top">
-        <div data-reveal>
-          <div class="sec-head__rule"></div>
-          <p class="kicker">Nos expertises</p>
-          <h2 class="u-mt-md sec-head__title">Ce sur quoi porte une intervention</h2>
-          <p class="lead u-mt-lg u-maxw-46">Selon la demande, l’analyse se concentre sur un point précis ou sur l’ensemble du système parquet, support et environnement.</p>
-          <p class="u-mt-xl"><a class="btn btn--dark" href="${rel(D, 'pages/devis.html')}">Demander une expertise</a></p>
-        </div>
-        <div data-reveal data-reveal-delay="90">
-          <ul class="index-list index-list--compact">
-${expertises}
-          </ul>
-        </div>
       </div>
     </div>
   </section>

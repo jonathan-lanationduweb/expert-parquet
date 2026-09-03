@@ -39,11 +39,29 @@ son adresse, responsable de traitement RGPD, durées de conservation, destinatai
 Les textes de consentement des formulaires portent la mention *« Texte provisoire : à
 valider »* et doivent être relus par la personne responsable du traitement.
 
-### 3. Page « À propos »
+### 3. Page « À propos », structure juridique et qualifications
 
-Les blocs *Structure juridique*, *Parcours et qualifications*, *Assurance
-professionnelle* et *Zone d'intervention* attendent des informations vérifiables.
-Aucune année d'expérience, aucun nombre de clients, aucune certification n'a été inventée.
+La page attend quatre informations vérifiables : **structure juridique** (raison sociale,
+forme, immatriculation, siège), **parcours et qualifications**, **assurance
+professionnelle** et **zone d'intervention**. Aucune année d'expérience, aucun nombre de
+clients, aucune certification n'a été inventée.
+
+> La section qui affichait ces quatre emplacements avec des `[À renseigner]` a été
+> **retirée de la page publique** : elle exposait au visiteur la gestion interne du
+> projet. Elle est remplacée par un texte qui assume l'absence de ces éléments (« aucun
+> chiffre que nous ne pouvons prouver »). Quand les informations existeront, créer une
+> section qui les affiche — pas une section qui les attend.
+
+Deux autres endroits ont perdu un contenu pour la même raison, à rétablir le jour où
+l'information existe :
+
+- **délai de réponse** — la question était posée dans la FAQ de la page contact avec une
+  réponse vide ; l'entrée a été supprimée de `CONTACT_FAQ`
+  (`tools/content/form-pages.mjs`) ;
+- **coordonnées** — les blocs e-mail, téléphone, adresse, horaires et zone de la page
+  contact sont dans le HTML mais **masqués** tant que `CONTACT` est vide. Ils
+  réapparaissent seuls dès que `js/config/site.js` est rempli, sans toucher au HTML
+  (voir `ARCHITECTURE.md` §14).
 
 ### 4. Backend des formulaires
 
@@ -216,5 +234,5 @@ des articles, deux voies :
 - [ ] `SITE.baseUrl` conforme au domaine réel (`tools/layout.mjs`)
 - [ ] `sitemap.xml` régénéré et soumis à Search Console
 - [ ] HTTPS actif, redirection `http` → `https`, `www` → apex (ou l'inverse)
-- [ ] `node tools/check.mjs` sans erreur
+- [ ] `node tools/check.mjs` sans erreur (il vérifie aussi les empreintes de contenu)
 - [ ] Test réel sur un mobile physique (menu, formulaire, pré-diagnostic)

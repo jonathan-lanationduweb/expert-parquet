@@ -193,7 +193,7 @@ const CATEGORIES = [
     lead: 'Massif, contrecollé, stratifié&nbsp;: les trois mots reviennent partout, souvent mal employés. La différence n’est pas une question de gamme mais de structure — et elle décide de tout le reste.',
     image: 'interieur-clair.jpg',
     description:
-      'Massif, contrecollé, stratifié : différences réelles, aptitude au ponçage, compatibilité avec le plancher chauffant et critères de choix par pièce.',
+      'Massif, contrecollé, stratifié&nbsp;: différences réelles, aptitude au ponçage, compatibilité avec le plancher chauffant et critères de choix par pièce.',
     intro:
       'Avant d’esthétique, un choix de parquet est un choix de structure. C’est elle qui détermine si le sol pourra être rénové, s’il supportera un plancher chauffant, et comment il vieillira.',
     sections: [

@@ -139,16 +139,37 @@
 /* Écran de confirmation */
 .form-done { display: grid; gap: var(--space-md); justify-items: start; padding-block: var(--space-lg); }
 .form-done h2 { font-size: var(--fs-d2); }
-.form-done pre {
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  background: var(--color-ink);
-  color: #D6D2CA;
-  padding: var(--space-md);
-  overflow-x: auto;
-  max-width: 100%;
+/* Relecture de la saisie. Une liste de définitions, pas un vidage JSON :
+   le visiteur relit sa demande, il n'a rien à faire d'un payload. */
+.form-recap__title {
+  font-size: var(--fs-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-caps);
+  color: var(--text-muted);
   width: 100%;
-  line-height: 1.55;
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--color-ink);
+}
+.form-recap {
+  display: grid;
+  grid-template-columns: minmax(8rem, auto) minmax(0, 1fr);
+  gap: 0;
+  width: 100%;
+  font-size: var(--fs-sm);
+  margin: 0;
+}
+.form-recap dt,
+.form-recap dd {
+  padding: 0.7rem var(--space-md) 0.7rem 0;
+  border-bottom: 1px solid var(--border-hair);
+  margin: 0;
+}
+.form-recap dt { color: var(--text-muted); font-size: var(--fs-xs); }
+.form-recap dd { color: var(--text-strong); overflow-wrap: anywhere; padding-right: 0; }
+@media (max-width: 480px) {
+  .form-recap { grid-template-columns: minmax(0, 1fr); }
+  .form-recap dt { border-bottom: 0; padding-bottom: 0.1rem; }
+  .form-recap dd { padding-top: 0; }
 }
 .form-done__icon {
   width: 44px;
@@ -182,3 +203,6 @@
   margin-bottom: 0.3rem;
 }
 .contact-info__value { font-size: var(--fs-sm); color: var(--text-strong); }
+/* Bloc d'orientation rédigé, à distinguer d'une simple coordonnée. */
+.contact-info__value--text { color: var(--text-body); line-height: 1.55; }
+.contact-info__value--text a { color: var(--text-strong); }
