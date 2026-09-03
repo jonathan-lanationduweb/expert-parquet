@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Générateur des pages statiques dExpert Parquet.
+ * Générateur des pages statiques d’Expert Parquet.
  *
  * Pourquoi un générateur ? Le site compte une trentaine de pages qui partagent
  * exactement le même header, le même footer et les mêmes blocs (cartes

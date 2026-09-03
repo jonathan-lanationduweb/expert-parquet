@@ -182,14 +182,6 @@
   border-left: 1px solid var(--border-hair);
 }
 
-.placeholder-value {
-  font-family: var(--font-mono);
-  font-size: 0.88em;
-  padding: 0.05em 0.35em;
-  background: var(--color-warning-soft);
-  color: var(--color-warning);
-  white-space: nowrap;
-}
 
 /* ==========================================================================
    Processus 01 → 04 : grandes colonnes séparées par des filets
@@ -306,8 +298,6 @@
 
 /* Variante compacte : deux colonnes, pour une liste placée dans une colonne
    étroite (section « Nos expertises »). */
-.index-list--compact .index-row { grid-template-columns: 3.5rem minmax(0, 1fr); padding: 0.9rem 0; }
-.index-list--compact .index-row__title { font-size: clamp(1.15rem, 0.95rem + 0.7vw, 1.5rem); }
 
 /* Vignette suivant le curseur (desktop uniquement, purement décorative) */
 .index-list__preview {
@@ -724,4 +714,66 @@
 
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] { opacity: 1; transform: none; }
+}
+
+/* Bouton secondaire : 37 px de haut au repos, porté à 44 px au doigt. La
+   typographie et les marges internes horizontales ne changent pas. */
+@media (pointer: coarse) {
+  .btn--sm { min-height: 44px; }
+}
+
+/* ==========================================================================
+   Rappel d'action mobile
+   Barre graphite, angles droits, un filet en haut. Volontairement PAS un
+   bandeau terre cuite : l'accent doit rester rare, et une barre orange
+   présente sur toutes les pages mobiles en ferait l'élément dominant du
+   site. Le registre sombre est celui du pied de page et du hero, la barre
+   s'y rattache naturellement.
+   Affichage piloté par js/modules/sticky-cta.js.
+   ========================================================================== */
+.sticky-cta { display: none; }
+
+@media (max-width: 768px) {
+  .sticky-cta {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-header);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    min-height: 52px;
+    padding: 0.85rem var(--container-pad);
+    /* Encoche iOS : la zone tactile descend jusqu'au bord, le texte non. */
+    padding-bottom: calc(0.85rem + env(safe-area-inset-bottom, 0px));
+    background: var(--color-ink);
+    color: var(--text-inverse);
+    border-top: 1px solid var(--color-ink-3);
+    font-family: var(--font-display);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    letter-spacing: var(--ls-tight);
+    text-decoration: none;
+    /* Caché ET non focalisable hors de sa zone d'utilité. */
+    transform: translateY(101%);
+    visibility: hidden;
+    transition: transform var(--dur-base) var(--ease-out),
+                visibility var(--dur-base) var(--ease-out);
+  }
+  .sticky-cta.is-visible {
+    transform: translateY(0);
+    visibility: visible;
+  }
+  .sticky-cta__arrow {
+    flex: none;
+    width: 18px;
+    height: 9px;
+    background: currentColor;
+    -webkit-mask: var(--icon-arrow) center / contain no-repeat;
+    mask: var(--icon-arrow) center / contain no-repeat;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  .sticky-cta:active .sticky-cta__arrow { transform: translateX(4px); }
 }

@@ -46,14 +46,14 @@ export const PROBLEMS = [
   {
     slug: 'humidite',
     label: 'Humidité',
-    teaser: 'Remontée, condensation ou infiltration : trois réponses différentes.',
+    teaser: 'Remontée, condensation ou infiltration&nbsp;: trois réponses différentes.',
     image: 'degat-eaux.jpg',
   },
   {
     slug: 'degat-des-eaux',
     label: 'Dégât des eaux',
     teaser: 'L’état visible ne dit rien de l’état du support.',
-    image: 'observation.jpg',
+    image: 'rayures.jpg',
   },
   {
     slug: 'defaut-de-pose',
@@ -70,7 +70,7 @@ export const PROBLEMS = [
   {
     slug: 'parquet-abime',
     label: 'Parquet ancien',
-    teaser: 'Patine ou dégradation : tout se joue sur l’épaisseur utile.',
+    teaser: 'Patine ou dégradation&nbsp;: tout se joue sur l’épaisseur utile.',
     image: 'parquet-ancien.jpg',
     key: 'parquet-ancien',
   },
@@ -165,7 +165,7 @@ export function processSection(depth, { inverse = false } = {}) {
           <h2 class="sec-head__title u-mt-md">Comment se déroule une expertise</h2>
         </div>
         <div class="sec-head__aside">
-          <p class="lead">Quatre temps, du récit initial aux recommandations. Aucun ne se saute : c’est la seule façon de distinguer ce que l’on voit de ce qui le provoque.</p>
+          <p class="lead">Quatre temps, du récit initial aux recommandations. Aucun ne se saute&nbsp;: c’est la seule façon de distinguer ce que l’on voit de ce qui le provoque.</p>
         </div>
       </div>
       <ol class="stages u-mt-2xl">
@@ -180,7 +180,7 @@ ${steps}
 export const ARTICLES = [
   {
     slug: 'pourquoi-un-parquet-grince',
-    title: 'Pourquoi un parquet se met-il à grincer ?',
+    title: 'Pourquoi un parquet se met-il à grincer&nbsp;?',
     category: 'Diagnostic',
     date: '2026-02-10',
     dateLabel: '10 février 2026',
@@ -191,7 +191,7 @@ export const ARTICLES = [
   },
   {
     slug: 'parquet-qui-se-souleve-que-faire',
-    title: 'Que faire lorsqu’un parquet se soulève ?',
+    title: 'Que faire lorsqu’un parquet se soulève&nbsp;?',
     category: 'Défauts',
     date: '2026-02-24',
     dateLabel: '24 février 2026',
@@ -202,7 +202,7 @@ export const ARTICLES = [
   },
   {
     slug: 'humidite-et-parquet-signes-qui-alertent',
-    title: 'Humidité et parquet : quels signes doivent alerter ?',
+    title: 'Humidité et parquet&nbsp;: quels signes doivent alerter&nbsp;?',
     category: 'Humidité',
     date: '2026-03-09',
     dateLabel: '9 mars 2026',
@@ -213,7 +213,7 @@ export const ARTICLES = [
   },
   {
     slug: 'renover-un-parquet-tres-abime',
-    title: 'Peut-on rénover un parquet très abîmé ?',
+    title: 'Peut-on rénover un parquet très abîmé&nbsp;?',
     category: 'Rénovation',
     date: '2026-03-23',
     dateLabel: '23 mars 2026',
@@ -224,14 +224,14 @@ export const ARTICLES = [
   },
   {
     slug: 'pourquoi-le-support-est-essentiel',
-    title: 'Pourquoi le support est-il essentiel avant la pose ?',
+    title: 'Pourquoi le support est-il essentiel avant la pose&nbsp;?',
     category: 'Pose',
     date: '2026-04-07',
     dateLabel: '7 avril 2026',
     readingTime: '9 min',
     image: 'pose-support.jpg',
     excerpt:
-      'La majorité des désordres se jouent sous le parquet. Planéité, siccité, propreté : les trois contrôles décisifs.',
+      'La majorité des désordres se jouent sous le parquet. Planéité, siccité, propreté&nbsp;: les trois contrôles décisifs.',
   },
 ];
 
@@ -256,7 +256,7 @@ export function articleCard(depth, article, index = 0, variant = 'default') {
 export const SHOWCASE = [
   {
     title: 'Soulèvement des lames',
-    text: 'Bombement, vagues ou tuilage : ce que la géométrie du désordre indique sur son origine.',
+    text: 'Bombement, vagues ou tuilage&nbsp;: ce que la géométrie du désordre indique sur son origine.',
     image: 'soulevement.jpg',
     href: 'pages/problemes/parquet-gondole.html',
   },
@@ -268,7 +268,7 @@ export const SHOWCASE = [
   },
   {
     title: 'Défaut de pose',
-    text: 'Jeux périphériques, planéité, siccité, acclimatation : les contrôles que l’on reconstitue après coup.',
+    text: 'Jeux périphériques, planéité, siccité, acclimatation&nbsp;: les contrôles que l’on reconstitue après coup.',
     image: 'pose-support.jpg',
     href: 'pages/problemes/defaut-de-pose.html',
   },
@@ -280,8 +280,8 @@ export const SHOWCASE = [
   },
   {
     title: 'Après un dégât des eaux',
-    text: 'Documenter, mesurer le support, attendre la stabilisation : la chronologie compte autant que le constat.',
-    image: 'observation.jpg',
+    text: 'Documenter, mesurer le support, attendre la stabilisation&nbsp;: la chronologie compte autant que le constat.',
+    image: 'degat-eaux.jpg',
     href: 'pages/problemes/degat-des-eaux.html',
   },
 ];

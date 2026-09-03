@@ -146,8 +146,8 @@ expert-parquet.com/
 │   ├── config/                   site.js, options.js, diagnostic-rules.js
 │   └── modules/                  navigation, diagnostic, forms, carousel,
 │                                 index-list, accordion, toc, animations,
-│                                 contact-info
-├── tools/                        Générateur + contrôle qualité (dev uniquement)
+│                                 contact-info, sticky-cta
+├── tools/                        Générateur, empreintes, contrôle qualité (dev only)
 ├── robots.txt
 ├── sitemap.xml
 ├── ARCHITECTURE.md
