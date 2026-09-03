@@ -39,10 +39,25 @@ l'effet « gabarit ». Ce sont des **SVG dessinés pour ce projet**, définis da
 `tools/partials.mjs` et intégrés directement dans le HTML. Aucune bibliothèque
 d'icônes tierce n'est utilisée.
 
-Le logo est une **signature purement typographique** (« **Expert** Parquet », deux
-graisses d'Inter Tight) : le pictogramme encadré de la première version a été retiré.
-Le favicon (`assets/icons/favicon.svg`, `assets/icons/apple-touch-icon.png`) reste
-provisoire et conçu pour être remplacé facilement.
+## Identité visuelle
+
+Le logo n'est pas une image sous licence : c'est l'**identité propre du site**, fournie
+sous deux formes dans `assets/brand/` — `expert-parquet-mark.png` (symbole seul) et
+`expert-parquet-logo.png` (logotype horizontal). Ces deux fichiers sont les **masters**
+à conserver ; ils ne sont pas servis aux visiteurs.
+
+Toutes les déclinaisons employées par le site sont produites par
+`node tools/make-icons.mjs` et ne doivent **pas** être retouchées à la main :
+
+| Fichier | Emploi |
+| --- | --- |
+| `assets/brand/expert-parquet-logo-on-light.png` | En-tête sur fond clair |
+| `assets/brand/expert-parquet-logo-on-dark.png` | En-tête posé sur le hero, signature du pied |
+| `assets/icons/favicon-16x16.png` · `favicon-32x32.png` · `favicon.ico` | Onglet du navigateur |
+| `assets/icons/apple-touch-icon.png` | Écran d'accueil iOS |
+
+La signature typographique provisoire (« **Expert** Parquet » en deux graisses d'Inter
+Tight) et le favicon de gabarit ont été retirés.
 
 ## À faire
 
