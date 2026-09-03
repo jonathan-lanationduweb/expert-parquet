@@ -12,7 +12,8 @@
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname, resolve, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { STAMP_PARAM, verifyStamp } from './fingerprint.mjs';
+import { createHash } from 'node:crypto';
+import { STAMP_PARAM, verifyStamp, normaliseEol } from './fingerprint.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -193,6 +194,21 @@ const pageSet = new Set(pages.map((p) => relative(ROOT, p).split(sep).join('/'))
 for (const page of pageSet) {
   const expected = page === 'index.html' ? '' : page;
   if (!locs.includes(expected)) errors.push(`sitemap.xml : page absente (${page})`);
+}
+
+
+/* --- Invariant des empreintes ------------------------------------------------
+   La régression qui a motivé `normaliseEol` : l'empreinte dépendait des octets
+   du disque, donc de `core.autocrlf`. Ce contrôle vérifie la propriété qui a
+   manqué — le même contenu, écrit en LF ou en CRLF, doit donner exactement la
+   même empreinte. Quatre lignes, au bon endroit : inutile d'en faire plus. */
+{
+  const lf = Buffer.from('a{color:red}\nb{color:blue}\n', 'utf8');
+  const crlf = Buffer.from('a{color:red}\r\nb{color:blue}\r\n', 'utf8');
+  const digest = (buf) => createHash('sha256').update(normaliseEol(buf)).digest('hex');
+  if (digest(lf) !== digest(crlf)) {
+    errors.push('fingerprint : LF et CRLF ne donnent pas la même empreinte');
+  }
 }
 
 // --- Rapport ---------------------------------------------------------------

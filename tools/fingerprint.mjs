@@ -10,7 +10,9 @@
  * la page s’affichait avec l’ancien CSS. C’est exactement ce qui est arrivé au
  * déploiement du logo.
  *
- * Solution — chaque URL de ressource porte une empreinte de son **contenu**.
+ * Solution — chaque URL de ressource porte une empreinte de son **contenu**,
+ * calculée sur un contenu normalisé en LF (voir `normaliseEol`) afin de ne pas
+ * dépendre des fins de ligne du checkout local.
  * Tant que le fichier ne change pas, l’URL ne change pas et le cache joue
  * pleinement son rôle ; dès qu’il change, l’URL change et le navigateur est
  * *obligé* de retélécharger. Un HTML neuf ne peut donc plus être associé à un
@@ -53,6 +55,24 @@ export const STAMP_PARAM = 'v';
 /** Longueur de l’empreinte : 8 hexadécimaux, soit 32 bits — largement assez. */
 const LENGTH = 8;
 
+/**
+ * Contenu ramené à des fins de ligne LF, POUR LE CALCUL DE L’EMPREINTE
+ * uniquement — aucun fichier source n’est réécrit.
+ *
+ * Sans cela l’empreinte dépend des octets présents sur le disque, donc de
+ * `core.autocrlf` : Git réécrit les fins de ligne au checkout, mais seulement
+ * sur les fichiers qu’il touche. Après un changement de branche l’arbre est
+ * donc mixte, les empreintes changent sans qu’une seule ligne de CSS ait bougé,
+ * et `tools/check.mjs` signale des « empreintes périmées » sur un clone neuf.
+ *
+ * L’empreinte devient ainsi indépendante du système, de `core.autocrlf` et du
+ * mode de checkout : le même contenu donne partout la même valeur.
+ */
+export function normaliseEol(buffer) {
+  const text = buffer.toString('utf8').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  return Buffer.from(text, 'utf8');
+}
+
 /** Tous les fichiers d’un dossier, récursivement, en ordre stable. */
 function walk(dir) {
   const out = [];
@@ -76,7 +96,7 @@ function hashTree(files) {
   for (const file of files) {
     hash.update(posix(relative(ROOT, file)));
     hash.update('\0');
-    hash.update(readFileSync(file));
+    hash.update(normaliseEol(readFileSync(file)));
   }
   return hash.digest('hex').slice(0, LENGTH);
 }
