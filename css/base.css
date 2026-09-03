@@ -228,3 +228,21 @@ hr, .rule { border: 0; height: 1px; background: var(--border-hair); margin: var(
 .u-maxw-46 { max-width: 46ch; }
 .u-mx-auto { margin-inline: auto; }
 .u-nowrap { white-space: nowrap; }
+
+/* --- Confort tactile ---------------------------------------------------------------
+   Le lien fléché mesure 31 px de haut : c'est assez sur un pointeur fin, court sur
+   un doigt. Son trait est un `border-bottom`, on ne peut donc pas l'espacer par du
+   padding sans décoller le trait du texte. Une couche absolue centrée porte la zone
+   tactile à 44 px sans rien déplacer à l'écran. Réservé aux pointeurs grossiers. */
+@media (pointer: coarse) {
+  .link-arrow { position: relative; }
+  .link-arrow::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
+  }
+}

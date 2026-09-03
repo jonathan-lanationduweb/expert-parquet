@@ -14,22 +14,20 @@ l'indique ; à compléter avant mise en ligne si une attribution est souhaitée.
 | `hero.jpg` | Hero de la page d'accueil, image Open Graph par défaut | <https://www.pexels.com/photo/17181935/> |
 | `parquet-detail.jpg` | Page *Expertise parquet* | <https://www.pexels.com/photo/9285783/> |
 | `inspection.jpg` | Page *Diagnostic parquet* | <https://www.pexels.com/photo/5973909/> |
+| `domaine-diagnostic.jpg` | Domaine « Diagnostic du parquet » (accueil) | <https://www.pexels.com/photo/326311/> |
 | `grincement.jpg` | Page *Parquet qui grince*, article associé | <https://www.pexels.com/photo/10900708/> |
 | `soulevement.jpg` | Page *Parquet qui gondole*, article associé | <https://www.pexels.com/photo/172291/> |
 | `lames-bougent.jpg` | Page *Lames qui bougent* | <https://www.pexels.com/photo/6364752/> |
-| `degat-eaux.jpg` | Pages *Humidité* et *Dégât des eaux*, article humidité | <https://www.pexels.com/photo/12519041/> |
+| `degat-eaux.jpg` | Pages *Humidité* et *Dégât des eaux*, article humidité, carrousel *Après un dégât des eaux* | <https://www.pexels.com/photo/12519041/> |
 | `taches.jpg` | Page *Parquet abîmé : taches et rayures* | <https://www.pexels.com/photo/129731/> |
-| `rayures.jpg` | Article *Peut-on rénover un parquet très abîmé ?* | <https://www.pexels.com/photo/6044253/> |
+| `rayures.jpg` | Article *Peut-on rénover un parquet très abîmé ?*, vignette *Dégât des eaux* | <https://www.pexels.com/photo/6044253/> |
 | `pose-support.jpg` | Page *Défaut de pose*, catégorie *Pose*, article support | <https://www.pexels.com/photo/20818874/> |
 | `parquet-ancien.jpg` | Catégorie *Rénovation* | <https://www.pexels.com/photo/11018239/> |
 | `entretien.jpg` | Catégorie *Entretien* | <https://www.pexels.com/photo/4440568/> |
 | `interieur-clair.jpg` | Page *À propos*, catégorie *Choisir un parquet* | <https://www.pexels.com/photo/7027720/> |
 | `hero-wide.jpg` | Bloc « L'expertise commence par l'observation » (accueil) | <https://www.pexels.com/photo/2082093/> |
 | `architectural.jpg` | Domaine « Expertise avant intervention » (accueil) | <https://www.pexels.com/photo/15758635/> |
-| `observation.jpg` | Carrousel « Après un dégât des eaux », page *Dégât des eaux* | <https://www.pexels.com/photo/3750272/> |
-| `domaine-diagnostic.jpg` | Réserve — détail de lames | <https://www.pexels.com/photo/326311/> |
 | `domaine-desordres.jpg` | Domaine « Désordres et défauts » (accueil) | <https://www.pexels.com/photo/2530326/> |
-| `domaine-expertise.jpg` | Réserve — intérieur clair rénové | <https://www.pexels.com/photo/6890405/> |
 
 ## Icônes
 
@@ -66,5 +64,13 @@ Tight) et le favicon de gabarit ont été retirés.
   et plus crédibles.
 - `degat-eaux.jpg` sert actuellement deux pages différentes, faute de visuel adapté à
   l'humidité. À dédoublonner.
+- **Trois images restent faibles**, faute d'un remplacement disponible dans le dossier.
+  Elles sont identifiées, avec le brief de remplacement, pour un prochain lot :
+
+  | Fichier | Ce qui ne va pas | Brief de remplacement |
+  | --- | --- | --- |
+  | `interieur-clair.jpg` | Photo d'annonce immobilière américaine : deux ventilateurs de plafond, canapés marron, tapis à poils longs, et un sol qui est un stratifié gris. C'est l'image la plus éloignée de l'identité du site. | Intérieur contemporain sobre, parquet clair réellement visible au premier plan, lumière naturelle latérale, mobilier rare, couleurs neutres. |
+  | `architectural.jpg` | Un escalier vu de dessus, dominante orange, et presque pas de parquet — le sujet du domaine « Expertise avant intervention » n'apparaît pas. | Pièce vide ou très peu meublée avant travaux, parquet en pleine surface, cadrage frontal calme, tons neutres. |
+  | `taches.jpg` | Lames de teck neuves et parfaitement saines, alors qu'elles illustrent la page *taches et rayures*. Le sujet annoncé est absent de l'image. | Détail de parquet réellement taché ou rayé : cernes sombres, usure localisée, rayures visibles en lumière rasante. |
 - Consigner ici toute nouvelle image ou vidéo ajoutée, avec sa source, son auteur, sa
   licence et sa date de récupération.

@@ -15,6 +15,7 @@ import { initForms } from './modules/forms.js';
 import { initToc } from './modules/toc.js';
 import { initIndexLists } from './modules/index-list.js';
 import { initContactInfo } from './modules/contact-info.js';
+import { initStickyCta } from './modules/sticky-cta.js';
 
 document.documentElement.classList.remove('no-js');
 
@@ -29,6 +30,7 @@ function boot() {
     initToc,
     initDiagnostic,
     initForms,
+    initStickyCta,
   ];
 
   modules.forEach((init) => {
