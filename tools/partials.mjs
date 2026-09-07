@@ -11,13 +11,33 @@ import { rel } from './layout.mjs';
    Jeu réduit au strict nécessaire : flèches, validation, alerte, question.
    Les pictogrammes décoratifs de l'ancienne version ont été supprimés. */
 
+/**
+ * Jeu d'icônes, cinq formes dessinées pour ce projet.
+ *
+ * Les attributs `width` et `height` sont OBLIGATOIRES, pas décoratifs.
+ * `css/reset.css` applique `display: block; max-width: 100%; height: auto` à
+ * tous les `svg`. Un SVG qui n'a qu'un `viewBox`, sans dimension intrinsèque,
+ * se comporte alors comme un bloc de largeur automatique : il occupe TOUTE la
+ * largeur de son conteneur et sa hauteur suit le rapport du viewBox. Un icône
+ * de 16 px dans un paragraphe de 832 px se retrouvait affiché en 832 × 832.
+ *
+ * Ces attributs donnent la taille intrinsèque ; toute règle CSS qui fixe
+ * `width`/`height` (`.callout__title svg`, `.showcase__btn svg`…) continue de
+ * l'emporter. Ne jamais retirer ces attributs.
+ */
 export const ICONS = {
-  arrowRight: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="square" aria-hidden="true"><path d="M3 9h12M10.5 4.5 15 9l-4.5 4.5"/></svg>',
-  arrowLeft: '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="square" aria-hidden="true"><path d="M15 9H3M7.5 4.5 3 9l4.5 4.5"/></svg>',
-  check: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" aria-hidden="true"><path d="m3 8.5 3.5 3.5L13 4.5"/></svg>',
-  alert: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" aria-hidden="true"><path d="M8 2 1.5 14h13z"/><path d="M8 6.5v3.2M8 12h.01"/></svg>',
-  help: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M6.3 6.3a1.75 1.75 0 1 1 2.4 1.6c-.5.2-.7.6-.7 1.1v.2"/><path d="M8 11.6h.01"/></svg>',
-  search: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" aria-hidden="true"><circle cx="7.2" cy="7.2" r="5"/><path d="m13.5 13.5-2.7-2.7"/></svg>',
+  arrowRight:
+    '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="square" aria-hidden="true"><path d="M3 9h12M10.5 4.5 15 9l-4.5 4.5"/></svg>',
+  arrowLeft:
+    '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="square" aria-hidden="true"><path d="M15 9H3M7.5 4.5 3 9l4.5 4.5"/></svg>',
+  check:
+    '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" aria-hidden="true"><path d="m3 8.5 3.5 3.5L13 4.5"/></svg>',
+  alert:
+    '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" aria-hidden="true"><path d="M8 2 1.5 14h13z"/><path d="M8 6.5v3.2M8 12h.01"/></svg>',
+  help:
+    '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M6.3 6.3a1.75 1.75 0 1 1 2.4 1.6c-.5.2-.7.6-.7 1.1v.2"/><path d="M8 11.6h.01"/></svg>',
+  search:
+    '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" aria-hidden="true"><circle cx="7.2" cy="7.2" r="5"/><path d="m13.5 13.5-2.7-2.7"/></svg>',
 };
 
 /* ------------------------------------------------- catalogue des problèmes

@@ -142,6 +142,27 @@ variables.css → reset.css → base.css → layout.css → components.css → p
 5. **Contraste du gris secondaire.** `--color-stone-2` doit rester ≥ 4,5:1 sur le fond
    ivoire (actuellement 4,9:1). Sur fond sombre, `.section--inverse` bascule les textes
    secondaires vers `--text-inverse-muted`.
+6. **Le header crée un contexte d'empilement.** Il est `position: fixed` avec un
+   `z-index`. Le `z-index` du drawer, qui est son descendant, est donc **local** à ce
+   contexte : il ne peut pas rivaliser avec l'overlay, enfant direct de `<body>`.
+   L'overlay à 190 passait devant tout le header à 100 — liens, CTA et bouton de
+   fermeture compris — et comme il est `pointer-events: auto` à l'ouverture, chaque tap
+   atterrissait sur lui, refermant le menu au lieu de suivre le lien. Correctif :
+   `body.nav-open .site-header { z-index: var(--z-drawer); }` élève le header au-dessus
+   de l'overlay, et l'ordre interne du header se règle avec des valeurs locales (drawer
+   `z-index: 1`, `.header__actions` `z-index: 2` pour garder le bouton de fermeture
+   au-dessus du panneau).
+7. **Les SVG en ligne doivent porter `width` et `height`.** `reset.css` applique
+   `display: block; max-width: 100%; height: auto` à tous les `svg`. Un SVG qui n'a
+   qu'un `viewBox` n'a aucune dimension intrinsèque : il occupe alors toute la largeur
+   de son conteneur, et sa hauteur suit le rapport du viewBox. Une icône de 16 px se
+   retrouvait affichée en 832 × 832 dans un paragraphe. Les attributs sont portés par
+   `ICONS` dans `tools/partials.mjs` ; ne pas les retirer.
+8. **Un `.nav__link` coloré par l'état du header.** `.site-header--over.is-scrolled
+   .nav__link` (spécificité 0,3,0) écrasait la règle du drawer (0,1,0), média requête
+   comprise — les média requêtes n'ajoutent pas de spécificité. Sur l'accueil défilé,
+   les liens du drawer étaient peints en `--text-strong` #17181A sur un fond #17181A.
+   Ces règles de contraste sur hero sont désormais bornées à `min-width: 1025px`.
 
 ---
 
@@ -508,6 +529,10 @@ affichée, soit elle n'existe pas et **rien ne s'affiche**.
   envoyée.
 - Ce qui reste à brancher est consigné dans [TODO-INTEGRATIONS.md](TODO-INTEGRATIONS.md),
   pas sur les pages publiques.
+- La charge utile que le front enverra, les états des formulaires et les protections à
+  prévoir côté serveur sont décrits dans
+  [docs/BACKEND-CONTRACT.md](docs/BACKEND-CONTRACT.md). Le passage en mode LIVE ne
+  demande que de renseigner une URL dans `js/config/site.js`.
 
 ---
 
