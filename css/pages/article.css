@@ -154,3 +154,13 @@
 /* --- Pied d’article ------------------------------------------------------------ */
 .article-foot { margin-top: var(--space-2xl); padding-top: var(--space-lg); border-top: 1px solid var(--color-ink); }
 .article-nav { display: flex; flex-wrap: wrap; gap: var(--space-lg); justify-content: space-between; }
+
+/* Intitulé de panneau avec icône : même motif que `.callout__title`, la
+   flexbox garde l'icône sur la ligne du texte malgré le `display: block`
+   appliqué aux `svg` par le reset. */
+.symptom-panel h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.symptom-panel h3 svg { width: 15px; height: 15px; flex: none; }
