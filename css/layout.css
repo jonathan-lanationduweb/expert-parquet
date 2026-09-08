@@ -102,15 +102,23 @@
   right: 0;
   background: transparent;
 }
-.site-header--over .nav__link { color: var(--color-white); }
-.site-header--over .nav__link:hover { color: var(--color-white); }
+/* Contraste de la navigation EN LIGNE au-dessus du hero sombre. Réservé au
+   desktop : sous 1025 px la navigation est un panneau sombre, elle a ses
+   propres couleurs. Sans ce cadrage, `.site-header--over.is-scrolled
+   .nav__link` (spécificité 0,3,0) écrasait la règle du drawer (0,1,0) et
+   peignait les liens en `--text-strong` #17181A sur un fond #17181A : texte
+   invisible, séparateurs toujours visibles. */
+@media (min-width: 1025px) {
+  .site-header--over .nav__link { color: var(--color-white); }
+  .site-header--over .nav__link:hover { color: var(--color-white); }
+  .site-header--over.is-scrolled .nav__link { color: var(--text-strong); }
+}
 .site-header--over .nav-toggle { border-color: rgba(255, 255, 255, 0.4); background: transparent; }
 .site-header--over .nav-toggle__bars span { background: var(--color-white); }
 .site-header--over.is-scrolled {
   background: var(--bg-page);
   border-bottom-color: var(--border-hair);
 }
-.site-header--over.is-scrolled .nav__link { color: var(--text-strong); }
 .site-header--over.is-scrolled .nav-toggle { border-color: var(--border-default); }
 .site-header--over.is-scrolled .nav-toggle__bars span { background: var(--color-ink); }
 body.has-fixed-header { padding-top: 0; }
@@ -222,11 +230,26 @@ body.has-fixed-header { padding-top: 0; }
 }
 body.nav-open .nav-overlay { opacity: 1; pointer-events: auto; }
 
+/* --- Empilement du drawer ----------------------------------------------------------
+   Le header est `position: fixed` AVEC un z-index : il crée donc un contexte
+   d'empilement, et le `z-index` du drawer est local à ce contexte. L'overlay,
+   lui, est un enfant direct de <body> : à 190 il passait devant TOUT le header
+   (contexte à 100) — drawer, liens, CTA et bouton de fermeture compris. Comme
+   l'overlay est `pointer-events: auto` à l'ouverture, chaque tap sur un lien
+   atterrissait sur l'overlay, qui refermait simplement le menu : des boutons
+   parfaitement visibles et pourtant impossibles à activer.
+
+   On élève donc le header au-dessus de l'overlay pendant l'ouverture, et on
+   ordonne les couches À L'INTÉRIEUR du header avec des valeurs locales. */
+body.nav-open .site-header { z-index: var(--z-drawer); }
+
 @media (max-width: 1024px) {
   .nav-toggle { display: inline-flex; }
   /* Le drawer passe en position fixed, donc hors flux : c'est au bloc
-     d'actions de se pousser à droite à sa place. */
-  .header__actions { margin-left: auto; }
+     d'actions de se pousser à droite à sa place. Il reste AU-DESSUS du panneau
+     du drawer, sans quoi le bouton de fermeture serait recouvert par le
+     panneau lui-même et le menu ne pourrait plus être refermé au doigt. */
+  .header__actions { margin-left: auto; position: relative; z-index: 2; }
   /* Spécificité renforcée : .btn impose display:inline-flex depuis
      components.css, chargé après layout.css. */
   .header__actions .header__cta-desktop { display: none; }
@@ -237,7 +260,9 @@ body.nav-open .nav-overlay { opacity: 1; pointer-events: auto; }
     right: 0;
     bottom: 0;
     width: min(440px, 92vw);
-    z-index: var(--z-drawer);
+    /* Valeur LOCALE au contexte du header : il suffit d'être au-dessus du
+       contenu du header, pas de rivaliser avec l'overlay. */
+    z-index: 1;
     background: var(--color-ink);
     color: var(--text-inverse);
     padding: calc(var(--header-h) + var(--space-lg)) var(--container-pad) var(--space-xl);
@@ -349,8 +374,24 @@ body.nav-open .nav-overlay { opacity: 1; pointer-events: auto; }
 @media (max-width: 1024px) {
   .footer__top { grid-template-columns: minmax(0, 1fr); gap: var(--space-2xl); }
 }
+/* --- Pied de page compact sur mobile -----------------------------------------------
+   Les trois groupes empilés en une seule colonne donnaient 748 px de liens et
+   un pied de 1376 px, soit 1,63 écran à 390 px. Deux colonnes serrées ramènent
+   exactement le même contenu — aucun lien retiré, aucun repli à ouvrir — sous
+   la hauteur d'un écran. Le desktop n'est pas touché. */
 @media (max-width: 640px) {
-  .footer__cols { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
+  .footer__cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-lg) var(--space-md);
+  }
+  .site-footer { padding-block: var(--space-2xl) var(--space-lg); }
+  .footer__top { gap: var(--space-xl); padding-bottom: var(--space-lg); }
+  /* Pleine largeur : la mesure de 34ch faisait passer la phrase sur trois
+     lignes alors que la colonne mobile en tient deux. */
+  .footer__pitch { margin-top: var(--space-sm); max-width: none; }
+  .footer__title { margin-bottom: var(--space-2xs); }
+  .footer__cta { margin-top: var(--space-md); }
+  .footer__bottom { padding-top: var(--space-sm); gap: var(--space-2xs) var(--space-md); }
 }
 
 /* --- Confort tactile ---------------------------------------------------------------
@@ -360,8 +401,15 @@ body.nav-open .nav-overlay { opacity: 1; pointer-events: auto; }
    padding des liens — le rythme visuel reste proche, chaque cible devient confortable. */
 @media (pointer: coarse) {
   .footer__list { gap: 0; }
-  .footer__list a { display: block; padding-block: 0.7rem; }
+  /* 0,55rem : pas de 40 px entre deux liens, confortable au doigt et bien
+     au-delà du minimum de 24 px, sans allonger inutilement le pied. */
+  .footer__list a { display: block; padding-block: 0.55rem; }
   .footer__legal-links a { display: inline-block; padding-block: 0.6rem; }
   .breadcrumb a,
   .breadcrumb [aria-current="page"] { display: inline-block; padding-block: 0.5rem; }
 }
+
+/* Le bouton bascule reste visible par-dessus le panneau sombre du drawer :
+   ses trois barres sont graphite par défaut, invisibles sur ce fond. */
+body.nav-open .nav-toggle { border-color: var(--border-inverse); }
+body.nav-open .nav-toggle__bars span { background: var(--text-inverse); }

@@ -766,6 +766,12 @@
     transform: translateY(0);
     visibility: visible;
   }
+  /* Le drawer ouvert occupe l'écran : la barre ferait doublon avec son propre
+     CTA et resterait tactile dans la bande laissée libre à gauche. */
+  body.nav-open .sticky-cta.is-visible {
+    transform: translateY(101%);
+    visibility: hidden;
+  }
   .sticky-cta__arrow {
     flex: none;
     width: 18px;
@@ -776,4 +782,18 @@
     transition: transform var(--dur-base) var(--ease-out);
   }
   .sticky-cta:active .sticky-cta__arrow { transform: translateX(4px); }
+}
+
+/* Icône dans un encadré informatif.
+   `reset.css` met tous les `svg` en `display: block` : sans cette règle
+   l'icône se placerait seule sur sa ligne au-dessus du texte, et sans les
+   dimensions désormais portées par les attributs (tools/partials.mjs) elle
+   occuperait toute la largeur du bloc. */
+.disclaimer svg {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  vertical-align: -0.12em;
+  margin-right: 0.15em;
+  flex: none;
 }

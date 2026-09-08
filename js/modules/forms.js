@@ -7,7 +7,7 @@
  * données qu’il aurait transmises. Voir TODO-INTEGRATIONS.md.
  */
 
-import { FORMS } from '../config/site.js';
+import { FORMS, endpointFor, formMode } from '../config/site.js';
 import * as OPTIONS from '../config/options.js';
 
 const LISTS = {
@@ -72,6 +72,11 @@ function setupForm(form) {
   const recap = form.querySelector('[data-recap]') || document.querySelector('[data-recap]');
   let current = 0;
 
+  // Mode et état initiaux exposés sur l'élément : le CSS et les tests peuvent
+  // s'y accrocher, et un futur passage en LIVE ne change rien au gabarit.
+  form.dataset.formMode = formMode(form.dataset.form || '');
+  setState(form, 'idle');
+
   prefillFromUrl(form);
 
   if (steps.length > 1) {
@@ -100,7 +105,11 @@ function setupForm(form) {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     const scope = steps.length > 1 ? steps[current] : form;
-    if (!validateStep(scope)) return;
+    setState(form, 'validating');
+    if (!validateStep(scope)) {
+      setState(form, 'idle');
+      return;
+    }
     submit(form);
   });
 
@@ -310,43 +319,130 @@ function setupUpload(zone) {
   zone.__files = files;
 }
 
+/* ------------------------------------------------------------------- états */
+
+/**
+ * États possibles d'un formulaire, écrits sur l'élément en `data-form-state`
+ * pour que le CSS et les tests puissent s'y accrocher :
+ *
+ *   idle        au repos
+ *   validating  validation côté navigateur en cours
+ *   submitting  envoi réseau en cours (mode LIVE uniquement)
+ *   demo        mode DEMO : validé côté navigateur, RIEN n'a été transmis
+ *   success     le serveur a accepté la demande (mode LIVE uniquement)
+ *   error       échec réseau ou refus du serveur
+ *
+ * `demo` et `success` sont volontairement DEUX états distincts : en mode DEMO
+ * le site ne doit jamais laisser croire qu'une demande est partie.
+ */
+const ETATS = ['idle', 'validating', 'submitting', 'demo', 'success', 'error'];
+
+function setState(form, etat) {
+  if (!ETATS.includes(etat)) return;
+  form.dataset.formState = etat;
+  const busy = etat === 'submitting' || etat === 'validating';
+  form.setAttribute('aria-busy', busy ? 'true' : 'false');
+  const submitBtn = form.querySelector('[type="submit"]');
+  if (submitBtn) submitBtn.disabled = etat === 'submitting';
+}
+
 /* -------------------------------------------------------------- soumission */
 
 async function submit(form) {
   const output = form.querySelector('[data-form-output]') || document.querySelector('[data-form-output]');
+  const nom = form.dataset.form || '';
   const payload = serialize(form);
   const zone = form.querySelector('[data-upload]');
   const photoCount = zone && zone.__files ? zone.__files.length : 0;
+  const url = endpointFor(nom);
 
-  if (!FORMS.endpoint) {
+  // --- Mode DEMO : aucun appel réseau, aucun faux succès. -------------------
+  if (!url) {
+    setState(form, 'demo');
     renderDemoResult(form, output, payload, photoCount);
     return;
   }
 
-  const submitBtn = form.querySelector('[type="submit"]');
-  if (submitBtn) submitBtn.disabled = true;
+  // --- Mode LIVE ------------------------------------------------------------
+  setState(form, 'submitting');
+  renderPending(output);
   try {
-    const response = await fetch(FORMS.endpoint, {
+    const response = await fetch(url, {
       method: FORMS.method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify(payload),
     });
+
+    // 422 : le serveur a refusé des champs. On les affiche là où ils sont,
+    // sans réécrire le formulaire — c'est tout l'intérêt d'avoir prévu l'état.
+    if (response.status === 422) {
+      const corps = await response.json().catch(() => null);
+      setState(form, 'error');
+      renderServerErrors(form, output, corps);
+      return;
+    }
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    setState(form, 'success');
     renderSuccess(form, output);
   } catch (error) {
-    if (output) {
-      output.innerHTML = '';
-      const message = document.createElement('div');
-      message.className = 'form-message form-message--error';
-      message.setAttribute('role', 'alert');
-      message.textContent =
-        'L’envoi n’a pas abouti. Merci de réessayer dans quelques instants ou de nous contacter directement.';
-      output.append(message);
-      console.error('[expert-parquet] envoi du formulaire impossible :', error);
-    }
-  } finally {
-    if (submitBtn) submitBtn.disabled = false;
+    setState(form, 'error');
+    renderNetworkError(output);
+    console.error('[expert-parquet] envoi du formulaire impossible :', error);
   }
+}
+
+/** Attente : message discret, annoncé aux lecteurs d'écran. */
+function renderPending(output) {
+  if (!output) return;
+  output.innerHTML = '';
+  const p = document.createElement('p');
+  p.className = 'form-message';
+  p.setAttribute('role', 'status');
+  p.textContent = 'Envoi en cours…';
+  output.append(p);
+}
+
+function renderNetworkError(output) {
+  if (!output) return;
+  output.innerHTML = '';
+  const p = document.createElement('p');
+  p.className = 'form-message form-message--error';
+  p.setAttribute('role', 'alert');
+  p.textContent =
+    'L’envoi n’a pas abouti. Vérifiez votre connexion et réessayez ; votre saisie est conservée.';
+  output.append(p);
+}
+
+/**
+ * Erreurs renvoyées par le serveur. Format attendu, décrit dans
+ * BACKEND-CONTRACT.md : { errors: { nomDuChamp: "message" }, message?: "…" }.
+ * Chaque message est posé sous SON champ, comme la validation locale.
+ */
+function renderServerErrors(form, output, corps) {
+  const champs = (corps && corps.errors) || {};
+  let premier = null;
+  Object.entries(champs).forEach(([nom, message]) => {
+    const field = form.querySelector(`[name="${CSS.escape(nom)}"], [name="${CSS.escape(nom)}[]"]`);
+    const holder = field && field.closest('.field');
+    const slot = holder && holder.querySelector('.field__error');
+    if (slot) {
+      slot.textContent = String(message);
+      if (field.setAttribute) field.setAttribute('aria-invalid', 'true');
+      if (!premier) premier = field;
+    }
+  });
+
+  if (output) {
+    output.innerHTML = '';
+    const p = document.createElement('p');
+    p.className = 'form-message form-message--error';
+    p.setAttribute('role', 'alert');
+    p.textContent =
+      (corps && corps.message) || 'Certaines informations n’ont pas été acceptées. Corrigez les champs signalés.';
+    output.append(p);
+  }
+  if (premier && premier.focus) premier.focus();
 }
 
 function serialize(form) {
