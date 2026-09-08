@@ -5,9 +5,11 @@ sont utilisables gratuitement, y compris à des fins commerciales, sans attribut
 obligatoire ([licence Pexels](https://www.pexels.com/license/)). Les sources sont
 néanmoins listées ici par honnêteté et pour permettre de retrouver l'original.
 
-Le **nom du photographe n'a pas pu être relevé automatiquement** (l'API Pexels n'était
-pas accessible depuis l'environnement de développement). Chaque page liée ci-dessous
-l'indique ; à compléter avant mise en ligne si une attribution est souhaitée.
+Le nom du photographe est documenté pour les images **remplacées le 7 septembre 2026**
+(voir la section dédiée plus bas). Pour les plus anciennes il n'avait pas pu être relevé
+automatiquement, l'API Pexels n'étant pas accessible depuis l'environnement de
+développement ; chaque page liée ci-dessous le porte, à compléter si une attribution
+nominale est souhaitée.
 
 | Fichier | Usage principal | Source |
 | --- | --- | --- |
@@ -19,14 +21,14 @@ l'indique ; à compléter avant mise en ligne si une attribution est souhaitée.
 | `soulevement.jpg` | Page *Parquet qui gondole*, article associé | <https://www.pexels.com/photo/172291/> |
 | `lames-bougent.jpg` | Page *Lames qui bougent* | <https://www.pexels.com/photo/6364752/> |
 | `degat-eaux.jpg` | Pages *Humidité* et *Dégât des eaux*, article humidité, carrousel *Après un dégât des eaux* | <https://www.pexels.com/photo/12519041/> |
-| `taches.jpg` | Page *Parquet abîmé : taches et rayures* | <https://www.pexels.com/photo/129731/> |
+| `taches.jpg` | Hero *Parquet abîmé : taches et rayures*, vignette de la liste des symptômes | <https://www.pexels.com/photo/photograph-of-a-wooden-floor-11126101/> |
 | `rayures.jpg` | Article *Peut-on rénover un parquet très abîmé ?*, vignette *Dégât des eaux* | <https://www.pexels.com/photo/6044253/> |
 | `pose-support.jpg` | Page *Défaut de pose*, catégorie *Pose*, article support | <https://www.pexels.com/photo/20818874/> |
 | `parquet-ancien.jpg` | Catégorie *Rénovation* | <https://www.pexels.com/photo/11018239/> |
 | `entretien.jpg` | Catégorie *Entretien* | <https://www.pexels.com/photo/4440568/> |
-| `interieur-clair.jpg` | Page *À propos*, catégorie *Choisir un parquet* | <https://www.pexels.com/photo/7027720/> |
+| `interieur-clair.jpg` | Page *À propos*, hero *Choisir un parquet*, carte *Conseils* | <https://www.pexels.com/photo/living-room-with-beige-walls-19836805/> |
 | `hero-wide.jpg` | Bloc « L'expertise commence par l'observation » (accueil) | <https://www.pexels.com/photo/2082093/> |
-| `architectural.jpg` | Domaine « Expertise avant intervention » (accueil) | <https://www.pexels.com/photo/15758635/> |
+| `architectural.jpg` | Domaine « Expertise avant intervention » (accueil) | <https://www.pexels.com/photo/wooden-floor-and-white-walls-inside-a-house-7587883/> |
 | `domaine-desordres.jpg` | Domaine « Désordres et défauts » (accueil) | <https://www.pexels.com/photo/2530326/> |
 
 ## Icônes
@@ -57,6 +59,48 @@ Toutes les déclinaisons employées par le site sont produites par
 La signature typographique provisoire (« **Expert** Parquet » en deux graisses d'Inter
 Tight) et le favicon de gabarit ont été retirés.
 
+
+## Photographies remplacées le 7 septembre 2026
+
+Trois images avaient été identifiées comme faibles : elles ne montraient pas leur sujet,
+ou cassaient l'identité architecturale du site. Elles ont été remplacées à noms de
+fichiers inchangés, donc sans toucher aux contenus.
+
+| | `interieur-clair.jpg` | `architectural.jpg` | `taches.jpg` |
+| --- | --- | --- | --- |
+| **Titre** | Living Room with Beige Walls | Wooden Floor and White Walls Inside a House | Photograph of a Wooden Floor |
+| **Auteur** | Lisa Anna | Max Vakhtbovych | Engin Akyurt |
+| **Plateforme** | Pexels | Pexels | Pexels |
+| **Page d'origine** | <https://www.pexels.com/photo/living-room-with-beige-walls-19836805/> | <https://www.pexels.com/photo/wooden-floor-and-white-walls-inside-a-house-7587883/> | <https://www.pexels.com/photo/photograph-of-a-wooden-floor-11126101/> |
+| **Licence** | Licence Pexels — usage libre, y compris commercial, attribution non obligatoire | idem | idem |
+| **Récupérée le** | 7 septembre 2026 | 7 septembre 2026 | 7 septembre 2026 |
+| **Dimensions** | 1600 × 1067 (3:2) | 1800 × 1440 (5:4) | 1800 × 1200 (3:2) |
+| **Poids** | 174 Ko | 151 Ko | 469 Ko |
+
+Texte de la licence : <https://www.pexels.com/license/>
+
+Les fichiers ont été demandés au CDN Pexels aux dimensions exactes de leur emplacement
+(`&fit=crop&w=…&h=…`), donc **recadrés à la source, jamais étirés** ni redimensionnés
+localement. Pour `architectural.jpg` et `taches.jpg` ces dimensions sont désormais celles
+que le gabarit déclare dans le HTML : le rapport intrinsèque et le rapport annoncé
+coïncident, ce qui n'était pas le cas des anciens fichiers.
+
+Ce qui a motivé chaque remplacement :
+
+- **`interieur-clair.jpg`** — l'ancienne était une photo d'annonce immobilière américaine
+  (deux ventilateurs de plafond, canapés marron, tapis à poils longs, sol en stratifié
+  gris). La nouvelle est un intérieur nordique contemporain : lames de chêne larges au
+  centre du cadre, murs greige, lumière naturelle, mobilier rare.
+- **`architectural.jpg`** — l'ancienne montrait un escalier vu de dessus, en dominante
+  orange, sans parquet lisible. La nouvelle est une pièce vide avant emménagement,
+  parquet chevron sur toute la partie basse, cadrage frontal, murs blancs, menuiserie
+  noire. Elle dit « architecture **et** parquet », pas seulement « architecture ».
+- **`taches.jpg`** — l'ancienne montrait des lames de teck neuves et parfaitement saines
+  sur une page consacrée aux taches et rayures : le sujet annoncé était absent. La
+  nouvelle est un parquet massif ancien en lumière rasante, avec usure, joints noircis,
+  marques localisées et variations de teinte entre lames. Le défaut est visible sans être
+  spectaculaire.
+
 ## À faire
 
 - Remplacer progressivement ces images par des **photographies de chantiers réels**
@@ -64,13 +108,5 @@ Tight) et le favicon de gabarit ont été retirés.
   et plus crédibles.
 - `degat-eaux.jpg` sert actuellement deux pages différentes, faute de visuel adapté à
   l'humidité. À dédoublonner.
-- **Trois images restent faibles**, faute d'un remplacement disponible dans le dossier.
-  Elles sont identifiées, avec le brief de remplacement, pour un prochain lot :
-
-  | Fichier | Ce qui ne va pas | Brief de remplacement |
-  | --- | --- | --- |
-  | `interieur-clair.jpg` | Photo d'annonce immobilière américaine : deux ventilateurs de plafond, canapés marron, tapis à poils longs, et un sol qui est un stratifié gris. C'est l'image la plus éloignée de l'identité du site. | Intérieur contemporain sobre, parquet clair réellement visible au premier plan, lumière naturelle latérale, mobilier rare, couleurs neutres. |
-  | `architectural.jpg` | Un escalier vu de dessus, dominante orange, et presque pas de parquet — le sujet du domaine « Expertise avant intervention » n'apparaît pas. | Pièce vide ou très peu meublée avant travaux, parquet en pleine surface, cadrage frontal calme, tons neutres. |
-  | `taches.jpg` | Lames de teck neuves et parfaitement saines, alors qu'elles illustrent la page *taches et rayures*. Le sujet annoncé est absent de l'image. | Détail de parquet réellement taché ou rayé : cernes sombres, usure localisée, rayures visibles en lumière rasante. |
 - Consigner ici toute nouvelle image ou vidéo ajoutée, avec sa source, son auteur, sa
   licence et sa date de récupération.
