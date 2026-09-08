@@ -206,3 +206,13 @@
 /* Bloc d'orientation rédigé, à distinguer d'une simple coordonnée. */
 .contact-info__value--text { color: var(--text-body); line-height: 1.55; }
 .contact-info__value--text a { color: var(--text-strong); }
+
+/* Message d'état d'un formulaire (attente, erreur réseau, refus serveur).
+   Une seule ligne discrète : le formulaire reste à l'écran et la saisie est
+   conservée. Les états sont écrits en `data-form-state` par forms.js. */
+.form-message {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  padding: var(--space-sm) 0;
+}
+.form-message--error { color: var(--color-warning); }

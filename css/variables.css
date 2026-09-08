@@ -167,6 +167,12 @@
    CSS n'autorisant pas var() dans les media queries, ces valeurs y sont
    répétées littéralement — seule exception à la centralisation. */
 
+/* Sous 640 px, la signature du pied passe de 56 à 44 px : elle reste lisible
+   et le pied gagne une douzaine de pixels sur une hauteur déjà contrainte. */
+@media (max-width: 640px) {
+  :root { --brand-logo-h: 2.75rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-fast: 0.01ms;

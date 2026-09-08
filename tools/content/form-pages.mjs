@@ -213,7 +213,7 @@ function quotePage() {
                 <p class="field__error" role="alert"></p>
               </div>
 
-              <p class="disclaimer">${ICONS.help} Formulaire de démonstration&nbsp;: aucune demande n’est transmise pour le moment.</p>
+              <p class="disclaimer">Formulaire de démonstration&nbsp;— aucune demande n’est transmise pour le moment.</p>
 
               <div class="form-nav">
                 <button class="btn btn--ghost" type="button" data-form-prev>Retour</button>
@@ -336,7 +336,7 @@ function contactPage() {
               <p class="field__error" role="alert"></p>
             </div>
 
-            <p class="disclaimer">${ICONS.help} Formulaire de démonstration&nbsp;: aucun message n’est transmis pour le moment.</p>
+            <p class="disclaimer">Formulaire de démonstration&nbsp;— aucun message n’est transmis pour le moment.</p>
 
             <div class="form-nav">
               <span></span>
