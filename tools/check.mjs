@@ -14,6 +14,7 @@ import { join, dirname, resolve, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { STAMP_PARAM, verifyStamp, normaliseEol } from './fingerprint.mjs';
+import { FORMS, CONTACT, RGPD, endpointFor, formMode } from '../js/config/site.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -24,7 +25,9 @@ const warnings = [];
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
-    if (['tools', 'node_modules', '.git'].includes(name)) continue;
+    // `backend/` (WordPress) et `backend-private/` vivent dans le même dossier
+    // que le site mais n'en font pas partie : jamais analysés, jamais publiés.
+    if (['tools', 'node_modules', '.git', 'backend', 'backend-private'].includes(name)) continue;
     const full = join(dir, name);
     if (statSync(full).isDirectory()) walk(full, out);
     else if (name.endsWith('.html')) out.push(full);
@@ -133,7 +136,14 @@ for (const file of pages) {
     if (!/\swidth="/.test(attrs) || !/\sheight="/.test(attrs)) {
       warn(`img sans width/height : ${src[1]}`);
     }
-    if (!/loading="lazy"/.test(attrs) && !/fetchpriority="high"/.test(attrs)) {
+    // Trois régimes valides, et non deux. Le troisième — aucun attribut — est
+    // réservé aux images présentes au premier écran mais masquées par le CSS :
+    // la version claire du logotype sur une page à hero sombre. Elle doit être
+    // téléchargée pour être prête au défilement, sans concourir avec le LCP.
+    // `loading="lazy"` la ferait clignoter, `fetchpriority="high"` la ferait
+    // passer devant l'image du hero. Voir tools/layout.mjs, fonction logoImg.
+    const masqueeParDefaut = /class="brand__logo"/.test(attrs) && /site-header--over/.test(html);
+    if (!/loading="lazy"/.test(attrs) && !/fetchpriority="high"/.test(attrs) && !masqueeParDefaut) {
       warn(`img sans stratégie de chargement : ${src[1]}`);
     }
   }
@@ -209,6 +219,59 @@ for (const page of pageSet) {
   if (digest(lf) !== digest(crlf)) {
     errors.push('fingerprint : LF et CRLF ne donnent pas la même empreinte');
   }
+}
+
+/* --- Cohérence du passage en service -----------------------------------------
+   Renseigner un point d'envoi transforme le site : il se met à collecter des
+   données personnelles. Trois choses doivent alors être vraies EN MÊME TEMPS,
+   sinon le site publie une page de confidentialité fausse — ce que la version
+   de démonstration promet explicitement de ne pas faire.
+
+   Ce contrôle échoue plutôt que d'avertir. Un avertissement se lit après la
+   mise en ligne ; une erreur l'empêche. */
+{
+  const vivants = ['contact', 'devis'].filter((nom) => formMode(nom) === 'live');
+
+  if (vivants.length) {
+    if (!CONTACT.legalEntity) {
+      errors.push(
+        'formulaires en service, mais CONTACT.legalEntity est null : la page de confidentialité ne peut pas nommer le responsable du traitement.'
+      );
+    }
+    if (!CONTACT.email) {
+      errors.push(
+        'formulaires en service, mais CONTACT.email est null : aucun moyen d’exercer les droits RGPD n’est indiqué.'
+      );
+    }
+    if (!Number.isInteger(RGPD.conservationMois) || RGPD.conservationMois <= 0) {
+      errors.push(
+        'formulaires en service, mais RGPD.conservationMois n’est pas un nombre de mois valide : aucune durée de conservation ne peut être annoncée.'
+      );
+    }
+    for (const nom of vivants) {
+      const url = endpointFor(nom);
+      if (!/^https:\/\//.test(url) && !/^https?:\/\/(localhost|127\.0\.0\.1|[a-z0-9.-]+\.test)([:/]|$)/.test(url)) {
+        errors.push(
+          `point d'envoi « ${nom} » en clair (${url}) : une demande contient des données personnelles, elle ne voyage qu'en HTTPS.`
+        );
+      }
+    }
+    if (vivants.length === 1) {
+      warnings.push(
+        `un seul formulaire est en service (${vivants[0]}) : vérifiez que c’est voulu, l’autre reste en démonstration.`
+      );
+    }
+  }
+
+  /* L'inverse compte aussi : des valeurs RGPD renseignées alors que rien n'est
+     collecté donneraient une page de confidentialité qui décrit un traitement
+     inexistant. */
+  if (!vivants.length && Number.isInteger(RGPD.conservationMois)) {
+    warnings.push(
+      'RGPD.conservationMois est renseigné alors qu’aucun formulaire n’est en service : la page de confidentialité continue d’annoncer qu’aucune donnée n’est collectée.'
+    );
+  }
+  void FORMS;
 }
 
 // --- Rapport ---------------------------------------------------------------

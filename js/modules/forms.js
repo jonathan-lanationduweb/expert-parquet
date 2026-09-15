@@ -7,7 +7,7 @@
  * données qu’il aurait transmises. Voir TODO-INTEGRATIONS.md.
  */
 
-import { FORMS, endpointFor, formMode } from '../config/site.js';
+import { FORMS, endpointFor, formMode, uploadEnabled } from '../config/site.js';
 import * as OPTIONS from '../config/options.js';
 
 const LISTS = {
@@ -66,6 +66,18 @@ function populate(container) {
 
 /* --------------------------------------------------------------- formulaire */
 
+/* Date d'affichage de chaque formulaire. Une WeakMap plutôt qu'un attribut :
+   cette valeur est une mesure interne, elle n'a rien à faire dans le DOM où
+   elle serait triviale à réécrire depuis la console — et surtout lisible par
+   un robot qui saurait alors quoi renvoyer. */
+const ouvertureDuFormulaire = new WeakMap();
+
+/* Contexte du pré-diagnostic, tel que reçu dans l'URL au chargement du
+   formulaire. Conservé à part pour être transmis au serveur sous
+   `diagnosticContext` : c'est la trace des réponses du visiteur et de
+   l'orientation générale — jamais un constat. */
+const contexteDiagnostic = new WeakMap();
+
 function setupForm(form) {
   const steps = Array.from(form.querySelectorAll('[data-form-step]'));
   const stepper = form.querySelector('[data-form-stepper]');
@@ -76,6 +88,22 @@ function setupForm(form) {
   // s'y accrocher, et un futur passage en LIVE ne change rien au gabarit.
   form.dataset.formMode = formMode(form.dataset.form || '');
   setState(form, 'idle');
+
+  /* Le HTML généré porte les mentions du mode DEMO. Si, à l'exécution, un
+     point d'envoi existe (backend local sur un hôte de développement), elles
+     deviennent fausses : on les retire. */
+  if (form.dataset.formMode === 'live') {
+    form.querySelectorAll('[data-demo-only]').forEach((node) => {
+      node.hidden = true;
+    });
+  }
+
+  /* Instant d'affichage du formulaire. On n'envoie PAS cette valeur mais la
+     DURÉE écoulée jusqu'à l'envoi : un horodatage absolu obligerait le serveur
+     à comparer son horloge à celle du visiteur, et quelques secondes d'avance
+     sur une machine mal réglée suffiraient à faire refuser une demande
+     parfaitement légitime. Une durée ne dépend que de l'horloge locale. */
+  ouvertureDuFormulaire.set(form, Date.now());
 
   prefillFromUrl(form);
 
@@ -383,12 +411,54 @@ async function submit(form) {
     }
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
+    const recu = await response.json().catch(() => null);
+
+    /* La demande est enregistrée. Les photos suivent, et leur sort ne remet
+       jamais celle-ci en cause : on ne va pas annoncer un échec pour une pièce
+       jointe alors que l'essentiel est passé. Le résultat du dépôt est
+       simplement dit honnêtement dans le message de confirmation. */
+    let photos = null;
+    if (photoCount > 0 && zone && uploadEnabled()) {
+      photos = await envoyerPhotos(recu, zone.__files);
+    }
+
     setState(form, 'success');
-    renderSuccess(form, output);
+    renderSuccess(form, output, photos);
   } catch (error) {
     setState(form, 'error');
     renderNetworkError(output);
     console.error('[expert-parquet] envoi du formulaire impossible :', error);
+  }
+}
+
+/**
+ * Second temps : dépôt des photographies.
+ *
+ * Le serveur a répondu à la demande par `photoUrl` et `photoToken`. L'adresse
+ * n'est donc pas devinée côté client, et le jeton n'autorise QUE l'ajout de
+ * fichiers à cette demande-là, pour une durée courte.
+ *
+ * Retourne `{ envoyees, refusees }`, ou `null` si le serveur n'attend pas de
+ * photos — un formulaire de contact, par exemple.
+ */
+async function envoyerPhotos(recu, fichiers) {
+  if (!recu || !recu.photoUrl || !recu.photoToken || !fichiers || !fichiers.length) return null;
+
+  const corps = new FormData();
+  corps.append('token', recu.photoToken);
+  fichiers.forEach((file) => corps.append('photos[]', file, file.name));
+
+  try {
+    // Pas d'en-tête Content-Type : le navigateur doit poser lui-même la
+    // frontière multipart, qu'on ne peut pas connaître ici.
+    const reponse = await fetch(recu.photoUrl, { method: 'POST', body: corps });
+    if (!reponse.ok) return { envoyees: 0, refusees: fichiers.length };
+    const detail = await reponse.json().catch(() => null);
+    const envoyees = detail && typeof detail.recues === 'number' ? detail.recues : fichiers.length;
+    return { envoyees, refusees: fichiers.length - envoyees };
+  } catch (error) {
+    console.error('[expert-parquet] dépôt des photographies impossible :', error);
+    return { envoyees: 0, refusees: fichiers.length };
   }
 }
 
@@ -462,15 +532,54 @@ function serialize(form) {
   });
   payload._form = form.dataset.form || 'inconnu';
   payload._page = window.location.pathname;
+
+  /* Durée de remplissage, en millisecondes. Un formulaire envoyé en moins de
+     trois secondes n'a pas été lu ; le serveur s'en sert comme indice, jamais
+     comme preuve. Le champ leurre `_hp` est lui déjà dans le formulaire, donc
+     déjà repris par le FormData ci-dessus. */
+  const ouverture = ouvertureDuFormulaire.get(form);
+  if (ouverture) payload._ts = Date.now() - ouverture;
+
+  /* Le contexte du pré-diagnostic part avec la demande d'expertise. Le
+     visiteur a pu modifier ses réponses dans le formulaire : les deux sont
+     conservés, le serveur les présente comme ce qu'ils sont. */
+  const contexte = contexteDiagnostic.get(form);
+  if (contexte && payload._form === 'devis') payload.diagnosticContext = contexte;
+
   return payload;
 }
 
-function renderSuccess(form, output) {
+function renderSuccess(form, output, photos) {
   const panel = form.closest('.form-panel') || form.parentElement;
   form.hidden = true;
   if (!output) return;
   output.innerHTML = '';
-  output.append(doneBlock('Votre demande a bien été transmise.', 'Nous revenons vers vous dans les meilleurs délais.'));
+  output.append(
+    doneBlock('Votre demande a bien été transmise.', 'Nous revenons vers vous dans les meilleurs délais.')
+  );
+
+  /* Le sort des photographies est dit tel quel. Taire un dépôt partiel
+     laisserait le visiteur croire que le constat est complet, et l'expertise
+     se ferait sur des éléments manquants. */
+  if (photos) {
+    const p = document.createElement('p');
+    p.className = 'form-message';
+    if (photos.envoyees === 0) {
+      p.className += ' form-message--error';
+      p.textContent =
+        'Vos photographies n’ont pas pu être déposées. Votre demande, elle, est bien enregistrée : nous vous les redemanderons par courriel.';
+    } else if (photos.refusees > 0) {
+      p.className += ' form-message--error';
+      p.textContent = `${photos.envoyees} photographie${photos.envoyees > 1 ? 's ont' : ' a'} été reçue${
+        photos.envoyees > 1 ? 's' : ''
+      }, ${photos.refusees} n’a pas pu l’être.`;
+    } else {
+      p.textContent = `${photos.envoyees} photographie${photos.envoyees > 1 ? 's' : ''} reçue${
+        photos.envoyees > 1 ? 's' : ''
+      }.`;
+    }
+    output.append(p);
+  }
   void panel;
 }
 
@@ -614,6 +723,13 @@ function doneBlock(title, text) {
 function prefillFromUrl(form) {
   const params = new URLSearchParams(window.location.search);
   if ([...params.keys()].length === 0) return;
+
+  const contexte = {};
+  params.forEach((value, key) => {
+    if (key in contexte) contexte[key] = [].concat(contexte[key], value);
+    else contexte[key] = value;
+  });
+  contexteDiagnostic.set(form, contexte);
 
   params.forEach((value, key) => {
     const radio = form.querySelector(`input[type="radio"][name="${CSS.escape(key)}"][value="${CSS.escape(value)}"]`);
