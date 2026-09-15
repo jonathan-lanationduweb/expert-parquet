@@ -1,6 +1,4 @@
-# Expert Parquet — robots.txt
+# Expert Parquet — robots.txt (PRÉPRODUCTION)
+# Ce build n'est pas destiné à l'indexation.
 User-agent: *
-Allow: /
-Disallow: /tools/
-
-Sitemap: https://expert-parquet.com/sitemap.xml
+Disallow: /

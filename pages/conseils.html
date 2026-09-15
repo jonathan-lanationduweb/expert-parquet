@@ -6,7 +6,7 @@
   <title>Conseils parquet&nbsp;: entretien, rénovation, pose, humidité | Expert Parquet</title>
   <meta name="description" content="Articles techniques sur le parquet : diagnostic, entretien, rénovation, pose, humidité, défauts et choix du revêtement. Contenus pédagogiques et concrets.">
   <link rel="canonical" href="https://expert-parquet.com/pages/conseils.html">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="noindex, nofollow">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Expert Parquet">
@@ -26,18 +26,18 @@
   <link rel="shortcut icon" href="../assets/icons/favicon.ico">
   <meta name="theme-color" content="#17181A">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
+  <link rel="preload" href="../assets/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-tight-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 
-  <link rel="stylesheet" href="../css/variables.css?v=4968b134">
+  <link rel="stylesheet" href="../css/fonts.css?v=77d9f050">
+  <link rel="stylesheet" href="../css/variables.css?v=52b3e6ec">
   <link rel="stylesheet" href="../css/reset.css?v=f14d0489">
-  <link rel="stylesheet" href="../css/base.css?v=1d1d3118">
-  <link rel="stylesheet" href="../css/layout.css?v=f6b74372">
-  <link rel="stylesheet" href="../css/components.css?v=d1559b19">
-  <link rel="stylesheet" href="../css/pages/home.css?v=4d6bd405">
+  <link rel="stylesheet" href="../css/base.css?v=c4327834">
+  <link rel="stylesheet" href="../css/layout.css?v=44456b68">
+  <link rel="stylesheet" href="../css/components.css?v=d6cb16ec">
+  <link rel="stylesheet" href="../css/pages/home.css?v=7e517310">
 
-  <script type="module" src="../js/main.js?v=f59024f2"></script>
+  <script type="module" src="../js/main.js?v=0c7bfe2e"></script>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -66,14 +66,20 @@
       <img class="brand__logo" src="../assets/brand/expert-parquet-logo-on-light.png" alt="" width="338" height="128" fetchpriority="high" decoding="async">
     </a>
     <nav class="nav" id="site-nav" data-nav aria-label="Navigation principale">
-      <ul class="nav__list">
-        <li><a class="nav__link" href="../pages/expertise.html">Expertise</a></li>
-        <li><a class="nav__link" href="../pages/diagnostic.html">Diagnostic</a></li>
-        <li><a class="nav__link" href="../pages/problemes.html">Problèmes</a></li>
-        <li><a class="nav__link" href="../pages/conseils.html" aria-current="page">Conseils</a></li>
-        <li><a class="nav__link" href="../pages/a-propos.html">À propos</a></li>
-        <li><a class="nav__link" href="../pages/contact.html">Contact</a></li>
-      </ul>
+      <div class="nav__bar">
+        <img class="nav__logo" src="../assets/brand/expert-parquet-logo-on-dark.png" alt="" width="338" height="128" loading="lazy" decoding="async">
+        <button class="nav__close" type="button" data-nav-close aria-label="Fermer le menu"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" aria-hidden="true"><path d="M4.5 4.5 17.5 17.5M17.5 4.5 4.5 17.5"/></svg></button>
+      </div>
+      <div class="nav__scroll">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="../pages/expertise.html">Expertise</a></li>
+          <li><a class="nav__link" href="../pages/diagnostic.html">Diagnostic</a></li>
+          <li><a class="nav__link" href="../pages/problemes.html">Problèmes</a></li>
+          <li><a class="nav__link" href="../pages/conseils.html" aria-current="page">Conseils</a></li>
+          <li><a class="nav__link" href="../pages/a-propos.html">À propos</a></li>
+          <li><a class="nav__link" href="../pages/contact.html">Contact</a></li>
+        </ul>
+      </div>
       <a class="btn btn--primary btn--block nav__cta-mobile" href="../pages/devis.html">Demander une expertise</a>
     </nav>
     <div class="header__actions">
@@ -85,7 +91,6 @@
     </div>
   </div>
 </header>
-<div class="nav-overlay" data-nav-overlay></div>
 
   <main id="main">
   <section class="page-hero">
@@ -111,10 +116,10 @@
       <div class="sec-head" data-reveal>
         <h2>Catégories</h2>
       </div>
-      <div class="grid grid--4 u-mt-lg">
+      <div class="grid grid--4 hub-categories u-mt-lg">
       <article class="card" data-reveal data-reveal-delay="0">
         <div class="card__media card__media--16x9">
-          <img src="../assets/images/entretien.jpg" alt="" width="1400" height="788" loading="lazy" decoding="async">
+          <img src="../assets/images/entretien.jpg" srcset="../assets/images/r/entretien-480.jpg 480w, ../assets/images/r/entretien-768.jpg 768w, ../assets/images/r/entretien-1200.jpg 1200w, ../assets/images/entretien.jpg 1400w" sizes="(min-width: 901px) 33vw, (min-width: 641px) 50vw, 100vw" alt="Personne passant un balai à franges sur un sol en bois" width="1400" height="2100" loading="lazy" decoding="async">
         </div>
         <div class="card__body">
           <h3 class="card__title"><a class="card__link" href="../pages/conseils/entretien.html">Entretien</a></h3>
@@ -123,7 +128,7 @@
       </article>
       <article class="card" data-reveal data-reveal-delay="50">
         <div class="card__media card__media--16x9">
-          <img src="../assets/images/parquet-ancien.jpg" alt="" width="1400" height="788" loading="lazy" decoding="async">
+          <img src="../assets/images/parquet-ancien.jpg" srcset="../assets/images/r/parquet-ancien-480.jpg 480w, ../assets/images/r/parquet-ancien-768.jpg 768w, ../assets/images/r/parquet-ancien-1200.jpg 1200w, ../assets/images/parquet-ancien.jpg 1400w" sizes="(min-width: 901px) 33vw, (min-width: 641px) 50vw, 100vw" alt="" width="1400" height="934" loading="lazy" decoding="async">
         </div>
         <div class="card__body">
           <h3 class="card__title"><a class="card__link" href="../pages/conseils/renovation.html">Rénovation</a></h3>
@@ -132,7 +137,7 @@
       </article>
       <article class="card" data-reveal data-reveal-delay="100">
         <div class="card__media card__media--16x9">
-          <img src="../assets/images/pose-support.jpg" alt="" width="1400" height="788" loading="lazy" decoding="async">
+          <img src="../assets/images/pose-support.jpg" srcset="../assets/images/r/pose-support-480.jpg 480w, ../assets/images/r/pose-support-768.jpg 768w, ../assets/images/r/pose-support-1200.jpg 1200w, ../assets/images/pose-support.jpg 1400w" sizes="(min-width: 901px) 33vw, (min-width: 641px) 50vw, 100vw" alt="Surface lisse et uniforme d’une dalle béton avant pose" width="1400" height="1400" loading="lazy" decoding="async">
         </div>
         <div class="card__body">
           <h3 class="card__title"><a class="card__link" href="../pages/conseils/pose.html">Pose</a></h3>
@@ -141,7 +146,7 @@
       </article>
       <article class="card" data-reveal data-reveal-delay="150">
         <div class="card__media card__media--16x9">
-          <img src="../assets/images/interieur-clair.jpg" alt="" width="1400" height="788" loading="lazy" decoding="async">
+          <img src="../assets/images/interieur-clair.jpg" srcset="../assets/images/r/interieur-clair-480.jpg 480w, ../assets/images/r/interieur-clair-768.jpg 768w, ../assets/images/r/interieur-clair-1200.jpg 1200w, ../assets/images/interieur-clair.jpg 1600w" sizes="(min-width: 901px) 33vw, (min-width: 641px) 50vw, 100vw" alt="Séjour aux tons beiges meublé sobrement, parquet en chêne clair" width="1600" height="1067" loading="lazy" decoding="async">
         </div>
         <div class="card__body">
           <h3 class="card__title"><a class="card__link" href="../pages/conseils/choisir-parquet.html">Choisir un parquet</a></h3>
@@ -161,52 +166,32 @@
       <div class="grid grid--3 u-mt-lg">
       <article class="card" data-reveal data-reveal-delay="0">
         <div class="card__media media--4x3">
-          <img src="../assets/images/grincement.jpg" alt="" width="1400" height="1050" loading="lazy" decoding="async">
+          <img src="../assets/images/lames-bougent.jpg" srcset="../assets/images/r/lames-bougent-480.jpg 480w, ../assets/images/r/lames-bougent-768.jpg 768w, ../assets/images/r/lames-bougent-1200.jpg 1200w, ../assets/images/lames-bougent.jpg 1400w" sizes="(min-width: 901px) 40vw, 100vw" alt="Plancher en lames courtes et irrégulières vu en enfilade" width="1400" height="933" loading="lazy" decoding="async">
         </div>
         <div class="card__body">
-          <p class="card__meta"><span>Diagnostic</span><span>6 min</span></p>
-          <h3 class="card__title"><a class="card__link" href="../articles/pourquoi-un-parquet-grince.html">Pourquoi un parquet se met-il à grincer&nbsp;?</a></h3>
-          <p class="card__text">Le grincement est un symptôme, pas une cause. Comprendre d’où vient le frottement évite d’engager des travaux inutiles.</p>
+          <p class="card__meta"><span>Diagnostic</span><span>7 min</span></p>
+          <h3 class="card__title"><a class="card__link" href="../articles/lames-qui-secartent.html">Lames qui s’écartent&nbsp;: jeu normal ou défaut&nbsp;?</a></h3>
+          <p class="card__text">Des joints qui s’ouvrent en hiver et se referment au printemps sont normaux. Trois situations, en revanche, méritent d’être regardées de près.</p>
         </div>
       </article>
       <article class="card" data-reveal data-reveal-delay="70">
         <div class="card__media media--4x3">
-          <img src="../assets/images/soulevement.jpg" alt="" width="1400" height="1050" loading="lazy" decoding="async">
+          <img src="../assets/images/parquet-detail.jpg" srcset="../assets/images/r/parquet-detail-480.jpg 480w, ../assets/images/r/parquet-detail-768.jpg 768w, ../assets/images/r/parquet-detail-1200.jpg 1200w, ../assets/images/parquet-detail.jpg 1400w" sizes="(min-width: 901px) 40vw, 100vw" alt="" width="1400" height="2100" loading="lazy" decoding="async">
         </div>
         <div class="card__body">
-          <p class="card__meta"><span>Défauts</span><span>7 min</span></p>
-          <h3 class="card__title"><a class="card__link" href="../articles/parquet-qui-se-souleve-que-faire.html">Que faire lorsqu’un parquet se soulève&nbsp;?</a></h3>
-          <p class="card__text">Un parquet qui bombe réagit presque toujours à l’eau ou à un manque de jeu. Les premiers gestes conditionnent la suite.</p>
+          <p class="card__meta"><span>Diagnostic</span><span>6 min</span></p>
+          <h3 class="card__title"><a class="card__link" href="../articles/parquet-qui-sonne-creux.html">Parquet qui sonne creux&nbsp;: ce que le bruit indique</a></h3>
+          <p class="card__text">Normal sur une pose flottante, préoccupant sur une pose collée. La première question n’est pas pourquoi ça sonne creux, mais comment le parquet est posé.</p>
         </div>
       </article>
       <article class="card" data-reveal data-reveal-delay="140">
         <div class="card__media media--4x3">
-          <img src="../assets/images/degat-eaux.jpg" alt="" width="1400" height="1050" loading="lazy" decoding="async">
+          <img src="../assets/images/rayures.jpg" srcset="../assets/images/r/rayures-480.jpg 480w, ../assets/images/r/rayures-768.jpg 768w, ../assets/images/r/rayures-1200.jpg 1200w, ../assets/images/rayures.jpg 1400w" sizes="(min-width: 901px) 40vw, 100vw" alt="Plancher ancien très sombre, profondément marqué et taché" width="1400" height="927" loading="lazy" decoding="async">
         </div>
         <div class="card__body">
-          <p class="card__meta"><span>Humidité</span><span>8 min</span></p>
-          <h3 class="card__title"><a class="card__link" href="../articles/humidite-et-parquet-signes-qui-alertent.html">Humidité et parquet&nbsp;: quels signes doivent alerter&nbsp;?</a></h3>
-          <p class="card__text">Certains signaux apparaissent bien avant le désordre visible. Savoir les lire permet d’agir avant la dégradation.</p>
-        </div>
-      </article>
-      <article class="card" data-reveal data-reveal-delay="210">
-        <div class="card__media media--4x3">
-          <img src="../assets/images/rayures.jpg" alt="" width="1400" height="1050" loading="lazy" decoding="async">
-        </div>
-        <div class="card__body">
-          <p class="card__meta"><span>Rénovation</span><span>7 min</span></p>
-          <h3 class="card__title"><a class="card__link" href="../articles/renover-un-parquet-tres-abime.html">Peut-on rénover un parquet très abîmé&nbsp;?</a></h3>
-          <p class="card__text">Entre patine et dégradation, la frontière n’est pas toujours nette. Trois critères décident de la faisabilité.</p>
-        </div>
-      </article>
-      <article class="card" data-reveal data-reveal-delay="280">
-        <div class="card__media media--4x3">
-          <img src="../assets/images/pose-support.jpg" alt="" width="1400" height="1050" loading="lazy" decoding="async">
-        </div>
-        <div class="card__body">
-          <p class="card__meta"><span>Pose</span><span>9 min</span></p>
-          <h3 class="card__title"><a class="card__link" href="../articles/pourquoi-le-support-est-essentiel.html">Pourquoi le support est-il essentiel avant la pose&nbsp;?</a></h3>
-          <p class="card__text">La majorité des désordres se jouent sous le parquet. Planéité, siccité, propreté&nbsp;: les trois contrôles décisifs.</p>
+          <p class="card__meta"><span>Humidité</span><span>7 min</span></p>
+          <h3 class="card__title"><a class="card__link" href="../articles/traces-noires-sur-un-parquet.html">Traces noires sur un parquet&nbsp;: comment les distinguer</a></h3>
+          <p class="card__text">Réaction chimique, moisissure ou finition épuisée&nbsp;: trois phénomènes différents, trois réponses différentes. La forme et l’odeur suffisent souvent à trancher.</p>
         </div>
       </article>
       </div>
@@ -214,6 +199,124 @@
   </section>
 
   <section class="section">
+    <div class="container">
+      <div class="sec-head" data-reveal>
+        <p class="kicker">Tous les articles</p>
+        <h2 class="sec-head__title">Par thème</h2>
+        <p class="lead">Le même fonds, rangé par question posée plutôt que par date de publication.</p>
+      </div>
+      <div class="theme-group" data-reveal>
+        <h3 class="theme-group__title">Diagnostic</h3>
+        <div class="next-read">
+          <a class="next-read__item" href="../articles/pourquoi-un-parquet-grince.html">
+            <span class="next-read__kind">6 min</span>
+            <span class="next-read__title">Pourquoi un parquet se met-il à grincer&nbsp;?</span>
+            <span class="next-read__text">Le grincement est un symptôme, pas une cause. Comprendre d’où vient le frottement évite d’engager des travaux inutiles.</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>
+          <a class="next-read__item" href="../articles/lames-qui-secartent.html">
+            <span class="next-read__kind">7 min</span>
+            <span class="next-read__title">Lames qui s’écartent&nbsp;: jeu normal ou défaut&nbsp;?</span>
+            <span class="next-read__text">Des joints qui s’ouvrent en hiver et se referment au printemps sont normaux. Trois situations, en revanche, méritent d’être regardées de près.</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>
+          <a class="next-read__item" href="../articles/parquet-qui-sonne-creux.html">
+            <span class="next-read__kind">6 min</span>
+            <span class="next-read__title">Parquet qui sonne creux&nbsp;: ce que le bruit indique</span>
+            <span class="next-read__text">Normal sur une pose flottante, préoccupant sur une pose collée. La première question n’est pas pourquoi ça sonne creux, mais comment le parquet est posé.</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>
+        </div>
+      </div>
+      <div class="theme-group" data-reveal>
+        <h3 class="theme-group__title">Défauts</h3>
+        <div class="next-read">
+          <a class="next-read__item" href="../articles/parquet-qui-se-souleve-que-faire.html">
+            <span class="next-read__kind">7 min</span>
+            <span class="next-read__title">Que faire lorsqu’un parquet se soulève&nbsp;?</span>
+            <span class="next-read__text">Un parquet qui bombe réagit presque toujours à l’eau ou à un manque de jeu. Les premiers gestes conditionnent la suite.</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>
+        </div>
+      </div>
+      <div class="theme-group" data-reveal>
+        <h3 class="theme-group__title">Humidité</h3>
+        <div class="next-read">
+          <a class="next-read__item" href="../articles/humidite-et-parquet-signes-qui-alertent.html">
+            <span class="next-read__kind">8 min</span>
+            <span class="next-read__title">Humidité et parquet&nbsp;: quels signes doivent alerter&nbsp;?</span>
+            <span class="next-read__text">Certains signaux apparaissent bien avant le désordre visible. Savoir les lire permet d’agir avant la dégradation.</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>
+          <a class="next-read__item" href="../articles/traces-noires-sur-un-parquet.html">
+            <span class="next-read__kind">7 min</span>
+            <span class="next-read__title">Traces noires sur un parquet&nbsp;: comment les distinguer</span>
+            <span class="next-read__text">Réaction chimique, moisissure ou finition épuisée&nbsp;: trois phénomènes différents, trois réponses différentes. La forme et l’odeur suffisent souvent à trancher.</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>
+        </div>
+      </div>
+      <div class="theme-group" data-reveal>
+        <h3 class="theme-group__title">Pose</h3>
+        <div class="next-read">
+          <a class="next-read__item" href="../articles/pourquoi-le-support-est-essentiel.html">
+            <span class="next-read__kind">9 min</span>
+            <span class="next-read__title">Pourquoi le support est-il essentiel avant la pose&nbsp;?</span>
+            <span class="next-read__text">La majorité des désordres se jouent sous le parquet. Planéité, siccité, propreté&nbsp;: les trois contrôles décisifs.</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>
+          <a class="next-read__item" href="../articles/reception-chantier-parquet.html">
+            <span class="next-read__kind">8 min</span>
+            <span class="next-read__title">Réception d’un chantier de parquet&nbsp;: ce qu’on contrôle le jour J</span>
+            <span class="next-read__text">La plupart des désordres apparaissent des mois après la pose. Ce que la réception peut faire, c’est consigner l’état initial et les conditions de mise en œuvre.</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>
+          <a class="next-read__item" href="../articles/parquet-et-plancher-chauffant.html">
+            <span class="next-read__kind">9 min</span>
+            <span class="next-read__title">Parquet et plancher chauffant&nbsp;: les points à vérifier</span>
+            <span class="next-read__text">Résistance thermique, température de surface, protocole de mise en chauffe&nbsp;: trois conditions cumulatives qui se vérifient avant la commande, jamais après.</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>
+        </div>
+      </div>
+      <div class="theme-group" data-reveal>
+        <h3 class="theme-group__title">Rénovation</h3>
+        <div class="next-read">
+          <a class="next-read__item" href="../articles/renover-un-parquet-tres-abime.html">
+            <span class="next-read__kind">7 min</span>
+            <span class="next-read__title">Peut-on rénover un parquet très abîmé&nbsp;?</span>
+            <span class="next-read__text">Entre patine et dégradation, la frontière n’est pas toujours nette. Trois critères décident de la faisabilité.</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>
+        </div>
+      </div>
+      <div class="theme-group" data-reveal>
+        <h3 class="theme-group__title">Choix</h3>
+        <div class="next-read">
+          <a class="next-read__item" href="../articles/massif-ou-contrecolle.html">
+            <span class="next-read__kind">8 min</span>
+            <span class="next-read__title">Massif ou contrecollé&nbsp;: ce qui les distingue vraiment</span>
+            <span class="next-read__text">Deux structures, pas deux gammes. La différence décide de la stabilité, du nombre de rénovations possibles et du type de pose admis.</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>
+          <a class="next-read__item" href="../articles/finition-parquet-huile-vitrifie.html">
+            <span class="next-read__kind">8 min</span>
+            <span class="next-read__title">Huilé, vitrifié ou brut&nbsp;: choisir une finition</span>
+            <span class="next-read__text">La finition est la seule couche qui prend l’usure. Elle décide de l’entretien quotidien et de la façon dont les accidents se réparent.</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>
+          <a class="next-read__item" href="../articles/parquet-salle-de-bain.html">
+            <span class="next-read__kind">7 min</span>
+            <span class="next-read__title">Parquet en salle de bain&nbsp;: à quelles conditions&nbsp;?</span>
+            <span class="next-read__text">Essence durable, mise en œuvre étanche et ventilation qui fonctionne. Si l’une des trois manque, le bois finira par s’en apercevoir.</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
     <div class="container">
       <div class="sec-head" data-reveal>
         <p class="kicker">Par symptôme</p>
@@ -270,6 +373,7 @@
           <h2 class="footer__title">Comprendre</h2>
           <ul class="footer__list">
             <li><a href="../pages/conseils.html">Conseils</a></li>
+            <li><a href="../pages/conseils/choisir-parquet.html">Choisir un parquet</a></li>
             <li><a href="../pages/conseils/entretien.html">Entretien</a></li>
             <li><a href="../pages/conseils/renovation.html">Rénovation</a></li>
             <li><a href="../pages/conseils/pose.html">Pose</a></li>
@@ -290,8 +394,6 @@
       <p>&copy; <span data-current-year>2026</span> Expert Parquet — site indépendant.</p>
       <ul class="footer__legal-links">
         <li><a href="../pages/mentions-legales.html">Mentions légales</a></li>
-        <li><a href="../pages/faq.html">FAQ</a></li>
-        <li><a href="../pages/contact.html">Contact</a></li>
       </ul>
     </div>
   </div>

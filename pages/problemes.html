@@ -6,7 +6,7 @@
   <title>Problèmes de parquet&nbsp;: symptômes, causes et vérifications | Expert Parquet</title>
   <meta name="description" content="Parquet qui grince, gondole, lames qui bougent, humidité, taches, dégât des eaux, défaut de pose : causes possibles et premières vérifications pour chaque symptôme.">
   <link rel="canonical" href="https://expert-parquet.com/pages/problemes.html">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="noindex, nofollow">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Expert Parquet">
@@ -26,18 +26,18 @@
   <link rel="shortcut icon" href="../assets/icons/favicon.ico">
   <meta name="theme-color" content="#17181A">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
+  <link rel="preload" href="../assets/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-tight-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 
-  <link rel="stylesheet" href="../css/variables.css?v=4968b134">
+  <link rel="stylesheet" href="../css/fonts.css?v=77d9f050">
+  <link rel="stylesheet" href="../css/variables.css?v=52b3e6ec">
   <link rel="stylesheet" href="../css/reset.css?v=f14d0489">
-  <link rel="stylesheet" href="../css/base.css?v=1d1d3118">
-  <link rel="stylesheet" href="../css/layout.css?v=f6b74372">
-  <link rel="stylesheet" href="../css/components.css?v=d1559b19">
-  <link rel="stylesheet" href="../css/pages/home.css?v=4d6bd405">
+  <link rel="stylesheet" href="../css/base.css?v=c4327834">
+  <link rel="stylesheet" href="../css/layout.css?v=44456b68">
+  <link rel="stylesheet" href="../css/components.css?v=d6cb16ec">
+  <link rel="stylesheet" href="../css/pages/home.css?v=7e517310">
 
-  <script type="module" src="../js/main.js?v=f59024f2"></script>
+  <script type="module" src="../js/main.js?v=0c7bfe2e"></script>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -66,14 +66,20 @@
       <img class="brand__logo" src="../assets/brand/expert-parquet-logo-on-light.png" alt="" width="338" height="128" fetchpriority="high" decoding="async">
     </a>
     <nav class="nav" id="site-nav" data-nav aria-label="Navigation principale">
-      <ul class="nav__list">
-        <li><a class="nav__link" href="../pages/expertise.html">Expertise</a></li>
-        <li><a class="nav__link" href="../pages/diagnostic.html">Diagnostic</a></li>
-        <li><a class="nav__link" href="../pages/problemes.html" aria-current="page">Problèmes</a></li>
-        <li><a class="nav__link" href="../pages/conseils.html">Conseils</a></li>
-        <li><a class="nav__link" href="../pages/a-propos.html">À propos</a></li>
-        <li><a class="nav__link" href="../pages/contact.html">Contact</a></li>
-      </ul>
+      <div class="nav__bar">
+        <img class="nav__logo" src="../assets/brand/expert-parquet-logo-on-dark.png" alt="" width="338" height="128" loading="lazy" decoding="async">
+        <button class="nav__close" type="button" data-nav-close aria-label="Fermer le menu"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" aria-hidden="true"><path d="M4.5 4.5 17.5 17.5M17.5 4.5 4.5 17.5"/></svg></button>
+      </div>
+      <div class="nav__scroll">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="../pages/expertise.html">Expertise</a></li>
+          <li><a class="nav__link" href="../pages/diagnostic.html">Diagnostic</a></li>
+          <li><a class="nav__link" href="../pages/problemes.html" aria-current="page">Problèmes</a></li>
+          <li><a class="nav__link" href="../pages/conseils.html">Conseils</a></li>
+          <li><a class="nav__link" href="../pages/a-propos.html">À propos</a></li>
+          <li><a class="nav__link" href="../pages/contact.html">Contact</a></li>
+        </ul>
+      </div>
       <a class="btn btn--primary btn--block nav__cta-mobile" href="../pages/devis.html">Demander une expertise</a>
     </nav>
     <div class="header__actions">
@@ -85,7 +91,6 @@
     </div>
   </div>
 </header>
-<div class="nav-overlay" data-nav-overlay></div>
 
   <main id="main">
   <section class="page-hero">
@@ -109,55 +114,55 @@
   <section class="section">
     <div class="container">
       <div class="index-list" data-index-list id="problemes-index">
-        <a class="index-row" href="../pages/problemes/parquet-qui-grince.html" data-index-item data-preview="../assets/images/grincement.jpg">
+        <a class="index-row" href="../pages/problemes/parquet-qui-grince.html" data-index-item data-preview-src="../assets/images/grincement.jpg" data-preview-srcset="../assets/images/r/grincement-480.jpg 480w, ../assets/images/r/grincement-768.jpg 768w, ../assets/images/r/grincement-1200.jpg 1200w, ../assets/images/grincement.jpg 1400w" data-preview-w="1400" data-preview-h="893">
           <span class="index-row__num">01</span>
           <span class="index-row__title">Parquet qui grince</span>
           <span class="index-row__text">Un frottement, rarement le bois lui-même.</span>
           <span class="index-row__arrow" aria-hidden="true"></span>
         </a>
-        <a class="index-row" href="../pages/problemes/parquet-gondole.html" data-index-item data-preview="../assets/images/soulevement.jpg">
+        <a class="index-row" href="../pages/problemes/parquet-gondole.html" data-index-item data-preview-src="../assets/images/soulevement.jpg" data-preview-srcset="../assets/images/r/soulevement-480.jpg 480w, ../assets/images/r/soulevement-768.jpg 768w, ../assets/images/r/soulevement-1200.jpg 1200w, ../assets/images/soulevement.jpg 1400w" data-preview-w="1400" data-preview-h="932">
           <span class="index-row__num">02</span>
           <span class="index-row__title">Parquet qui se soulève</span>
           <span class="index-row__text">Le bois a gonflé sans avoir où s’étendre.</span>
           <span class="index-row__arrow" aria-hidden="true"></span>
         </a>
-        <a class="index-row" href="../pages/problemes/lames-qui-bougent.html" data-index-item data-preview="../assets/images/lames-bougent.jpg">
+        <a class="index-row" href="../pages/problemes/lames-qui-bougent.html" data-index-item data-preview-src="../assets/images/lames-bougent.jpg" data-preview-srcset="../assets/images/r/lames-bougent-480.jpg 480w, ../assets/images/r/lames-bougent-768.jpg 768w, ../assets/images/r/lames-bougent-1200.jpg 1200w, ../assets/images/lames-bougent.jpg 1400w" data-preview-w="1400" data-preview-h="933">
           <span class="index-row__num">03</span>
           <span class="index-row__title">Lames qui bougent</span>
           <span class="index-row__text">Le revêtement n’est plus solidaire de son support.</span>
           <span class="index-row__arrow" aria-hidden="true"></span>
         </a>
-        <a class="index-row" href="../pages/problemes/humidite.html" data-index-item data-preview="../assets/images/degat-eaux.jpg">
+        <a class="index-row" href="../pages/problemes/humidite.html" data-index-item data-preview-src="../assets/images/parquet-chevrons.jpg" data-preview-srcset="../assets/images/r/parquet-chevrons-480.jpg 480w, ../assets/images/r/parquet-chevrons-768.jpg 768w, ../assets/images/r/parquet-chevrons-1200.jpg 1200w, ../assets/images/r/parquet-chevrons-1600.jpg 1600w, ../assets/images/parquet-chevrons.jpg 1800w" data-preview-w="1800" data-preview-h="1200">
           <span class="index-row__num">04</span>
           <span class="index-row__title">Humidité</span>
           <span class="index-row__text">Remontée, condensation ou infiltration&nbsp;: trois réponses différentes.</span>
           <span class="index-row__arrow" aria-hidden="true"></span>
         </a>
-        <a class="index-row" href="../pages/problemes/degat-des-eaux.html" data-index-item data-preview="../assets/images/rayures.jpg">
+        <a class="index-row" href="../pages/problemes/degat-des-eaux.html" data-index-item data-preview-src="../assets/images/rayures.jpg" data-preview-srcset="../assets/images/r/rayures-480.jpg 480w, ../assets/images/r/rayures-768.jpg 768w, ../assets/images/r/rayures-1200.jpg 1200w, ../assets/images/rayures.jpg 1400w" data-preview-w="1400" data-preview-h="927">
           <span class="index-row__num">05</span>
           <span class="index-row__title">Dégât des eaux</span>
           <span class="index-row__text">L’état visible ne dit rien de l’état du support.</span>
           <span class="index-row__arrow" aria-hidden="true"></span>
         </a>
-        <a class="index-row" href="../pages/problemes/defaut-de-pose.html" data-index-item data-preview="../assets/images/pose-support.jpg">
+        <a class="index-row" href="../pages/problemes/defaut-de-pose.html" data-index-item data-preview-src="../assets/images/pose-support.jpg" data-preview-srcset="../assets/images/r/pose-support-480.jpg 480w, ../assets/images/r/pose-support-768.jpg 768w, ../assets/images/r/pose-support-1200.jpg 1200w, ../assets/images/pose-support.jpg 1400w" data-preview-w="1400" data-preview-h="1400">
           <span class="index-row__num">06</span>
           <span class="index-row__title">Défaut de pose</span>
           <span class="index-row__text">Des symptômes réguliers sur toute la surface.</span>
           <span class="index-row__arrow" aria-hidden="true"></span>
         </a>
-        <a class="index-row" href="../pages/problemes/parquet-abime.html" data-index-item data-preview="../assets/images/taches.jpg">
+        <a class="index-row" href="../pages/problemes/parquet-abime.html" data-index-item data-preview-src="../assets/images/taches.jpg" data-preview-srcset="../assets/images/r/taches-480.jpg 480w, ../assets/images/r/taches-768.jpg 768w, ../assets/images/r/taches-1200.jpg 1200w, ../assets/images/r/taches-1600.jpg 1600w, ../assets/images/taches.jpg 1800w" data-preview-w="1800" data-preview-h="1200">
           <span class="index-row__num">07</span>
           <span class="index-row__title">Taches et rayures</span>
           <span class="index-row__text">La profondeur de l’atteinte détermine la solution.</span>
           <span class="index-row__arrow" aria-hidden="true"></span>
         </a>
-        <a class="index-row" href="../pages/problemes/parquet-abime.html" data-index-item data-preview="../assets/images/parquet-ancien.jpg">
+        <a class="index-row" href="../pages/problemes/parquet-abime.html" data-index-item data-preview-src="../assets/images/parquet-ancien.jpg" data-preview-srcset="../assets/images/r/parquet-ancien-480.jpg 480w, ../assets/images/r/parquet-ancien-768.jpg 768w, ../assets/images/r/parquet-ancien-1200.jpg 1200w, ../assets/images/parquet-ancien.jpg 1400w" data-preview-w="1400" data-preview-h="934">
           <span class="index-row__num">08</span>
           <span class="index-row__title">Parquet ancien</span>
           <span class="index-row__text">Patine ou dégradation&nbsp;: tout se joue sur l’épaisseur utile.</span>
           <span class="index-row__arrow" aria-hidden="true"></span>
         </a>
-        <div class="index-list__preview" data-index-preview aria-hidden="true"><img src="../assets/images/grincement.jpg" alt="" width="300" height="380" loading="lazy" decoding="async"></div>
+        <div class="index-list__preview" data-index-preview aria-hidden="true"><img src="../assets/images/grincement.jpg" srcset="../assets/images/r/grincement-480.jpg 480w, ../assets/images/r/grincement-768.jpg 768w, ../assets/images/r/grincement-1200.jpg 1200w, ../assets/images/grincement.jpg 1400w" sizes="300px" alt="" width="1400" height="893" loading="lazy" decoding="async"></div>
       </div>
     </div>
   </section>
@@ -200,7 +205,7 @@
       <div class="grid grid--3 u-mt-xl">
       <article class="card" data-reveal data-reveal-delay="0">
         <div class="card__media media--4x3">
-          <img src="../assets/images/grincement.jpg" alt="" width="1400" height="1050" loading="lazy" decoding="async">
+          <img src="../assets/images/grincement.jpg" srcset="../assets/images/r/grincement-480.jpg 480w, ../assets/images/r/grincement-768.jpg 768w, ../assets/images/r/grincement-1200.jpg 1200w, ../assets/images/grincement.jpg 1400w" sizes="(min-width: 901px) 40vw, 100vw" alt="" width="1400" height="893" loading="lazy" decoding="async">
         </div>
         <div class="card__body">
           <p class="card__meta"><span>Diagnostic</span><span>6 min</span></p>
@@ -210,7 +215,7 @@
       </article>
       <article class="card" data-reveal data-reveal-delay="70">
         <div class="card__media media--4x3">
-          <img src="../assets/images/soulevement.jpg" alt="" width="1400" height="1050" loading="lazy" decoding="async">
+          <img src="../assets/images/soulevement.jpg" srcset="../assets/images/r/soulevement-480.jpg 480w, ../assets/images/r/soulevement-768.jpg 768w, ../assets/images/r/soulevement-1200.jpg 1200w, ../assets/images/soulevement.jpg 1400w" sizes="(min-width: 901px) 40vw, 100vw" alt="" width="1400" height="932" loading="lazy" decoding="async">
         </div>
         <div class="card__body">
           <p class="card__meta"><span>Défauts</span><span>7 min</span></p>
@@ -220,7 +225,7 @@
       </article>
       <article class="card" data-reveal data-reveal-delay="140">
         <div class="card__media media--4x3">
-          <img src="../assets/images/degat-eaux.jpg" alt="" width="1400" height="1050" loading="lazy" decoding="async">
+          <img src="../assets/images/parquet-chevrons.jpg" srcset="../assets/images/r/parquet-chevrons-480.jpg 480w, ../assets/images/r/parquet-chevrons-768.jpg 768w, ../assets/images/r/parquet-chevrons-1200.jpg 1200w, ../assets/images/r/parquet-chevrons-1600.jpg 1600w, ../assets/images/parquet-chevrons.jpg 1800w" sizes="(min-width: 901px) 40vw, 100vw" alt="Parquet en damier au ras du sol, à la jonction d’un mur et de sa plinthe, traversé par une bande de lumière" width="1800" height="1200" loading="lazy" decoding="async">
         </div>
         <div class="card__body">
           <p class="card__meta"><span>Humidité</span><span>8 min</span></p>
@@ -269,6 +274,7 @@
           <h2 class="footer__title">Comprendre</h2>
           <ul class="footer__list">
             <li><a href="../pages/conseils.html">Conseils</a></li>
+            <li><a href="../pages/conseils/choisir-parquet.html">Choisir un parquet</a></li>
             <li><a href="../pages/conseils/entretien.html">Entretien</a></li>
             <li><a href="../pages/conseils/renovation.html">Rénovation</a></li>
             <li><a href="../pages/conseils/pose.html">Pose</a></li>
@@ -289,8 +295,6 @@
       <p>&copy; <span data-current-year>2026</span> Expert Parquet — site indépendant.</p>
       <ul class="footer__legal-links">
         <li><a href="../pages/mentions-legales.html">Mentions légales</a></li>
-        <li><a href="../pages/faq.html">FAQ</a></li>
-        <li><a href="../pages/contact.html">Contact</a></li>
       </ul>
     </div>
   </div>

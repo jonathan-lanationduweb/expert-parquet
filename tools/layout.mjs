@@ -15,6 +15,38 @@ export const SITE = {
   twitter: null, // aucun compte connu : pas de balise inventée
 };
 
+/**
+ * Environnement de build — `preprod` (défaut) ou `prod`.
+ *
+ *     node tools/build.mjs                 → préproduction
+ *     BUILD_ENV=prod node tools/build.mjs  → production
+ *
+ * Pourquoi la préproduction est le DÉFAUT, et non l'inverse : le site n'a qu'un
+ * seul artefact, le HTML versionné, et il est publié par `git push`. Si le
+ * défaut était `prod`, il suffirait d'oublier une variable d'environnement pour
+ * qu'une préproduction devienne indexable — c'est l'erreur silencieuse. Avec ce
+ * défaut, l'oubli produit l'erreur inverse : une production en `noindex`, qui
+ * se voit immédiatement et se corrige par un rebuild. Entre une erreur visible
+ * et une erreur invisible, on choisit la visible.
+ *
+ * Ce qui change, et rien d'autre :
+ *
+ * - `<meta name="robots">` : `noindex, nofollow` en préproduction.
+ * - `robots.txt` : `Disallow: /` en préproduction, sans ligne `Sitemap`.
+ *
+ * Ce qui NE change PAS, volontairement : la balise `canonical`, les `og:url` et
+ * les URL du sitemap continuent de désigner https://expert-parquet.com. Ce sont
+ * les adresses définitives de ces contenus ; la préproduction n'est qu'un lieu
+ * de relecture. Et sous `noindex`, la canonique n'est de toute façon plus lue.
+ *
+ * Rappel mesuré sur l'hébergement actuel : un `robots.txt` servi sous
+ * `/expert-parquet/` n'est PAS celui que les robots consultent — ils lisent
+ * celui de la racine du domaine. Sur GitHub Pages, la seule protection qui
+ * fonctionne réellement est donc la balise `robots` de chaque page.
+ */
+export const BUILD_ENV = process.env.BUILD_ENV === 'prod' ? 'prod' : 'preprod';
+export const IS_PROD = BUILD_ENV === 'prod';
+
 export const NAV = [
   { label: 'Expertise', href: 'pages/expertise.html' },
   { label: 'Diagnostic', href: 'pages/diagnostic.html' },
@@ -39,6 +71,7 @@ const FOOTER_COLUMNS = [
     title: 'Comprendre',
     links: [
       { label: 'Conseils', href: 'pages/conseils.html' },
+      { label: 'Choisir un parquet', href: 'pages/conseils/choisir-parquet.html' },
       { label: 'Entretien', href: 'pages/conseils/entretien.html' },
       { label: 'Rénovation', href: 'pages/conseils/renovation.html' },
       { label: 'Pose', href: 'pages/conseils/pose.html' },
@@ -102,17 +135,38 @@ const LOGO = { width: 338, height: 128 };
 const LOGO_ON_LIGHT = 'assets/brand/expert-parquet-logo-on-light.png';
 const LOGO_ON_DARK = 'assets/brand/expert-parquet-logo-on-dark.png';
 
-function logoImg(depth, { inverse = false, className, priority }) {
+/**
+ * Trois régimes de chargement, et non deux :
+ *
+ *   'haute'  visible au premier écran et sur le chemin du LCP
+ *   'normal' présent au premier écran mais masqué par le CSS — il doit être
+ *            téléchargé pour être prêt à l'affichage, sans passer devant
+ *   'differe' hors du premier écran (pied de page, panneau du menu fermé)
+ *
+ * Le régime « normal » existe pour un cas précis : sur une page à hero sombre,
+ * la version claire du logotype est masquée jusqu'au défilement. La passer en
+ * `loading="lazy"` la ferait charger seulement au moment où elle s'affiche,
+ * donc clignoter ; la laisser en `fetchpriority="high"` la faisait concourir
+ * avec l'image du hero. Aucun attribut : elle se charge normalement, en file.
+ */
+function logoImg(depth, { inverse = false, className, chargement = 'differe' }) {
   const src = inverse ? LOGO_ON_DARK : LOGO_ON_LIGHT;
-  const loading = priority ? ' fetchpriority="high"' : ' loading="lazy"';
-  return `<img class="${className}" src="${rel(depth, src)}" alt="" width="${LOGO.width}" height="${LOGO.height}"${loading} decoding="async">`;
+  const attr =
+    chargement === 'haute' ? ' fetchpriority="high"' : chargement === 'differe' ? ' loading="lazy"' : '';
+  return `<img class="${className}" src="${rel(depth, src)}" alt="" width="${LOGO.width}" height="${LOGO.height}"${attr} decoding="async">`;
 }
 
 function brand(depth, { over = false } = {}) {
-  const light = logoImg(depth, { className: 'brand__logo', priority: true });
+  /* `fetchpriority="high"` va à la version RÉELLEMENT visible au premier écran.
+     Sur une page à hero sombre, c'est la version réservée ; la version claire y
+     est masquée jusqu'au défilement. Les deux étaient prioritaires : 89 Ko de
+     logotype se disputaient la bande passante avec l'image du hero, qui porte
+     le LCP. La version masquée reste téléchargée — il faut qu'elle soit prête
+     à l'instant où la page défile — mais elle ne passe plus devant. */
+  const light = logoImg(depth, { className: 'brand__logo', chargement: over ? 'normal' : 'haute' });
   const dark = over
     ? `
-      ${logoImg(depth, { inverse: true, className: 'brand__logo brand__logo--inverse', priority: true })}`
+      ${logoImg(depth, { inverse: true, className: 'brand__logo brand__logo--inverse', chargement: 'haute' })}`
     : '';
   return `<a class="brand" href="${rel(depth, 'index.html')}" aria-label="Expert Parquet, retour à l’accueil">
       ${light}${dark}
@@ -123,18 +177,32 @@ function footerBrand(depth) {
   return `<a class="footer__wordmark" href="${rel(depth, 'index.html')}" aria-label="Expert Parquet, retour à l’accueil">${logoImg(depth, { inverse: true, className: 'footer__logo' })}</a>`;
 }
 
+/**
+ * Croix de fermeture du drawer. Dessinée ici plutôt que dans le jeu d’icônes
+ * de partials.mjs : ce dernier importe déjà `rel` depuis ce fichier, et une
+ * importation croisée rendrait fragile l’initialisation de `STAMPS`.
+ */
+const CLOSE_ICON =
+  '<svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" aria-hidden="true"><path d="M4.5 4.5 17.5 17.5M17.5 4.5 4.5 17.5"/></svg>';
+
 function header(depth, current, over) {
   const items = NAV.map(
-    (item) => `        <li><a class="nav__link" href="${rel(depth, item.href)}"${current === item.href ? ' aria-current="page"' : ''}>${item.label}</a></li>`
+    (item) => `          <li><a class="nav__link" href="${rel(depth, item.href)}"${current === item.href ? ' aria-current="page"' : ''}>${item.label}</a></li>`
   ).join('\n');
 
   return `<header class="site-header${over ? ' site-header--over' : ''}" data-header>
   <div class="container site-header__inner">
     ${brand(depth, { over })}
     <nav class="nav" id="site-nav" data-nav aria-label="Navigation principale">
-      <ul class="nav__list">
+      <div class="nav__bar">
+        ${logoImg(depth, { inverse: true, className: 'nav__logo' })}
+        <button class="nav__close" type="button" data-nav-close aria-label="Fermer le menu">${CLOSE_ICON}</button>
+      </div>
+      <div class="nav__scroll">
+        <ul class="nav__list">
 ${items}
-      </ul>
+        </ul>
+      </div>
       <a class="btn btn--primary btn--block nav__cta-mobile" href="${rel(depth, 'pages/devis.html')}">Demander une expertise</a>
     </nav>
     <div class="header__actions">
@@ -145,16 +213,21 @@ ${items}
       </button>
     </div>
   </div>
-</header>
-<div class="nav-overlay" data-nav-overlay></div>`;
+</header>`;
 }
 
 /**
  * Rappel d’action mobile. Non émis sur la page de demande elle-même : y
  * proposer « demander une expertise » n’aurait aucun sens.
  */
+const PAGES_SANS_RAPPEL = new Set(['pages/devis.html', 'pages/contact.html']);
+
 function stickyCta(depth, path) {
-  if (path === 'pages/devis.html') return '';
+  /* Pas de rappel collant sur une page dont le contenu EST un formulaire : la
+     barre fixe recouvrirait les actions d'étape, elles-mêmes collées en bas
+     sur téléphone, et proposerait d'aller demander une expertise à quelqu'un
+     qui est déjà en train de le faire. */
+  if (PAGES_SANS_RAPPEL.has(path)) return '';
   return `<a class="sticky-cta" href="${rel(depth, 'pages/devis.html')}" data-sticky-cta>
   <span>Demander une expertise</span>
   <span class="sticky-cta__arrow" aria-hidden="true"></span>
@@ -187,8 +260,6 @@ ${columns}
       <p>&copy; <span data-current-year>2026</span> Expert Parquet — site indépendant.</p>
       <ul class="footer__legal-links">
         <li><a href="${rel(depth, 'pages/mentions-legales.html')}">Mentions légales</a></li>
-        <li><a href="${rel(depth, 'pages/faq.html')}">FAQ</a></li>
-        <li><a href="${rel(depth, 'pages/contact.html')}">Contact</a></li>
       </ul>
     </div>
   </div>
@@ -266,7 +337,7 @@ export function renderPage(page) {
 
   const canonical = `${SITE.baseUrl}/${path === 'index.html' ? '' : path}`;
   const headTitle = fullTitle || `${title} | Expert Parquet`;
-  const styles = ['variables.css', 'reset.css', 'base.css', 'layout.css', 'components.css', ...css]
+  const styles = ['fonts.css', 'variables.css', 'reset.css', 'base.css', 'layout.css', 'components.css', ...css]
     .map((file) => `  <link rel="stylesheet" href="${relAsset(depth, `css/${file}`)}">`)
     .join('\n');
 
@@ -285,7 +356,7 @@ export function renderPage(page) {
   <title>${headTitle}</title>
   <meta name="description" content="${escapeAttr(description)}">
   <link rel="canonical" href="${canonical}">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="${IS_PROD ? 'index, follow' : 'noindex, nofollow'}">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Expert Parquet">
@@ -305,9 +376,8 @@ export function renderPage(page) {
   <link rel="shortcut icon" href="${rel(depth, 'assets/icons/favicon.ico')}">
   <meta name="theme-color" content="#17181A">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
+  <link rel="preload" href="${rel(depth, 'assets/fonts/inter-latin-var.woff2')}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="${rel(depth, 'assets/fonts/inter-tight-latin-var.woff2')}" as="font" type="font/woff2" crossorigin>
 
 ${styles}
 

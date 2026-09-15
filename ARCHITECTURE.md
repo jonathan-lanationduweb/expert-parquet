@@ -318,14 +318,22 @@ Les champs portant `data-recap-key="Libellé"` alimentent en direct le panneau l
 ### Soumission
 
 ```js
-FORMS.endpoint === null
+point d'envoi === null
   → mode démonstration : le formulaire affiche le JSON qui serait envoyé
-FORMS.endpoint === 'https://…'
-  → POST JSON, gestion des erreurs réseau, message de succès
+point d'envoi === 'https://…'
+  → POST JSON, puis dépôt des photographies dans une seconde requête,
+    gestion de l'attente, du succès, de l'erreur réseau et du refus serveur
 ```
 
-Un seul point à modifier pour brancher un backend : `FORMS.endpoint` dans
-`js/config/site.js`. Détails dans [TODO-INTEGRATIONS.md](TODO-INTEGRATIONS.md).
+Un seul interrupteur pour brancher le backend : les points d'envoi dans
+`js/config/site.js`. Il commande **aussi** les textes : les mentions « formulaire de
+démonstration » et la section « Données personnelles » de la page de confidentialité
+sont générées à partir de cette même configuration (`tools/partials.mjs`). Sans cela,
+le jour de la bascule, le site continuerait d'affirmer qu'il ne collecte rien tout en
+collectant — ce que la version de démonstration promet explicitement de ne pas faire.
+
+Détails dans [TODO-INTEGRATIONS.md](TODO-INTEGRATIONS.md) et
+[docs/BACKEND-CONTRACT.md](docs/BACKEND-CONTRACT.md).
 
 ---
 
@@ -569,3 +577,141 @@ touché :
 
 Les cartes d'article n'ont pas besoin de règle : `.card__link::after { inset: 0 }` rend
 déjà la carte entière cliquable.
+
+---
+
+## 17. Le drawer mobile est un changement de contexte, pas un panneau posé dessus
+
+L'ancien menu occupait `min(440px, 92vw)`. Les 8 % restants laissaient voir une
+bande du site à gauche : l'œil continuait de lire la page derrière, et le
+panneau se lisait comme une surface flottante plutôt que comme un changement
+d'écran. Il occupe désormais tout le viewport.
+
+Trois décisions valent d'être expliquées.
+
+**`height: 100dvh` doublé de `min-height: 100svh`.** `svh` est la hauteur du
+viewport barre d'URL affichée, `dvh` la hauteur courante. Comme `svh <= dvh` en
+toutes circonstances, les deux déclarations ensemble ne peuvent jamais rendre le
+panneau plus haut que ce qui est réellement visible — le CTA du bas reste
+atteignable pendant que la barre d'URL se rétracte. `min-height` sert aussi de
+repli pour les navigateurs qui ignorent `dvh`.
+
+**Le verrouillage du défilement passe par `position: fixed` sur `<body>`, pas
+par `overflow: hidden`.** Safari iOS ignore `overflow: hidden` sur le corps et
+continue de faire défiler la page derrière un panneau fixe. La seule méthode
+fiable consiste à sortir le corps du flux en compensant la position de
+défilement courante par un décalage négatif (`js/modules/navigation.js`, objet
+`scrollLock`). Sans cette compensation, la page saute en haut à l'ouverture,
+puis de nouveau à la fermeture.
+
+**Le voile semi-transparent a été supprimé.** Un panneau opaque qui occupe tout
+le viewport n'a pas de « dehors » sur lequel cliquer. C'est accessoirement ce
+voile — enfant direct de `<body>`, donc hors du contexte d'empilement du header
+— qui interceptait les taps sur les liens du menu au lot précédent. La classe de
+bug disparaît avec lui, pas seulement le symptôme.
+
+La taille des liens et leurs espacements suivent la HAUTEUR du viewport
+(`clamp(..., ...vh, ...)`), pas sa largeur : c'est la hauteur qui manque en
+paysage. À 844 × 390, les six liens et le CTA tiennent sans défilement.
+
+## 18. Divulgation progressive : ce qui est replié, et ce qui ne l'est jamais
+
+La page d'accueil faisait 15 878 px à 375 px de large, soit 19,5 écrans. Elle en
+fait 11 748, soit 14,5 (−26 %). L'essentiel du gain vient du rythme — des vides
+calibrés pour des colonnes larges, empilés sur une seule colonne — et non du
+contenu.
+
+Trois listes seulement sont repliées, et uniquement sous 640 px
+(`js/modules/reveal-more.js`) : les huit désordres réduits à quatre, les trois
+domaines réduits à un, les trois articles réduits à deux.
+
+Les règles qui encadrent ce repli :
+
+- le contenu reste **dans le document**, marqué `hidden` — les moteurs rendent
+  la page et le lisent ;
+- au-delà de 640 px, tout réapparaît, sans exception ;
+- une liste que l'utilisateur a dépliée ne se replie jamais dans son dos ;
+- le focus suit ce qui apparaît, sinon le bouton disparaît sous le doigt et le
+  focus retombe sur `<body>` ;
+- sans JavaScript, la liste est déjà entière et le bouton reste masqué.
+
+Ce qui n'est **jamais** replié : le hero, le pré-diagnostic, la méthode
+d'expertise, la FAQ et le CTA final. Ce sont les étapes du parcours.
+
+## 19. Les contenus associés sont un graphe, pas un `slice(0, 3)`
+
+La fin d'un article proposait les trois premiers articles du tableau, moins
+lui-même. Un lecteur venu pour l'humidité se voyait donc proposer le grincement
+— parce qu'il figure en première position, pas parce qu'il a un rapport. Et la
+suggestion ne sortait jamais des articles.
+
+`tools/content/graph.mjs` construit un index des trois familles de contenus
+(articles, désordres, guides), chacune portant des `tags`. Les recommandations
+écrites à la main dans `related` passent en premier ; les places restantes vont
+aux contenus qui partagent le plus d'étiquettes. Deux contenus du même type au
+maximum, pour que le lecteur passe d'un article à une page de désordre puis à un
+guide.
+
+Le résultat est **déterministe** — à score égal, l'ordre du catalogue tranche —
+donc deux builds successifs produisent le même HTML.
+
+Effet de bord mesuré sur le maillage interne : `conseils/choisir-parquet` est
+passée de 1 à 25 liens entrants, aucune page n'est orpheline, et la profondeur
+maximale depuis l'accueil est de 2 clics.
+
+## 20. Les dimensions d'image ne se saisissent plus à la main
+
+Soixante-cinq balises `<img>` déclaraient un `width`/`height` sans rapport avec
+le fichier — `entretien.jpg` était annoncée en 1800 × 1200 alors qu'elle mesure
+1400 × 2100, soit un portrait déclaré en paysage. Les conteneurs `aspect-ratio`
+masquaient le symptôme, mais la donnée restait fausse dans la source, et elle
+aurait été héritée par tout travail ultérieur sur les images.
+
+`tools/images.mjs` lit désormais les dimensions dans l'en-tête SOFn du fichier
+au moment du build. Elles ne peuvent plus diverger. Le même module porte le
+dictionnaire des textes alternatifs et construit le `srcset` d'après les
+variantes réellement présentes dans `assets/images/r/` : si elles n'ont pas été
+générées, l'attribut est simplement omis et la page reste correcte.
+
+Une photographie non déclarée dans le dictionnaire fait **échouer le build**.
+C'est voulu : l'alternative serait une page publiée avec un `alt` vide en
+silence.
+
+## 21. Piège n° 9 — `<lastmod>` fabriqué
+
+Le sitemap portait la date du BUILD. Les vingt-six dates changeaient donc à
+chaque régénération, même quand pas une ligne de contenu n'avait bougé : un diff
+parasite dans chaque commit, et un conflit de fusion systématique dès que deux
+branches avaient été construites des jours différents — quarante-deux marqueurs
+lors de la dernière intégration, tous sur des `<lastmod>`.
+
+C'était surtout une date **fausse** : `<lastmod>` doit désigner la dernière
+modification du contenu, que le générateur ne connaît pas. L'élément est
+facultatif dans la spécification ; il est désormais omis. Ne pas le réintroduire
+sans une source de vérité réelle.
+
+## 22. Piège n° 10 — un `robots.txt` de sous-dossier ne protège rien
+
+Sur l'hébergement de préproduction, le site est servi sous `/expert-parquet/`.
+Le `robots.txt` publié à cette adresse **n'est pas celui que les robots
+consultent** : ils ne lisent que celui de la racine du domaine, qui n'existe pas
+ici. La seule protection qui fonctionne réellement est donc la balise
+`<meta name="robots">` de chaque page — d'où la notion d'environnement de build
+décrite dans le README.
+
+## 23. Plus aucun tiers
+
+Les deux familles typographiques venaient de `fonts.googleapis.com` : chaque
+page envoyait l'adresse IP du visiteur à un tiers, sans base légale déclarée
+nulle part sur le site. C'était le seul sous-traitant de ce site ; il n'y en a
+plus aucun.
+
+Les fichiers sont servis depuis `assets/fonts/`, en variable et sous-ensemble
+latin — une requête par famille couvre les graisses 400 à 600, et le latin
+suffit au français (il comprend le « œ », U+0152-0153). Licence SIL Open Font
+License 1.1, qui autorise explicitement la redistribution.
+
+Gain secondaire, non négligeable : la feuille de Google était bloquante et les
+fichiers de police n'étaient découverts qu'après son analyse — deux allers-
+retours vers deux domaines distincts avant la première lettre affichée. Les
+polices sont désormais préchargées depuis le `<head>`, sur la même origine.

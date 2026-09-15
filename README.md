@@ -86,6 +86,26 @@ node tools/build.mjs
 
 La commande réécrit tous les fichiers HTML, `sitemap.xml` et `robots.txt`.
 
+### Préproduction et production
+
+Le build connaît deux environnements. Le défaut est la **préproduction** :
+
+```bash
+node tools/build.mjs                 # préproduction : pages en noindex
+BUILD_ENV=prod node tools/build.mjs  # production : pages indexables
+```
+
+Le défaut est volontairement le plus prudent. Le site n'a qu'un seul artefact —
+le HTML versionné, publié par `git push` — et si le défaut était `prod`, un
+simple oubli de variable rendrait une préproduction indexable sans que rien ne
+le signale. Avec ce défaut, l'oubli produit l'erreur inverse : une production en
+`noindex`, qui se voit tout de suite. Le build affiche l'environnement retenu à
+chaque lancement.
+
+Ce qui change : la balise `<meta name="robots">` de chaque page et le contenu de
+`robots.txt`. Ce qui ne change pas : la balise canonique, les `og:url` et les URL
+du sitemap, qui désignent toujours le domaine définitif.
+
 Contrôle qualité automatique (liens, ancres, images, alt, H1, métadonnées, JSON-LD,
 CSS/JS inline, cohérence du sitemap) :
 
@@ -108,6 +128,30 @@ node tools/make-icons.mjs
 
 Ne pas retoucher les fichiers produits à la main : ils seraient écrasés au prochain
 lancement. Pour changer le logo, remplacer un master puis relancer la commande.
+
+### Régénérer les variantes responsives des photographies
+
+Les photographies sont servies en `srcset` à partir de variantes 480 / 768 /
+1200 / 1600 px, rangées dans `assets/images/r/` :
+
+```bash
+python tools/make-images.py
+```
+
+Ce script est le seul du projet à ne pas être écrit en Node, et pour une raison
+précise : il décode et réencode du JPEG, ce qui suppose une transformée en
+cosinus discrète et un décodage Huffman. Pillow fait ce travail de manière
+éprouvée ; l'écrire à la main serait beaucoup de code fragile pour un gain nul.
+La règle « zéro dépendance » du projet porte sur ce qui est **servi au
+navigateur**, pas sur l'outillage local.
+
+Si Pillow est absent, le script s'arrête proprement et le site continue de
+fonctionner : `tools/images.mjs` n'émet un `srcset` que pour les variantes
+réellement présentes sur le disque.
+
+Après avoir ajouté une photographie, penser à la déclarer dans le dictionnaire
+de `tools/images.mjs` — le build échoue explicitement sur une image inconnue,
+plutôt que de produire une page avec un `alt` vide en silence.
 
 ---
 
@@ -152,8 +196,39 @@ expert-parquet.com/
 ├── sitemap.xml
 ├── ARCHITECTURE.md
 ├── TODO-INTEGRATIONS.md
-└── VIDEO_BRIEF.md
+├── VIDEO_BRIEF.md
+│
+├── backend/                      ⚠ NE FAIT PAS PARTIE DU SITE PUBLIÉ
+│   ├── public/                   WordPress (API + back-office) — racine de api.expert-parquet.test
+│   ├── docs/                     ARCHITECTURE, DATABASE, API, SECURITY, LOCAL-DEVELOPMENT, PRODUCTION-CHECKLIST
+│   ├── config/                   Copies de référence de la configuration Apache
+│   ├── scripts/                  verifier-enums.php (contrôle du contrat front/back)
+│   └── README.md                 Point d'entrée du backend
+│
+└── backend-private/              ⚠ DONNÉES PRIVÉES — jamais publiées, jamais versionnées
+    ├── photos/                   Photographies des demandes
+    ├── logs/                     Journaux (courriels, suppressions, débogage)
+    └── IDENTIFIANTS.txt          Identifiants locaux
 ```
+
+### Le site, le backend, et ce qui les sépare
+
+Tout le projet tient dans un seul dossier, mais **le site publié n'est que la
+racine** : `index.html`, `pages/`, `articles/`, `assets/`, `css/`, `js/`.
+
+`backend/` et `backend-private/` partagent ce dossier sans faire partie du
+site. Ils sont tenus à l'écart par trois moyens indépendants :
+
+- le VirtualHost `expert-parquet.test` **refuse ces deux chemins** (404 sur
+  l'URL, `Require all denied` sur les répertoires, `AllowOverride None`) ;
+- le générateur (`tools/build.mjs`, `tools/check.mjs`) ne les parcourt pas :
+  ils n'apparaissent ni dans les pages, ni dans `sitemap.xml` ;
+- WordPress a son propre hôte, `api.expert-parquet.test`, dont la racine est
+  `backend/public` — un visiteur ne voit jamais `expert-parquet.test/backend/`.
+
+`backend-private/` contient des données personnelles de tiers et des
+identifiants : il est exclu de Git et ne doit jamais être copié dans le site
+ni dans `backend/public`.
 
 ---
 
@@ -203,11 +278,21 @@ son entrée de sitemap sont produits automatiquement.
 
 ## 7. État actuel
 
-Le site est **complet côté front** et prêt à recevoir un backend.
+Le site est **complet côté front**, et un backend existe désormais dans le projet
+dossier `backend/public` — une installation WordPress dédiée qui ne publie
+aucune page et sert uniquement d'API, de stockage et d'administration. Les articles et
+le référencement restent gérés ici, par le générateur statique.
+
+Le site est livré **en mode démonstration** : le raccordement est écrit et vérifié de
+bout en bout, mais les points d'envoi valent `null`.
 
 - Les formulaires **ne sont connectés à aucun serveur** : à la validation, ils affichent
   exactement les données qui seraient transmises. Rien ne quitte le navigateur, et
   l'interface le dit explicitement.
+- Renseigner un point d'envoi dans `js/config/site.js` bascule **en même temps** le
+  comportement et tous les textes qui en parlent, page de confidentialité comprise.
+  `node tools/check.mjs` refuse la construction tant que le responsable du traitement,
+  son adresse et la durée de conservation ne sont pas renseignés.
 - Les photos sélectionnées dans le formulaire de devis sont **prévisualisées localement
   et jamais téléversées**.
 - Les coordonnées, mentions légales, tarifs et zone d'intervention sont des
