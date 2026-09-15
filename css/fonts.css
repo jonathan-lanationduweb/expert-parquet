@@ -1,0 +1,54 @@
+/* Expert Parquet — Polices auto-hébergées
+   ==========================================================================
+   Les deux familles venaient de fonts.googleapis.com. Trois raisons de les
+   servir nous-mêmes, par ordre d'importance :
+
+   1. DONNÉES PERSONNELLES. Chaque page envoyait l'adresse IP du visiteur à un
+      tiers, sans base légale déclarée et sans que cela apparaisse nulle part
+      dans les mentions du site. C'est le seul sous-traitant qu'avait ce site ;
+      il n'y en a plus aucun.
+
+   2. RENDU DU TEXTE. La feuille de Google est bloquante, et les fichiers de
+      police n'étaient découverts qu'APRÈS son analyse : deux allers-retours
+      réseau, vers deux domaines distincts, avant la première lettre affichée.
+      Les fichiers sont désormais sur la même origine, préchargés depuis le
+      <head> — ils partent en même temps que le CSS.
+
+   3. INDÉPENDANCE. Une police servie depuis le dépôt ne peut pas disparaître,
+      changer de version ni être bloquée par un réseau d'entreprise.
+
+   Licence : Inter et Inter Tight sont publiées sous SIL Open Font License 1.1,
+   qui autorise explicitement la redistribution et l'hébergement par un tiers.
+   Les fichiers sont ceux distribués par Google Fonts, récupérés le 11/09/2026.
+
+   Fichiers variables, sous-ensemble latin uniquement : une seule requête par
+   famille couvre les graisses 400 à 600, et le latin suffit au français —
+   il comprend les accents, la cédille et le « œ » (U+0152-0153). Les autres
+   sous-ensembles auraient doublé le poids sans servir une seule page.
+
+   `font-display: swap` : le texte s'affiche immédiatement dans la police de
+   repli, puis bascule. Un titre lisible tout de suite vaut mieux qu'un bloc
+   vide pendant 200 ms.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('../assets/fonts/inter-latin-var.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Inter Tight';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('../assets/fonts/inter-tight-latin-var.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
