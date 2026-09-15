@@ -110,3 +110,112 @@ Ce qui a motivé chaque remplacement :
   l'humidité. À dédoublonner.
 - Consigner ici toute nouvelle image ou vidéo ajoutée, avec sa source, son auteur, sa
   licence et sa date de récupération.
+
+---
+
+## Photographies hors sujet — constat du 11/09/2026
+
+Chaque fichier a été **ouvert et regardé** pour rédiger les textes alternatifs
+(`tools/images.mjs`). Quatre visuels ne montrent pas le sujet de la page où ils
+sont employés. Ce n'est pas une question de goût : un lecteur d'écran ne peut
+pas en recevoir une description honnête, et un visiteur voyant n'y trouve pas ce
+que le titre annonce.
+
+| Fichier | Ce que le fichier montre réellement | Où il est employé |
+| --- | --- | --- |
+| `degat-eaux.jpg` | Une flaque d'eau boueuse en forêt, avec des bottes. Aucun parquet. | Pages *Humidité* et *Dégât des eaux*, article humidité, carrousel — **11 pages** |
+| `taches.jpg` | Un grand parquet clair en bon état. Aucune tache, aucune rayure. | Hero *Parquet abîmé : taches et rayures* |
+| `parquet-ancien.jpg` | Une pièce neuve et vide, au sol stratifié gris. | Catégorie *Rénovation*, carrousel *Parquet ancien* |
+| `soulevement.jpg` | Des planches plates et régulières. Aucun bombement, aucun tuilage. | Page *Parquet qui gondole*, article associé |
+
+En attendant leur remplacement, ces quatre images sont déclarées **décoratives**
+(`alt=""`) plutôt que décrites par le titre de la page : leur donner un texte
+alternatif conforme au sujet reviendrait à écrire quelque chose de faux.
+
+Quatre autres visuels sont des **textures** employées comme aplats — ils ne
+prétendent rien montrer et sont légitimement décoratifs : `domaine-diagnostic`,
+`domaine-desordres`, `grincement`, `parquet-detail`.
+
+Neuf visuels montrent bien leur sujet et portent désormais une description :
+`hero-wide`, `architectural`, `interieur-clair`, `inspection`, `entretien`,
+`lames-bougent`, `rayures`, `pose-support`.
+
+**Conclusion.** Le problème de la bibliothèque n'est pas seulement le recyclage
+(`degat-eaux.jpg` sur 11 pages sur 26) mais la pertinence. Des photographies de
+chantiers réels — détails de lames, mesures d'humidité, jonctions, supports —
+régleraient les deux d'un coup. Aucune banque d'images ne fournira un tuilage de
+lame crédible.
+
+## Variantes responsives
+
+`assets/images/r/` contient les déclinaisons générées par
+`python tools/make-images.py` : 480, 768, 1200 et 1600 px de large, sans jamais
+dépasser la taille de l'original. 57 fichiers au 11/09/2026.
+
+Ces variantes ne sont **pas** retouchées à la main. Après avoir ajouté ou
+remplacé une photographie, relancer le script puis `node tools/build.mjs` :
+`tools/images.mjs` lit les dimensions réelles dans l'en-tête des fichiers et
+construit le `srcset` d'après les variantes présentes sur le disque.
+
+## Correction du 11/09/2026 sur les fichiers sources
+
+Les deux masters `expert-parquet-mark.png` (821 Ko) et `expert-parquet-logo.png`
+(409 Ko) sont décrits plus haut comme « non servis aux visiteurs ». C'est
+inexact : l'hébergement actuel publie l'intégralité du dépôt, et les deux
+fichiers répondent en HTTP 200. Ils restent les masters à conserver ; c'est leur
+**déploiement** qu'il faudra exclure, pas leur présence dans le dépôt.
+
+---
+
+## Mise à jour du 11/09/2026
+
+### `degat-eaux.jpg` — retirée du projet
+
+C'était la seule image de la bibliothèque qui ne montrait **pas un sol** : une
+flaque d'eau boueuse en forêt, avec des bottes. Elle illustrait les pages
+*Humidité* et *Dégât des eaux*, l'article humidité et deux diapositives du
+carrousel — onze pages sur vingt-six. Le fichier a été supprimé et ses emplois
+répartis :
+
+| Emploi | Nouvelle image |
+| --- | --- |
+| Page *Humidité*, article humidité, carrousel « Humidité persistante » | `parquet-chevrons.jpg` |
+| Page *Dégât des eaux*, carrousel « Après un dégât des eaux » | `rayures.jpg` |
+
+### `parquet-chevrons.jpg` — ajoutée
+
+| | |
+| --- | --- |
+| **Source** | <https://www.pexels.com/photo/36178801/> |
+| **Licence** | Licence Pexels — usage libre, y compris commercial, attribution non obligatoire : <https://www.pexels.com/license/> |
+| **Récupérée le** | 11/09/2026 |
+| **Dimensions** | 1800 × 1200 (recadrage paysage demandé au CDN Pexels) |
+| **Poids** | 140 Ko |
+| **Texte alternatif** | « Parquet en damier au ras du sol, à la jonction d'un mur et de sa plinthe, traversé par une bande de lumière » |
+
+Pourquoi celle-ci : c'est un **vrai parquet**, photographié au ras du sol, où
+l'on distingue le motif, les joints, la plinthe et l'angle de mur — c'est-à-dire
+précisément ce dont le site parle (jeu périphérique, calepinage). Elle sert
+aussi de couverture à l'article *Massif ou contrecollé*.
+
+### Recherche de remplacements : résultat négatif, et c'est une information
+
+Les trois autres visuels signalés hors sujet — `taches.jpg`,
+`parquet-ancien.jpg`, `soulevement.jpg` — **n'ont pas été remplacés**.
+
+Six requêtes distinctes ont été passées sur Pexels : *water damaged wood floor*,
+*damaged parquet floor*, *old worn wooden floor*, *scratched wooden floor*,
+*wet wooden floor*, *herringbone parquet floor*. Toutes renvoient le **même
+fonds d'environ huit photographies génériques** — textures de bois, écorces
+d'arbre, pièces vides. Aucune ne montre un bombement, un tuilage, une tache
+d'humidité ou une usure de parquet.
+
+Conclusion : **les banques d'images généralistes n'ont pas d'inventaire de
+pathologies de parquet.** Les remplacer par d'autres photographies génériques
+n'aurait rien changé — sinon les pixels. Ils restent donc déclarés décoratifs
+(`alt=""`), ce qui est la position honnête : ce sont bien des parquets, ils ne
+montrent simplement pas le désordre dont parle la page.
+
+Seule une campagne de prises de vue sur chantiers réels réglera ce point. C'est
+aussi ce qui distinguerait durablement le site de ses concurrents, qui puisent
+dans le même fonds.
