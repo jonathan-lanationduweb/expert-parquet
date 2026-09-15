@@ -1,5 +1,5 @@
 import { rel, breadcrumb } from '../layout.mjs';
-import { ICONS, pageHero, faqAccordion, faqJsonLd } from '../partials.mjs';
+import { ICONS, pageHero, faqAccordion, faqJsonLd, mentionDemo, champLeurre, formulaireEnDemo } from '../partials.mjs';
 
 const D = 1;
 
@@ -162,7 +162,7 @@ function quotePage() {
                 </div>
                 <div class="file-previews" data-upload-previews></div>
                 <p class="field__hint" data-upload-count aria-live="polite"></p>
-                <p class="disclaimer">${ICONS.alert} Vos photos restent dans votre navigateur&nbsp;: elles servent uniquement à l’aperçu ci-dessous et ne sont pas envoyées.</p>
+                ${mentionDemo('devis', `${ICONS.alert} Vos photos restent dans votre navigateur&nbsp;: elles servent uniquement à l’aperçu ci-dessous et ne sont pas envoyées.`)}
               </div>
 
               <div class="form-nav">
@@ -213,7 +213,8 @@ function quotePage() {
                 <p class="field__error" role="alert"></p>
               </div>
 
-              <p class="disclaimer">Formulaire de démonstration&nbsp;— aucune demande n’est transmise pour le moment.</p>
+              ${mentionDemo('devis', 'Formulaire de démonstration&nbsp;— aucune demande n’est transmise pour le moment.')}
+              ${champLeurre('devis')}
 
               <div class="form-nav">
                 <button class="btn btn--ghost" type="button" data-form-prev>Retour</button>
@@ -271,7 +272,12 @@ const CONTACT_FAQ = [
   },
   {
     q: 'Puis-je joindre des photos à un message de contact&nbsp;?',
-    a: '<p>Pas depuis ce formulaire&nbsp;: la sélection de photos est réservée à la <a href="devis.html">demande d’expertise</a>, où elle a un sens. Les deux formulaires sont pour l’instant des démonstrations&nbsp;: rien n’est transmis.</p>',
+    a:
+      '<p>Pas depuis ce formulaire&nbsp;: la sélection de photos est réservée à la <a href="devis.html">demande d’expertise</a>, où elle a un sens.' +
+      (formulaireEnDemo('contact')
+        ? ' Les deux formulaires sont pour l’instant des démonstrations&nbsp;: rien n’est transmis.'
+        : '') +
+      '</p>',
   },
   {
     q: 'Que deviennent les informations envoyées&nbsp;?',
@@ -336,7 +342,8 @@ function contactPage() {
               <p class="field__error" role="alert"></p>
             </div>
 
-            <p class="disclaimer">Formulaire de démonstration&nbsp;— aucun message n’est transmis pour le moment.</p>
+            ${mentionDemo('contact', 'Formulaire de démonstration&nbsp;— aucun message n’est transmis pour le moment.')}
+            ${champLeurre('contact')}
 
             <div class="form-nav">
               <span></span>
