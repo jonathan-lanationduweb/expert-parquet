@@ -114,8 +114,50 @@
   inset: 0;
   background: linear-gradient(180deg, rgba(15, 16, 17, 0.7) 0%, rgba(15, 16, 17, 0.42) 45%, rgba(15, 16, 17, 0.82) 100%);
 }
+/* Voile renforcé — appliqué UNIQUEMENT aux photographies mesurées comme claires
+   (tools/images.mjs, `estClaire`). Sans lui, le contraste tombait à 2,5:1 sur
+   les heroes de Diagnostic, Parquet abîmé ou Entretien : blanc sur bois clair.
+   Avec un voile uniforme assez fort pour elles, les photographies sombres
+   auraient viré à l'aplat noir. Deux niveaux, choisis par la donnée. */
+.page-hero--clair .page-hero__bg::after {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 16, 17, 0.82) 0%,
+    rgba(15, 16, 17, 0.7) 45%,
+    rgba(15, 16, 17, 0.88) 100%
+  );
+}
+
+/* Sur téléphone, le texte occupe presque toute la hauteur du hero : le creux du
+   dégradé à 45 % se retrouve DERRIÈRE le titre, alors qu'il passe au-dessus sur
+   grand écran. Les valeurs intermédiaires sont donc relevées — le voile reste
+   un dégradé, jamais un aplat noir, et la photographie reste lisible. */
+@media (max-width: 640px) {
+  .page-hero--media .page-hero__bg::after {
+    background: linear-gradient(
+      180deg,
+      rgba(15, 16, 17, 0.78) 0%,
+      rgba(15, 16, 17, 0.62) 45%,
+      rgba(15, 16, 17, 0.88) 100%
+    );
+  }
+  .page-hero--clair .page-hero__bg::after {
+    background: linear-gradient(
+      180deg,
+      rgba(15, 16, 17, 0.86) 0%,
+      rgba(15, 16, 17, 0.78) 45%,
+      rgba(15, 16, 17, 0.9) 100%
+    );
+  }
+}
 .page-hero--media .breadcrumb { padding-top: var(--space-lg); }
 .page-hero--media .page-hero__inner { padding-block: clamp(5rem, 10vw, 8.5rem) clamp(3rem, 6vw, 5rem); }
+/* Le `.kicker` manquait à cette liste : il gardait `--text-strong` (#17181A),
+   c'est-à-dire du presque noir posé sur une photographie sombre. Invisible sur
+   les treize pages à hero photographique — Expertise, Diagnostic, les sept
+   pages problème, les quatre guides. La règle est portée par le COMPOSANT et
+   non par chaque page : tout nouveau hero photo en hérite. */
+.page-hero--media .kicker { color: rgba(255, 255, 255, 0.82); }
 .page-hero--media .page-hero__title { color: var(--color-white); }
 .page-hero--media .page-hero__lead { color: rgba(255, 255, 255, 0.8); }
 .page-hero--media .page-hero__rule { background: rgba(255, 255, 255, 0.28); }
@@ -124,6 +166,14 @@
 .page-hero--media .breadcrumb li + li::before { color: rgba(255, 255, 255, 0.35); }
 .page-hero--media .breadcrumb [aria-current="page"] { color: var(--color-white); }
 .page-hero--media .breadcrumb a:hover { color: var(--color-white); }
+
+/* Sur ces fonds, les textes secondaires abandonnent leur transparence : gagner
+   du contraste par l'encre coûte moins à la photographie que d'épaissir encore
+   le voile. */
+.page-hero--clair .kicker,
+.page-hero--clair .page-hero__lead { color: rgba(255, 255, 255, 0.96); }
+.page-hero--clair .breadcrumb li,
+.page-hero--clair .breadcrumb a { color: rgba(255, 255, 255, 0.92); }
 
 /* ==========================================================================
    Introduction éditoriale (sous le hero)
@@ -255,7 +305,6 @@
   .observation__media { min-height: 300px; }
 }
 @media (max-width: 480px) {
-  .observation__factors { grid-template-columns: minmax(0, 1fr); }
   .observation__factors li:nth-child(odd) { padding-right: 0; }
 }
 
@@ -355,4 +404,129 @@
   .journey { grid-template-columns: minmax(0, 1fr); }
   .journey__item { border-left: 0; padding-left: 0; }
   .journey__item + .journey__item { border-top: 1px solid var(--border-hair); }
+}
+
+/* ==========================================================================
+   Densité mobile de la page d'accueil
+   --------------------------------------------------------------------------
+   Mesure de départ : 15 878 px à 375 × 812, soit 19,5 écrans. Le problème
+   n'était pas le contenu mais le RYTHME : une mise en page conçue pour des
+   colonnes larges, empilée telle quelle sur une seule colonne, additionne
+   toutes ses respirations. Aucun texte n'est retiré ici, aucun paragraphe
+   masqué : seuls les vides, les rapports d'image et les redondances de mise
+   en forme sont ramenés à l'échelle du téléphone.
+
+   La seule réduction de contenu visible est la liste des désordres, repliée à
+   quatre entrées sur quatre autres — et encore, le bouton la rouvre sur place
+   (js/modules/reveal-more.js).
+   ========================================================================== */
+@media (max-width: 640px) {
+  /* Les trois images de domaine sont d'ambiance : elles n'informent pas, elles
+     rythment. En 5/4 elles pesaient 268 px chacune sur un écran de 812. */
+  .domain__media { aspect-ratio: 16 / 9; }
+  .domain + .domain { margin-top: var(--space-xl); }
+  .domain__text { margin-top: var(--space-sm); }
+  .domain__list { margin-top: var(--space-md); }
+  .domain__cta { margin-top: var(--space-md); }
+
+  /* Le média de la section « observation » gardait 300 px de haut pour une
+     image de décor placée au-dessus du texte. */
+  .observation__media { min-height: 200px; }
+  .observation__body { gap: var(--space-md); }
+  .observation__cta { margin-top: var(--space-lg); }
+
+  /* Les cinq questions annoncées juste avant le questionnaire qui les pose :
+     sur une colonne c'était cinq lignes pour une information que l'outil
+     répète immédiatement. Deux colonnes, même contenu, deux fois moins haut. */
+  .prediag__steps { margin-top: var(--space-lg); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .prediag__steps li { padding-block: 0.55rem; grid-template-columns: 1.6rem minmax(0, 1fr); gap: var(--space-2xs); }
+  .prediag__steps li:nth-child(odd) { padding-right: var(--space-sm); }
+
+  /* Bandeau de parcours : cinq jalons de deux mots. Les 2 rem de respiration
+     verticale par jalon étaient calibrés pour une ligne unique en desktop. */
+  .journey__item { padding-block: var(--space-sm); }
+
+  .magazine__side { gap: var(--space-md); }
+  .magazine__side .card + .card { padding-top: var(--space-md); }
+}
+
+/* Très petite hauteur — téléphone en paysage : le hero calé sur la hauteur du
+   viewport devient une bande vide qu'il faut franchir avant de voir la moindre
+   information. On le laisse se dimensionner sur son contenu. */
+@media (max-height: 520px) and (orientation: landscape) {
+  .hero { min-height: 0; padding-block: var(--space-2xl) var(--space-xl); }
+}
+
+/* Compléments de densité mobile — suite du bloc ci-dessus. */
+@media (max-width: 640px) {
+  /* Les trois points de chaque domaine sont des étiquettes, pas des phrases :
+     empilées avec leur puce ils coûtaient trois lignes chacun. */
+  .domain__list { display: flex; flex-wrap: wrap; gap: var(--space-2xs) var(--space-md); }
+  .domain__list li { padding-left: 0; }
+  .domain__list li::before { display: none; }
+  .domain__list li + li::before {
+    display: inline;
+    content: "·";
+    position: static;
+    margin-right: var(--space-xs);
+    color: var(--border-default);
+  }
+
+  /* La carte à la une garde son image, mais en bandeau plutôt qu'en 3/2. */
+  .card--feature .card__media.media--3x2 { aspect-ratio: 16 / 9; }
+
+  .statement { padding-block: var(--section-y) var(--section-y-tight); }
+  .statement__grid { gap: var(--space-md); }
+
+  .faq-split { gap: var(--space-md); }
+}
+
+/* Derniers ajustements de densité mobile, mesurés section par section. */
+@media (max-width: 640px) {
+  /* `.stages` sépare ses quatre temps par un filet, pas par un `gap` : c'est
+     le padding qui porte la respiration. 3 rem convenaient à quatre colonnes
+     côte à côte, pas à quatre blocs empilés. */
+  .stage { padding-top: var(--space-md); padding-right: 0; }
+
+  /* Six facteurs de deux mots : sur une colonne c'était six lignes. */
+  .observation__factors { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* Rappel de parcours : cinq jalons de deux mots, deux colonnes tiennent
+     dès 320 px. */
+  .journey { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .journey__item { border-left: 1px solid var(--border-hair); padding-left: var(--space-md); }
+  .journey__item:nth-child(odd) { border-left: 0; padding-left: 0; }
+  .journey__item:nth-child(n+3) { border-top: 1px solid var(--border-hair); }
+}
+
+/* ==========================================================================
+   Hub Conseils — regroupement par thème
+   Le fonds éditorial rangé par question posée. Un simple intertitre au-dessus
+   d'une liste `.next-read` : pas de nouveau composant pour une nouvelle page.
+   ========================================================================== */
+.theme-group + .theme-group { margin-top: var(--space-xl); }
+.theme-group__title {
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: var(--fw-medium);
+  margin-bottom: var(--space-sm);
+}
+
+/* Hub Conseils sur téléphone — les quatre catégories en lignes compactes.
+   En vignettes pleine largeur, elles occupaient 1 955 px pour quatre liens et
+   quatre phrases : sur un hub, ce qui compte est de choisir vite, pas de
+   contempler. Même contenu, même ordre, même texte — seule la vignette passe
+   de bandeau à carré, comme les cartes d'article compactes. */
+@media (max-width: 640px) {
+  .hub-categories .card {
+    flex-direction: row;
+    gap: var(--space-sm);
+    align-items: flex-start;
+  }
+  .hub-categories .card__media { flex: 0 0 34%; aspect-ratio: 1 / 1; }
+  .hub-categories .card__body { padding-top: 0; }
+  .hub-categories .card__title { font-size: 1.05rem; }
+  .hub-categories .card__text { font-size: var(--fs-xs); }
 }

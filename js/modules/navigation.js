@@ -10,10 +10,36 @@ export function initNavigation() {
   initHeaderScroll();
 }
 
+/**
+ * Verrouillage du défilement pendant l'ouverture du drawer.
+ *
+ * `overflow: hidden` sur <body> ne suffit pas sur iOS : Safari continue de
+ * faire défiler la page derrière un panneau en `position: fixed`. La seule
+ * méthode fiable consiste à sortir le corps du flux et à compenser la position
+ * de défilement courante par un décalage négatif — sans quoi la page saute en
+ * haut à l'ouverture, puis de nouveau à la fermeture.
+ */
+const scrollLock = {
+  y: 0,
+  on() {
+    this.y = window.scrollY;
+    document.body.style.top = `-${this.y}px`;
+    document.body.classList.add('nav-lock');
+  },
+  off() {
+    if (!document.body.classList.contains('nav-lock')) return;
+    document.body.classList.remove('nav-lock');
+    document.body.style.top = '';
+    // `instant` : la restauration n'est pas un déplacement voulu par
+    // l'utilisateur, l'animer donnerait l'impression que la page bouge seule.
+    window.scrollTo({ top: this.y, behavior: 'instant' });
+  },
+};
+
 function initDrawer() {
   const toggle = document.querySelector('[data-nav-toggle]');
   const nav = document.querySelector('[data-nav]');
-  const overlay = document.querySelector('[data-nav-overlay]');
+  const closeBtn = nav && nav.querySelector('[data-nav-close]');
   if (!toggle || !nav) return;
 
   let lastFocused = null;
@@ -22,16 +48,21 @@ function initDrawer() {
 
   const open = () => {
     lastFocused = document.activeElement;
+    scrollLock.on();
     document.body.classList.add('nav-open');
     toggle.setAttribute('aria-expanded', 'true');
     nav.removeAttribute('inert');
-    const first = nav.querySelector(FOCUSABLE);
-    if (first) first.focus();
+    // Le focus va sur la croix plutôt que sur le premier lien : c'est la
+    // sortie du panneau, elle est annoncée aux lecteurs d'écran, et la
+    // tabulation suivante entre naturellement dans la navigation.
+    const target = closeBtn || nav.querySelector(FOCUSABLE);
+    if (target) target.focus();
     document.addEventListener('keydown', onKeydown);
   };
 
   const close = ({ restoreFocus = true } = {}) => {
     document.body.classList.remove('nav-open');
+    scrollLock.off();
     toggle.setAttribute('aria-expanded', 'false');
     document.removeEventListener('keydown', onKeydown);
     if (isMobile()) nav.setAttribute('inert', '');
@@ -61,7 +92,7 @@ function initDrawer() {
   }
 
   toggle.addEventListener('click', () => (isOpen() ? close() : open()));
-  if (overlay) overlay.addEventListener('click', () => close());
+  if (closeBtn) closeBtn.addEventListener('click', () => close());
 
   nav.addEventListener('click', (event) => {
     if (event.target.closest('a') && isOpen()) close({ restoreFocus: false });

@@ -247,6 +247,9 @@ function buildQuoteUrl(base, answers) {
   if (answers.probleme) params.set('probleme', answers.probleme);
   if (answers.type) params.set('type', answers.type);
   if (answers.piece) params.set('piece', answers.piece);
+  // Marque l'origine : un lien depuis une page « problème » porte aussi des
+  // paramètres, mais n'est pas un pré-diagnostic.
+  params.set('via', 'pre-diagnostic');
   const query = params.toString();
   return query ? `${base}?${query}` : base;
 }

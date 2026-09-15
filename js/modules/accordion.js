@@ -50,7 +50,7 @@ function setupAccordion(root) {
     });
   });
 
-  // Ouvre l’élément ciblé par l’ancre de lURL, le cas échéant.
+  // Ouvre l’élément ciblé par l’ancre de l’URL, le cas échéant.
   if (window.location.hash) {
     const target = root.querySelector(`.accordion__trigger[aria-controls="${window.location.hash.slice(1)}"]`);
     if (target) setState(target, true);
