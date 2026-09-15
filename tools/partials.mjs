@@ -6,6 +6,9 @@
  */
 
 import { rel } from './layout.mjs';
+import { photo, photoData, estClaire } from './images.mjs';
+/* Même configuration que celle servie au navigateur : un seul interrupteur. */
+import { formMode, CONTACT, SITE, RGPD } from '../js/config/site.js';
 
 /* --------------------------------------------------------------- icônes
    Jeu réduit au strict nécessaire : flèches, validation, alerte, question.
@@ -40,6 +43,39 @@ export const ICONS = {
     '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" aria-hidden="true"><circle cx="7.2" cy="7.2" r="5"/><path d="m13.5 13.5-2.7-2.7"/></svg>',
 };
 
+/* ------------------------------------------------------------------ Premibel
+   Destinations éditoriales vers le distributeur partenaire.
+
+   Règles tenues, dans cet ordre :
+   - le lien n'arrive QU'APRÈS que la cause du désordre a été traitée dans le
+     texte, c'est-à-dire au moment où le lecteur choisit réellement un produit ;
+   - zéro à deux liens par page, jamais un par paragraphe ;
+   - l'ancre décrit la destination, elle n'est pas optimisée pour un mot-clé ;
+   - aucune catégorie n'est inventée : les URL ci-dessous ont été relevées dans
+     la navigation du site et vérifiées une à une (HTTP 200, le 11/09/2026).
+
+   `parquet-flottant` est bien la catégorie des contrecollés : c'est le nom
+   qu'emploie Premibel, dont le titre de page est « Parquet flottant et
+   contrecollé ». Ne pas le remplacer par une URL devinée.
+*/
+export const PREMIBEL = {
+  accueil: 'https://premibel.fr/',
+  massif: 'https://premibel.fr/parquet-massif/',
+  contrecolle: 'https://premibel.fr/parquet-flottant/',
+  stratifie: 'https://premibel.fr/parquet-sol-stratifie/',
+  chene: 'https://premibel.fr/chene/',
+  finitionHuile: 'https://premibel.fr/huile/',
+  finitionVernie: 'https://premibel.fr/verni/',
+  conseils: 'https://premibel.fr/astuces-conseils/',
+};
+
+/** Lien sortant contextuel. `rel="noopener"` sans `target` : la navigation se
+    fait dans le même onglet, il n'y a donc aucune fenêtre à isoler — l'attribut
+    reste par précaution si un `target` était ajouté un jour. */
+export function premibelLink(url, texte) {
+  return `<a href="${url}" rel="noopener">${texte}</a>`;
+}
+
 /* ------------------------------------------------- catalogue des problèmes
    Sert à la fois à la liste éditoriale de la page d'accueil, au hub
    « Problèmes » et aux liens contextuels. */
@@ -67,7 +103,7 @@ export const PROBLEMS = [
     slug: 'humidite',
     label: 'Humidité',
     teaser: 'Remontée, condensation ou infiltration&nbsp;: trois réponses différentes.',
-    image: 'degat-eaux.jpg',
+    image: 'parquet-chevrons.jpg',
   },
   {
     slug: 'degat-des-eaux',
@@ -96,12 +132,32 @@ export const PROBLEMS = [
   },
 ];
 
-/** Liste éditoriale numérotée, avec vignette révélée au survol. */
-export function indexList(depth, { items = PROBLEMS, id = 'problemes-index' } = {}) {
+/**
+ * Liste éditoriale numérotée, avec vignette révélée au survol.
+ *
+ * `collapse` active la divulgation progressive : sur petit écran seulement, les
+ * `collapse` premières entrées restent visibles et les suivantes passent en
+ * `hidden`, un bouton les révélant d'un geste. Le contenu reste DANS le
+ * document — il est donc lu par les moteurs, qui rendent le HTML — et
+ * l'intégralité de la liste réapparaît au-delà du point de rupture.
+ */
+/** Largeur d'affichage de la vignette de survol, partagée par toutes ses données. */
+const APERCU_SIZES = '300px';
+
+export function indexList(
+  depth,
+  { items = PROBLEMS, id = 'problemes-index', collapse = null, moreLabel = null } = {}
+) {
   const rows = items
     .map((item, index) => {
       const num = String(index + 1).padStart(2, '0');
-      return `        <a class="index-row" href="${rel(depth, `pages/problemes/${item.slug}.html`)}" data-index-item data-preview="${rel(depth, `assets/images/${item.image}`)}">
+      /* La vignette de survol est remplacée par le script : il lui faut TOUTES
+         les données de l'image, pas seulement son `src`. Un `srcset` présent
+         l'emporte sur `src` — changer le seul `src` ne changeait rien à
+         l'écran. Les attributs sont produits par tools/images.mjs, jamais
+         écrits à la main dans le JavaScript. */
+      const vignette = photoData(depth, item.image, { sizes: APERCU_SIZES, alt: '' });
+      return `        <a class="index-row" href="${rel(depth, `pages/problemes/${item.slug}.html`)}" data-index-item data-preview-src="${vignette.src}" data-preview-srcset="${vignette.srcset || ''}" data-preview-w="${vignette.width}" data-preview-h="${vignette.height}">
           <span class="index-row__num">${num}</span>
           <span class="index-row__title">${item.label}</span>
           <span class="index-row__text">${item.teaser}</span>
@@ -110,10 +166,32 @@ export function indexList(depth, { items = PROBLEMS, id = 'problemes-index' } = 
     })
     .join('\n');
 
-  return `      <div class="index-list" data-index-list id="${id}">
+  const list = `      <div class="index-list" data-index-list id="${id}">
 ${rows}
-        <div class="index-list__preview" data-index-preview aria-hidden="true"><img src="${rel(depth, `assets/images/${items[0].image}`)}" alt="" width="300" height="380" loading="lazy" decoding="async"></div>
+        <div class="index-list__preview" data-index-preview aria-hidden="true">${photo(depth, items[0].image, { sizes: APERCU_SIZES, alt: '' })}</div>
       </div>`;
+
+  if (!collapse || collapse >= items.length) return list;
+
+  const reste = items.length - collapse;
+  const label = moreLabel || `Voir les ${reste} autres`;
+  return `${list}
+${revealMore({ target: id, count: collapse, label, itemSelector: '.index-row' })}`;
+}
+
+/**
+ * Bouton « voir la suite » d'une liste repliée sur petit écran.
+ *
+ * Le bouton est émis DANS le HTML plutôt qu'inséré par le script : inséré
+ * après coup, il déplacerait le contenu au chargement. Il est masqué tant que
+ * `html.no-js` est présent — sans JavaScript, la liste est déjà complète et un
+ * bouton inerte n'aurait aucun sens.
+ */
+export function revealMore({ target, count, label, itemSelector }) {
+  return `      <button class="reveal-more" type="button" data-reveal-more="${target}" data-reveal-count="${count}" data-reveal-items="${itemSelector}" aria-expanded="false" aria-controls="${target}">
+        <span data-reveal-label>${label}</span>
+        <span class="reveal-more__sign" aria-hidden="true"></span>
+      </button>`;
 }
 
 /* ------------------------------------------------------------- bandeau CTA */
@@ -200,6 +278,8 @@ ${steps}
 export const ARTICLES = [
   {
     slug: 'pourquoi-un-parquet-grince',
+    related: ['parquet-qui-grince', 'lames-qui-bougent', 'pose'],
+    tags: ['grincement', 'support', 'pose', 'structure'],
     title: 'Pourquoi un parquet se met-il à grincer&nbsp;?',
     category: 'Diagnostic',
     date: '2026-02-10',
@@ -211,6 +291,8 @@ export const ARTICLES = [
   },
   {
     slug: 'parquet-qui-se-souleve-que-faire',
+    related: ['parquet-gondole', 'degat-des-eaux', 'pose'],
+    tags: ['deformation', 'humidite', 'pose', 'sinistre'],
     title: 'Que faire lorsqu’un parquet se soulève&nbsp;?',
     category: 'Défauts',
     date: '2026-02-24',
@@ -222,17 +304,21 @@ export const ARTICLES = [
   },
   {
     slug: 'humidite-et-parquet-signes-qui-alertent',
+    related: ['parquet-gondole', 'degat-des-eaux', 'pose'],
+    tags: ['humidite', 'mesure', 'support', 'sinistre'],
     title: 'Humidité et parquet&nbsp;: quels signes doivent alerter&nbsp;?',
     category: 'Humidité',
     date: '2026-03-09',
     dateLabel: '9 mars 2026',
     readingTime: '8 min',
-    image: 'degat-eaux.jpg',
+    image: 'parquet-chevrons.jpg',
     excerpt:
       'Certains signaux apparaissent bien avant le désordre visible. Savoir les lire permet d’agir avant la dégradation.',
   },
   {
     slug: 'renover-un-parquet-tres-abime',
+    related: ['parquet-abime', 'renovation', 'choisir-parquet'],
+    tags: ['renovation', 'esthetique', 'choix', 'entretien'],
     title: 'Peut-on rénover un parquet très abîmé&nbsp;?',
     category: 'Rénovation',
     date: '2026-03-23',
@@ -244,6 +330,8 @@ export const ARTICLES = [
   },
   {
     slug: 'pourquoi-le-support-est-essentiel',
+    related: ['defaut-de-pose', 'pose', 'parquet-gondole'],
+    tags: ['support', 'pose', 'mesure', 'structure'],
     title: 'Pourquoi le support est-il essentiel avant la pose&nbsp;?',
     category: 'Pose',
     date: '2026-04-07',
@@ -253,6 +341,110 @@ export const ARTICLES = [
     excerpt:
       'La majorité des désordres se jouent sous le parquet. Planéité, siccité, propreté&nbsp;: les trois contrôles décisifs.',
   },
+  {
+    slug: 'lames-qui-secartent',
+    tags: ['deformation', 'humidite', 'structure', 'mesure'],
+    related: ['lames-qui-bougent', 'parquet-qui-sonne-creux', 'humidite'],
+    title: 'Lames qui s’écartent&nbsp;: jeu normal ou défaut&nbsp;?',
+    category: 'Diagnostic',
+    date: '2026-09-11',
+    dateLabel: '11 septembre 2026',
+    readingTime: '7 min',
+    image: 'lames-bougent.jpg',
+    excerpt:
+      'Des joints qui s’ouvrent en hiver et se referment au printemps sont normaux. Trois situations, en revanche, méritent d’être regardées de près.',
+  },
+  {
+    slug: 'parquet-qui-sonne-creux',
+    tags: ['structure', 'support', 'pose', 'grincement'],
+    related: ['lames-qui-bougent', 'defaut-de-pose', 'pourquoi-un-parquet-grince'],
+    title: 'Parquet qui sonne creux&nbsp;: ce que le bruit indique',
+    category: 'Diagnostic',
+    date: '2026-09-11',
+    dateLabel: '11 septembre 2026',
+    readingTime: '6 min',
+    image: 'parquet-detail.jpg',
+    excerpt:
+      'Normal sur une pose flottante, préoccupant sur une pose collée. La première question n’est pas pourquoi ça sonne creux, mais comment le parquet est posé.',
+  },
+  {
+    slug: 'traces-noires-sur-un-parquet',
+    tags: ['esthetique', 'humidite', 'sinistre', 'entretien'],
+    related: ['humidite', 'parquet-abime', 'parquet-salle-de-bain'],
+    title: 'Traces noires sur un parquet&nbsp;: comment les distinguer',
+    category: 'Humidité',
+    date: '2026-09-11',
+    dateLabel: '11 septembre 2026',
+    readingTime: '7 min',
+    image: 'rayures.jpg',
+    excerpt:
+      'Réaction chimique, moisissure ou finition épuisée&nbsp;: trois phénomènes différents, trois réponses différentes. La forme et l’odeur suffisent souvent à trancher.',
+  },
+  {
+    slug: 'reception-chantier-parquet',
+    tags: ['pose', 'mesure', 'structure', 'support'],
+    related: ['defaut-de-pose', 'pose', 'parquet-et-plancher-chauffant'],
+    title: 'Réception d’un chantier de parquet&nbsp;: ce qu’on contrôle le jour J',
+    category: 'Pose',
+    date: '2026-09-11',
+    dateLabel: '11 septembre 2026',
+    readingTime: '8 min',
+    image: 'inspection.jpg',
+    excerpt:
+      'La plupart des désordres apparaissent des mois après la pose. Ce que la réception peut faire, c’est consigner l’état initial et les conditions de mise en œuvre.',
+  },
+  {
+    slug: 'parquet-et-plancher-chauffant',
+    tags: ['choix', 'pose', 'support', 'mesure'],
+    related: ['massif-ou-contrecolle', 'choisir-parquet', 'pose'],
+    title: 'Parquet et plancher chauffant&nbsp;: les points à vérifier',
+    category: 'Pose',
+    date: '2026-09-11',
+    dateLabel: '11 septembre 2026',
+    readingTime: '9 min',
+    image: 'pose-support.jpg',
+    excerpt:
+      'Résistance thermique, température de surface, protocole de mise en chauffe&nbsp;: trois conditions cumulatives qui se vérifient avant la commande, jamais après.',
+  },
+  {
+    slug: 'massif-ou-contrecolle',
+    tags: ['choix', 'structure', 'renovation'],
+    related: ['choisir-parquet', 'parquet-et-plancher-chauffant', 'renovation'],
+    title: 'Massif ou contrecollé&nbsp;: ce qui les distingue vraiment',
+    category: 'Choix',
+    date: '2026-09-11',
+    dateLabel: '11 septembre 2026',
+    readingTime: '8 min',
+    image: 'parquet-chevrons.jpg',
+    excerpt:
+      'Deux structures, pas deux gammes. La différence décide de la stabilité, du nombre de rénovations possibles et du type de pose admis.',
+  },
+  {
+    slug: 'finition-parquet-huile-vitrifie',
+    tags: ['choix', 'entretien', 'esthetique'],
+    related: ['entretien', 'traces-noires-sur-un-parquet', 'renovation'],
+    title: 'Huilé, vitrifié ou brut&nbsp;: choisir une finition',
+    category: 'Choix',
+    date: '2026-09-11',
+    dateLabel: '11 septembre 2026',
+    readingTime: '8 min',
+    image: 'interieur-clair.jpg',
+    excerpt:
+      'La finition est la seule couche qui prend l’usure. Elle décide de l’entretien quotidien et de la façon dont les accidents se réparent.',
+  },
+  {
+    slug: 'parquet-salle-de-bain',
+    tags: ['choix', 'humidite', 'pose', 'structure'],
+    related: ['humidite', 'finition-parquet-huile-vitrifie', 'choisir-parquet'],
+    title: 'Parquet en salle de bain&nbsp;: à quelles conditions&nbsp;?',
+    category: 'Choix',
+    date: '2026-09-11',
+    dateLabel: '11 septembre 2026',
+    readingTime: '7 min',
+    image: 'architectural.jpg',
+    excerpt:
+      'Essence durable, mise en œuvre étanche et ventilation qui fonctionne. Si l’une des trois manque, le bois finira par s’en apercevoir.',
+  },
 ];
 
 /** Carte article. `variant` : 'default' | 'feature' | 'row'. */
@@ -261,7 +453,7 @@ export function articleCard(depth, article, index = 0, variant = 'default') {
   const h = variant === 'feature' ? 933 : 1050;
   return `      <article class="card${variant === 'feature' ? ' card--feature' : ''}${variant === 'row' ? ' card--row' : ''}" data-reveal data-reveal-delay="${index * 70}">
         <div class="card__media ${ratioClass}">
-          <img src="${rel(depth, `assets/images/${article.image}`)}" alt="" width="1400" height="${h}" loading="lazy" decoding="async">
+          ${photo(depth, article.image, { sizes: variant === 'row' ? '(max-width: 520px) 34vw, (max-width: 900px) 30vw, 18vw' : '(min-width: 901px) 40vw, 100vw' })}
         </div>
         <div class="card__body">
           <p class="card__meta"><span>${article.category}</span><span>${article.readingTime}</span></p>
@@ -283,7 +475,7 @@ export const SHOWCASE = [
   {
     title: 'Humidité persistante',
     text: 'Distinguer une remontée du support, une condensation d’ambiance et une infiltration ponctuelle.',
-    image: 'degat-eaux.jpg',
+    image: 'parquet-chevrons.jpg',
     href: 'pages/problemes/humidite.html',
   },
   {
@@ -301,7 +493,7 @@ export const SHOWCASE = [
   {
     title: 'Après un dégât des eaux',
     text: 'Documenter, mesurer le support, attendre la stabilisation&nbsp;: la chronologie compte autant que le constat.',
-    image: 'degat-eaux.jpg',
+    image: 'rayures.jpg',
     href: 'pages/problemes/degat-des-eaux.html',
   },
 ];
@@ -311,7 +503,7 @@ export function showcase(depth, { inverse = false } = {}) {
   const slides = SHOWCASE.map(
     (item, index) => `          <a class="showcase__slide" href="${rel(depth, item.href)}">
             <div class="showcase__media">
-              <img src="${rel(depth, `assets/images/${item.image}`)}" alt="" width="1400" height="933" loading="lazy" decoding="async">
+              ${photo(depth, item.image, { sizes: '(min-width: 901px) 38vw, 82vw' })}
             </div>
             <div class="showcase__body">
               <span class="showcase__num">${String(index + 1).padStart(2, '0')}</span>
@@ -328,7 +520,7 @@ export function showcase(depth, { inverse = false } = {}) {
 ${slides}
         </div>
         <div class="showcase__controls">
-          <p class="showcase__counter"><b data-showcase-current>01</b> / ${total}</p>
+          <p class="showcase__counter" aria-live="polite" aria-atomic="true"><span class="visually-hidden">Situation </span><b data-showcase-current>01</b> / ${total}</p>
           <div class="showcase__progress" aria-hidden="true"><div class="showcase__progress-bar" data-showcase-bar></div></div>
           <div class="showcase__nav">
             <button class="showcase__btn" type="button" data-showcase-prev aria-label="Situation précédente">${ICONS.arrowLeft}</button>
@@ -385,7 +577,17 @@ export function stripTags(html) {
 
 /* ------------------------------------------------------------ en-tête page */
 
-export function pageHero(depth, { kicker, title, lead, crumbHtml, actions = '', image = null, imageAlt = '' }) {
+/**
+ * En-tête de page.
+ *
+ * L'image de fond est TOUJOURS décorative, et c'est un choix, pas un oubli :
+ * elle est posée sous un dégradé d'assombrissement, derrière le `<h1>` et le
+ * chapô qui disent déjà de quoi traite la page. La décrire une seconde fois à
+ * un lecteur d'écran n'ajouterait rien et ferait double emploi avec le titre.
+ * Les textes alternatifs de tools/images.mjs servent partout ailleurs, où
+ * l'image est un contenu et non un fond.
+ */
+export function pageHero(depth, { kicker, title, lead, crumbHtml, actions = '', image = null }) {
   const inner = `      <div class="page-hero__inner">
         ${kicker ? `<p class="kicker">${kicker}</p>` : ''}
         <h1 class="page-hero__title">${title}</h1>
@@ -395,9 +597,14 @@ export function pageHero(depth, { kicker, title, lead, crumbHtml, actions = '', 
       </div>`;
 
   if (image) {
-    return `  <section class="page-hero page-hero--media">
+    /* Le voile est dimensionné d'après la clarté MESURÉE de la photographie,
+       pas page par page : une photo sombre garde un voile léger, une photo
+       claire reçoit ce qu'il faut pour que le texte blanc reste lisible.
+       Voir tools/images.mjs, `estClaire`. */
+    const voile = estClaire(image) ? ' page-hero--clair' : '';
+    return `  <section class="page-hero page-hero--media${voile}">
     <div class="page-hero__bg" aria-hidden="true">
-      <img src="${rel(depth, `assets/images/${image}`)}" alt="${imageAlt}" width="1800" height="1200" fetchpriority="high" decoding="async">
+      ${photo(depth, image, { sizes: '100vw', priority: true, alt: '' })}
     </div>
     <div class="container">
       ${crumbHtml}
@@ -435,4 +642,102 @@ ${left}
           ${link ? `<p class="u-mt-lg">${link}</p>` : ''}
         </div>
       </div>`;
+}
+
+/* ========================================================================== */
+/* Formulaires : mode DEMO / LIVE                                             */
+/* ========================================================================== */
+
+/**
+ * Le site affiche partout qu'aucune donnée n'est transmise. C'est vrai tant
+ * qu'aucun point d'envoi n'est renseigné dans `js/config/site.js` — et faux
+ * dès qu'il l'est. Une page qui promet « rien n'est transmis » alors que le
+ * formulaire envoie réellement une demande est une fausse déclaration, et sur
+ * la page de confidentialité, un manquement.
+ *
+ * Ces trois aides lisent la MÊME configuration que le JavaScript du site. Il
+ * n'existe donc qu'un seul interrupteur : renseigner l'URL suffit à corriger
+ * en même temps le comportement et tous les textes qui en parlent.
+ */
+export function formulaireEnDemo(nom) {
+  return formMode(nom) === 'demo';
+}
+
+/** Vrai tant qu'AUCUN des deux formulaires n'a de point d'envoi. */
+export function siteEnDemo() {
+  return formulaireEnDemo('contact') && formulaireEnDemo('devis');
+}
+
+/**
+ * Texte affiché sous un formulaire, ou chaîne vide en mode LIVE : en
+ * production, la mention n'a plus lieu d'être et sa présence inquiéterait.
+ */
+export function mentionDemo(nom, texte) {
+  /* `data-demo-only` : à l'exécution, quand l'hôte est un hôte de
+     développement raccordé au backend local, `forms.js` masque cette mention
+     — le formulaire envoie réellement, la phrase serait fausse. */
+  return formulaireEnDemo(nom) ? `<p class="disclaimer" data-demo-only>${texte}</p>` : '';
+}
+
+/**
+ * Champ leurre.
+ *
+ * Il est dans le HTML SERVI, et non ajouté par JavaScript : un robot qui se
+ * contente de lire la page et de poster le formulaire ne verrait jamais un
+ * champ créé au dernier moment — le piège ne prendrait personne.
+ *
+ * Masqué par la feuille de style et non par `hidden` ni `display:none`, que
+ * les robots un peu sérieux savent détecter et éviter. `aria-hidden` et
+ * `tabindex="-1"` le retirent du parcours d'un lecteur d'écran et du clavier :
+ * il ne doit jamais atteindre un humain, sous peine de faire refuser sa
+ * demande sans qu'il comprenne pourquoi.
+ *
+ * `autocomplete="off"` est indispensable : sans lui, le remplissage
+ * automatique du navigateur peut y déposer une valeur et bloquer un visiteur
+ * réel.
+ */
+export function champLeurre(suffixe) {
+  const id = `hp-${suffixe}`;
+  return `<div class="honeypot" aria-hidden="true">
+                <label for="${id}">Ne remplissez pas ce champ</label>
+                <input type="text" id="${id}" name="_hp" value="" tabindex="-1" autocomplete="off">
+              </div>`;
+}
+
+/**
+ * Section « Données personnelles » de la page de confidentialité.
+ *
+ * Deux textes, et un seul est vrai à la fois. En mode DEMO, le site affirme
+ * qu'il ne collecte rien — c'est exact, et c'est vérifiable. En mode LIVE, il
+ * doit nommer le responsable du traitement, la finalité, les destinataires et
+ * la durée de conservation : c'est ce que la version DEMO promet explicitement
+ * de faire « avant toute mise en service ». Générer les deux depuis la même
+ * configuration évite qu'on oublie cette promesse le jour de la bascule.
+ *
+ * `check.mjs` refuse une construction LIVE dont les valeurs manquent : mieux
+ * vaut une construction qui échoue qu'une page qui ment.
+ */
+export function sectionDonneesPersonnelles() {
+  if (siteEnDemo()) {
+    return `<p><strong>Aucune donnée n’est collectée à ce jour.</strong> Les formulaires du site fonctionnent en démonstration&nbsp;: ce que vous y saisissez reste dans votre navigateur, n’est ni transmis, ni enregistré, ni consulté par personne. Les photographies éventuellement sélectionnées ne sont pas téléversées.</p>
+        <p>Lorsque les demandes seront réellement traitées, cette page précisera le responsable du traitement, la finalité, les destinataires et la durée de conservation, avant toute mise en service.</p>
+        <p>Le règlement général sur la protection des données ouvre un droit d’accès, de rectification, d’effacement, de limitation, d’opposition et de portabilité. Il s’exercera auprès du responsable du traitement dès que celui-ci sera identifié&nbsp;; d’ici là, aucune donnée personnelle n’est détenue par ce site.</p>`;
+  }
+
+  const responsable = CONTACT.legalEntity || SITE.name;
+  const contact = CONTACT.email
+    ? `<a href="mailto:${CONTACT.email}">${CONTACT.email}</a>`
+    : 'l’adresse indiquée en tête de ces mentions';
+  const mois = RGPD.conservationMois;
+  const duree = mois % 12 === 0 ? `${mois / 12} an${mois > 12 ? 's' : ''}` : `${mois} mois`;
+  const tiers = RGPD.sousTraitants.length
+    ? `<p>Les prestataires suivants interviennent dans ce traitement&nbsp;: ${RGPD.sousTraitants.join(', ')}.</p>`
+    : '<p>Aucun prestataire tiers n’intervient dans ce traitement en dehors de l’hébergement du site.</p>';
+
+  return `<p><strong>Responsable du traitement&nbsp;:</strong> ${responsable}. <strong>Finalité&nbsp;:</strong> ${RGPD.finalite}. <strong>Base légale&nbsp;:</strong> votre demande explicite.</p>
+        <p>Les informations transmises par les formulaires (identité, coordonnées, description du désordre et photographies éventuelles) sont enregistrées pour ce seul usage. Les destinataires sont ${RGPD.destinataires}. Rien n’est revendu, cédé ni utilisé à des fins de prospection.</p>
+        <p><strong>Durée de conservation&nbsp;:</strong> ${duree} après la clôture de votre demande. Passé ce délai, la demande et ses photographies sont supprimées automatiquement.</p>
+        <p>Les photographies ne sont jamais publiées ni accessibles par une adresse web&nbsp;: elles sont stockées hors du site et ne s’affichent que pour les personnes habilitées à traiter votre demande. Les données de localisation éventuellement contenues dans leurs métadonnées sont retirées à la réception.</p>
+        ${tiers}
+        <p>Le règlement général sur la protection des données vous ouvre un droit d’accès, de rectification, d’effacement, de limitation, d’opposition et de portabilité. Pour l’exercer, écrivez à ${contact}. Vous pouvez également introduire une réclamation auprès de la CNIL.</p>`;
 }

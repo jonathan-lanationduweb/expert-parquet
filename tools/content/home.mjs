@@ -1,7 +1,9 @@
 import { rel } from '../layout.mjs';
+import { photo } from '../images.mjs';
 import {
   ICONS,
   indexList,
+  revealMore,
   ctaBand,
   processSection,
   showcase,
@@ -10,6 +12,7 @@ import {
   faqAccordion,
   faqJsonLd,
   sectionHead,
+  formulaireEnDemo,
 } from '../partials.mjs';
 
 const D = 0;
@@ -56,7 +59,12 @@ const FAQ = [
   },
   {
     q: 'Puis-je envoyer des photos avant une intervention&nbsp;?',
-    a: '<p>Oui, c’est recommandé&nbsp;: elles font gagner du temps et permettent de préparer la visite. Le formulaire de demande prévoit une sélection de photos. <strong>À noter&nbsp;:</strong> ce formulaire est pour l’instant une démonstration, les photos restent affichées dans votre navigateur et ne sont pas transmises.</p>',
+    a:
+      '<p>Oui, c’est recommandé&nbsp;: elles font gagner du temps et permettent de préparer la visite. Le formulaire de demande prévoit une sélection de photos.' +
+      (formulaireEnDemo('devis')
+        ? ' <strong>À noter&nbsp;:</strong> ce formulaire est pour l’instant une démonstration, les photos restent affichées dans votre navigateur et ne sont pas transmises.'
+        : ' Elles sont transmises avec la demande, et consultables uniquement par Expert Parquet.') +
+      '</p>',
   },
   {
     q: 'Intervenez-vous partout en France&nbsp;?',
@@ -68,7 +76,7 @@ export function homePage() {
   const domains = DOMAINS.map(
     (domain) => `        <article class="domain" data-reveal>
           <div class="domain__media">
-            <img src="${rel(D, `assets/images/${domain.image}`)}" alt="" width="1800" height="1440" loading="lazy" decoding="async">
+            ${photo(D, domain.image, { sizes: '(min-width: 901px) 50vw, 100vw' })}
           </div>
           <div class="domain__body">
             <span class="domain__num">${domain.num}</span>
@@ -101,7 +109,7 @@ ${domain.points.map((point) => `              <li>${point}</li>`).join('\n')}
       Cahier des charges du tournage&nbsp;: VIDEO_BRIEF.md.
     -->
     <div class="hero__media">
-      <img src="${rel(D, 'assets/images/hero.jpg')}" alt="" width="2000" height="1333" fetchpriority="high" decoding="async">
+      ${photo(D, 'hero.jpg', { sizes: '100vw', priority: true })}
     </div>
     <div class="container hero__inner">
       <h1 class="hero-title hero__title">Un problème avec votre parquet&nbsp;?</h1>
@@ -145,9 +153,10 @@ ${sectionHead({
     title: 'Trois manières d’aborder un parquet',
     text: 'Selon l’avancement de votre réflexion, l’entrée n’est pas la même&nbsp;: identifier un symptôme, comprendre un désordre installé, ou évaluer une situation avant travaux.',
   })}
-      <div class="u-mt-2xl">
+      <div class="u-mt-2xl" id="domaines-liste">
 ${domains}
       </div>
+${revealMore({ target: 'domaines-liste', count: 1, label: 'Voir les deux autres approches', itemSelector: '.domain' })}
     </div>
   </section>
 
@@ -161,7 +170,7 @@ ${sectionHead({
     link: `<a class="link-arrow" href="${rel(D, 'pages/problemes.html')}">Voir tous les problèmes</a>`,
   })}
       <div class="u-mt-2xl" data-reveal>
-${indexList(D)}
+${indexList(D, { collapse: 4, moreLabel: 'Voir les 4 autres désordres' })}
       </div>
     </div>
   </section>
@@ -169,7 +178,7 @@ ${indexList(D)}
   <!-- ================================================== OBSERVATION -->
   <section class="observation">
     <div class="observation__media">
-      <img src="${rel(D, 'assets/images/hero-wide.jpg')}" alt="Intérieur clair avec parquet et grandes ouvertures" width="2400" height="1602" loading="lazy" decoding="async">
+      ${photo(D, 'hero-wide.jpg', { sizes: '(min-width: 901px) 50vw, 100vw' })}
     </div>
     <div class="observation__body">
       <div data-reveal>
@@ -244,7 +253,7 @@ ${sectionHead({
     text: 'Un média technique consacré au parquet, écrit pour être utile avant l’intervention plutôt que pour vendre une prestation.',
     link: `<a class="link-arrow" href="${rel(D, 'pages/conseils.html')}">Tous les conseils</a>`,
   })}
-      <div class="magazine u-mt-2xl">
+      <div class="magazine u-mt-2xl" id="conseils-mis-en-avant">
         <div>
 ${articleCard(D, ARTICLES[4], 0, 'feature')}
         </div>
@@ -253,6 +262,7 @@ ${articleCard(D, ARTICLES[0], 1, 'row')}
 ${articleCard(D, ARTICLES[2], 2, 'row')}
         </div>
       </div>
+${revealMore({ target: 'conseils-mis-en-avant', count: 2, label: 'Voir un autre article', itemSelector: '.card' })}
     </div>
   </section>
 

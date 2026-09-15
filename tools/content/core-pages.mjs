@@ -1,4 +1,5 @@
 import { rel, breadcrumb } from '../layout.mjs';
+import { photo } from '../images.mjs';
 import {
   ICONS,
   PROBLEMS,
@@ -10,6 +11,8 @@ import {
   faqAccordion,
   faqJsonLd,
   pageHero,
+  sectionDonneesPersonnelles,
+  formulaireEnDemo,
 } from '../partials.mjs';
 
 const D = 1;
@@ -30,7 +33,6 @@ function expertisePage() {
     title: 'L’expertise parquet, ou comment remonter du symptôme à la cause',
     lead: 'Un parquet qui pose problème raconte quelque chose de son support, de son environnement et de sa pose. L’expertise consiste à lire ces indices dans le bon ordre.',
     image: 'parquet-detail.jpg',
-    imageAlt: '',
     actions: `<a class="btn btn--primary" href="${rel(D, 'pages/devis.html')}">Demander une expertise</a><a class="btn btn--on-dark" href="${rel(D, 'pages/diagnostic.html')}#pre-diagnostic">Lancer le pré-diagnostic</a>`,
   })}
 
@@ -44,7 +46,7 @@ function expertisePage() {
 
           <div class="callout">
             <p class="callout__title">${ICONS.alert} Ce que l’expertise n’est pas</p>
-            <p>Ce site propose une analyse technique. Il ne délivre pas de rapport judiciaire, d’attestation officielle ni d’avis d’assurance. Si votre situation relève d’une procédure, dites-le dès votre demande&nbsp;: la réponse précisera ce qui est possible et ce qui ne lest pas.</p>
+            <p>Ce site propose une analyse technique. Il ne délivre pas de rapport judiciaire, d’attestation officielle ni d’avis d’assurance. Si votre situation relève d’une procédure, dites-le dès votre demande&nbsp;: la réponse précisera ce qui est possible et ce qui ne l’est pas.</p>
           </div>
 
           <h2 id="situations">Dans quelles situations&nbsp;?</h2>
@@ -143,8 +145,10 @@ function expertisePage() {
 
         <aside class="article-aside">
           <nav class="toc" data-toc data-toc-scope="#article-body" aria-labelledby="toc-title">
-            <p class="toc__title" id="toc-title">Sur cette page</p>
-            <ul class="toc__list" data-toc-list></ul>
+            <details class="toc__box">
+              <summary class="toc__title" id="toc-title">Sur cette page</summary>
+              <ul class="toc__list" data-toc-list></ul>
+            </details>
           </nav>
           <div class="aside-card aside-card--accent">
             <p class="aside-card__title">Décrire votre situation</p>
@@ -210,7 +214,6 @@ function diagnosticPage() {
     title: 'Diagnostic parquet&nbsp;: identifier ce qui se passe réellement',
     lead: 'Pourquoi mon parquet bouge-t-il&nbsp;? D’où vient cette tache&nbsp;? Est-ce un défaut de pose&nbsp;? Cette page donne la méthode, puis un parcours guidé pour poser votre situation.',
     image: 'inspection.jpg',
-    imageAlt: '',
     actions: `<a class="btn btn--primary" href="#pre-diagnostic">Lancer le pré-diagnostic</a>`,
   })}
 
@@ -265,8 +268,10 @@ function diagnosticPage() {
 
         <aside class="article-aside">
           <nav class="toc" data-toc data-toc-scope="#article-body" aria-labelledby="toc-title-diag">
-            <p class="toc__title" id="toc-title-diag">Sur cette page</p>
-            <ul class="toc__list" data-toc-list></ul>
+            <details class="toc__box">
+              <summary class="toc__title" id="toc-title-diag">Sur cette page</summary>
+              <ul class="toc__list" data-toc-list></ul>
+            </details>
           </nav>
           <div class="aside-card">
             <p class="aside-card__title">Problèmes courants</p>
@@ -444,10 +449,49 @@ export const ADVICE_CATEGORIES = [
 function adviceHubPage() {
   const crumb = breadcrumb(D, [{ label: 'Accueil', href: 'index.html' }, { label: 'Conseils' }]);
 
+  /* Les trois plus récents en vignettes : c'est la fonction « quoi de neuf »,
+     et elle n'a de sens que si elle reste courte. */
+  const recents = [...ARTICLES].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
+
+  /* Tout le fonds, regroupé par thème. Treize vignettes photographiques
+     alignées ne sont pas un sommaire : elles obligent à tout parcourir pour
+     trouver une réponse précise. Rangés par question posée, les mêmes articles
+     se choisissent d'un coup d'œil. L'ordre des thèmes suit le parcours du
+     lecteur : constater, comprendre, choisir. */
+  const ORDRE_THEMES = ['Diagnostic', 'Défauts', 'Humidité', 'Pose', 'Rénovation', 'Choix'];
+  const parTheme = new Map();
+  for (const article of ARTICLES) {
+    if (!parTheme.has(article.category)) parTheme.set(article.category, []);
+    parTheme.get(article.category).push(article);
+  }
+  const rang = (theme) => (ORDRE_THEMES.indexOf(theme) === -1 ? 99 : ORDRE_THEMES.indexOf(theme));
+  const themes = [...parTheme.keys()]
+    .sort((a, b) => rang(a) - rang(b))
+    .map(
+      (theme) => `      <div class="theme-group" data-reveal>
+        <h3 class="theme-group__title">${theme}</h3>
+        <div class="next-read">
+${parTheme
+          .get(theme)
+          .map(
+            (article) => `          <a class="next-read__item" href="${rel(D, `articles/${article.slug}.html`)}">
+            <span class="next-read__kind">${article.readingTime}</span>
+            <span class="next-read__title">${article.title}</span>
+            <span class="next-read__text">${article.excerpt}</span>
+            <span class="next-read__arrow" aria-hidden="true"></span>
+          </a>`
+          )
+          .join('\n')}
+        </div>
+      </div>`
+    )
+    .join('\n');
+
+
   const categories = ADVICE_CATEGORIES.map(
     (category, index) => `      <article class="card" data-reveal data-reveal-delay="${index * 50}">
         <div class="card__media card__media--16x9">
-          <img src="${rel(D, `assets/images/${category.image}`)}" alt="" width="1400" height="788" loading="lazy" decoding="async">
+          ${photo(D, category.image, { sizes: '(min-width: 901px) 33vw, (min-width: 641px) 50vw, 100vw' })}
         </div>
         <div class="card__body">
           <h3 class="card__title"><a class="card__link" href="${rel(D, `pages/conseils/${category.slug}.html`)}">${category.label}</a></h3>
@@ -468,7 +512,7 @@ function adviceHubPage() {
       <div class="sec-head" data-reveal>
         <h2>Catégories</h2>
       </div>
-      <div class="grid grid--4 u-mt-lg">
+      <div class="grid grid--4 hub-categories u-mt-lg">
 ${categories}
       </div>
     </div>
@@ -481,12 +525,23 @@ ${categories}
         <h2>À lire</h2>
       </div>
       <div class="grid grid--3 u-mt-lg">
-${ARTICLES.map((article, index) => articleCard(D, article, index)).join('\n')}
+${recents.map((article, index) => articleCard(D, article, index)).join('\n')}
       </div>
     </div>
   </section>
 
   <section class="section">
+    <div class="container">
+      <div class="sec-head" data-reveal>
+        <p class="kicker">Tous les articles</p>
+        <h2 class="sec-head__title">Par thème</h2>
+        <p class="lead">Le même fonds, rangé par question posée plutôt que par date de publication.</p>
+      </div>
+${themes}
+    </div>
+  </section>
+
+  <section class="section section--alt">
     <div class="container">
       <div class="sec-head" data-reveal>
         <p class="kicker">Par symptôme</p>
@@ -551,7 +606,7 @@ function aboutPage() {
           </ul>
         </div>
         <div class="media media--4x3" data-reveal>
-          <img src="${rel(D, 'assets/images/interieur-clair.jpg')}" alt="Intérieur clair avec parquet bois" width="1600" height="1067" loading="lazy" decoding="async">
+          ${photo(D, 'interieur-clair.jpg', { sizes: '(min-width: 901px) 45vw, 100vw' })}
         </div>
       </div>
     </div>
@@ -651,7 +706,12 @@ const FAQ_GROUPS = [
       },
       {
         q: 'Puis-je envoyer des photos avant une intervention&nbsp;?',
-        a: '<p>Oui, c’est recommandé&nbsp;: une photo d’ensemble, une photo rasante et un détail du désordre orientent souvent la lecture plus vite qu’une description. Le formulaire de demande prévoit une sélection de photos. Précision&nbsp;: ce formulaire est pour l’instant une démonstration, les photos restent affichées dans votre navigateur et ne sont pas transmises.</p>',
+        a:
+          '<p>Oui, c’est recommandé&nbsp;: une photo d’ensemble, une photo rasante et un détail du désordre orientent souvent la lecture plus vite qu’une description. Le formulaire de demande prévoit une sélection de photos.' +
+          (formulaireEnDemo('devis')
+            ? ' Précision&nbsp;: ce formulaire est pour l’instant une démonstration, les photos restent affichées dans votre navigateur et ne sont pas transmises.'
+            : ' Elles sont transmises avec la demande et ne sont consultables que par Expert Parquet.') +
+          '</p>',
       },
       {
         q: 'Quelles informations préparer avant une demande&nbsp;?',
@@ -753,9 +813,7 @@ function legalPage() {
         <p>Les textes de ce site sont originaux. Les photographies proviennent de banques d’images libres de droits&nbsp;; leurs sources sont listées dans le fichier <code>assets/images/CREDITS.md</code> du projet. Toute réutilisation des contenus rédactionnels nécessite l’accord préalable de l’éditeur.</p>
 
         <h2>Données personnelles</h2>
-        <p><strong>Aucune donnée n’est collectée à ce jour.</strong> Les formulaires du site fonctionnent en démonstration&nbsp;: ce que vous y saisissez reste dans votre navigateur, n’est ni transmis, ni enregistré, ni consulté par personne. Les photographies éventuellement sélectionnées ne sont pas téléversées.</p>
-        <p>Lorsque les demandes seront réellement traitées, cette page précisera le responsable du traitement, la finalité, les destinataires et la durée de conservation, avant toute mise en service.</p>
-        <p>Le règlement général sur la protection des données ouvre un droit d’accès, de rectification, d’effacement, de limitation, d’opposition et de portabilité. Il s’exercera auprès du responsable du traitement dès que celui-ci sera identifié&nbsp;; d’ici là, aucune donnée personnelle n’est détenue par ce site.</p>
+        ${sectionDonneesPersonnelles()}
 
         <h2>Cookies et mesure d’audience</h2>
         <p>Ce site n’utilise actuellement aucun cookie, aucun traceur et aucun outil de mesure d’audience. Si un outil d’analyse est ajouté ultérieurement, un dispositif de recueil du consentement sera mis en place au préalable.</p>
