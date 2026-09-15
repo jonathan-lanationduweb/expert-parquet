@@ -159,7 +159,6 @@
   --brand-logo-h:   clamp(3.5rem, 2rem + 4vw, 5.5rem); /* signature du pied */
   --z-header: 100;
   --z-drawer: 200;
-  --z-overlay: 190;
 }
 
 /* Breakpoints de référence utilisés dans les @media des autres fichiers :

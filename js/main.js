@@ -16,6 +16,7 @@ import { initToc } from './modules/toc.js';
 import { initIndexLists } from './modules/index-list.js';
 import { initContactInfo } from './modules/contact-info.js';
 import { initStickyCta } from './modules/sticky-cta.js';
+import { initRevealMore } from './modules/reveal-more.js';
 
 document.documentElement.classList.remove('no-js');
 
@@ -31,6 +32,7 @@ function boot() {
     initDiagnostic,
     initForms,
     initStickyCta,
+    initRevealMore,
   ];
 
   modules.forEach((init) => {

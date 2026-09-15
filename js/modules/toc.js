@@ -5,6 +5,22 @@
  * Balisage attendu : <nav class="toc" data-toc data-toc-scope="#article-body">
  */
 
+/**
+ * Le sommaire est un `<details>` fermé par défaut : sur téléphone il coûtait
+ * jusqu'à 300 px de liens avant la première phrase. Sur grand écran il reprend
+ * sa place de colonne latérale, donc il s'ouvre — ce que le HTML seul ne sait
+ * pas exprimer selon la largeur.
+ */
+function ouvrirSurGrandEcran(racine) {
+  const mq = window.matchMedia('(min-width: 641px)');
+  const sync = () => {
+    const boite = racine.querySelector('.toc__box');
+    if (boite) boite.open = mq.matches;
+  };
+  mq.addEventListener('change', sync);
+  sync();
+}
+
 export function initToc() {
   document.querySelectorAll('[data-toc]').forEach(setupToc);
 }
@@ -18,6 +34,8 @@ function setupToc(root) {
     root.hidden = true;
     return;
   }
+
+  ouvrirSurGrandEcran(root);
 
   const list = root.querySelector('[data-toc-list]') || root;
   list.innerHTML = '';

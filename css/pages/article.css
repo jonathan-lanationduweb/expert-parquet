@@ -100,6 +100,34 @@
 
 /* --- Sommaire ----------------------------------------------------------------- */
 .toc { border-top: 1px solid var(--color-ink); padding-top: var(--space-md); }
+.toc__box > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  min-height: 44px;
+}
+.toc__box > summary::-webkit-details-marker { display: none; }
+/* Chevron dessiné en CSS : aucune requête, il suit la couleur du texte. */
+.toc__box > summary::after {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.toc__box[open] > summary::after { transform: rotate(-135deg) translate(-2px, -2px); }
+/* Sur grand écran le sommaire est une colonne, pas une commande : le chevron
+   n'a plus de rôle et la ligne reprend sa mise en forme d'origine. */
+@media (min-width: 641px) {
+  .toc__box > summary { cursor: default; min-height: 0; }
+  .toc__box > summary::after { display: none; }
+}
 .toc__title {
   font-size: var(--fs-2xs);
   letter-spacing: var(--ls-caps);
@@ -164,3 +192,30 @@
   gap: 0.45rem;
 }
 .symptom-panel h3 svg { width: 15px; height: 15px; flex: none; }
+
+/* ==========================================================================
+   Rythme éditorial sur téléphone
+   --------------------------------------------------------------------------
+   Le rythme de la colonne de texte est calibré pour une mesure de 66 caractères
+   sur écran large. Sur 350 px utiles, la même respiration produit des pages de
+   dix à douze écrans : `--space-2xl` (4,5 rem) avant chaque H2 représente à lui
+   seul plus de 70 px, répété dix à douze fois par page.
+
+   Aucun paragraphe n'est retiré, rien n'est replié : seuls les vides sont
+   ramenés à l'échelle du téléphone. Le filet au-dessus des H2 est conservé —
+   c'est lui qui donne la structure, pas l'espace qui l'entoure.
+   ========================================================================== */
+@media (max-width: 640px) {
+  .prose > * + * { margin-top: var(--space-sm); }
+  .prose h2 { margin-top: var(--space-xl); padding-top: var(--space-sm); }
+  .prose h3 { margin-top: var(--space-md); }
+  .prose h4 { margin-top: var(--space-md); }
+  .prose h2 + p, .prose h3 + p, .prose h4 + p { margin-top: var(--space-2xs); }
+  .prose ul, .prose ol { gap: 0.3rem; }
+
+  /* Le sommaire est replié : trois cents pixels de liens avant la première
+     phrase servent moins que la place qu'ils prennent sur un écran où l'on
+     fait défiler de toute façon. C'est un `<details>` natif — ouvrable sans
+     JavaScript, annoncé comme tel aux lecteurs d'écran. */
+  .toc { padding-top: var(--space-sm); }
+}

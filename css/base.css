@@ -246,3 +246,23 @@ hr, .rule { border: 0; height: 1px; background: var(--border-hair); margin: var(
     transform: translateY(-50%);
   }
 }
+
+/* --- Rythme vertical sur téléphone --------------------------------------------
+   L'échelle de sections a été dessinée pour des écrans larges : sa borne basse
+   (4 rem) reste appliquée sous 640 px, où deux sections consécutives coûtent
+   alors 128 px de vide. Les bornes basses descendent d'un cran ; les bornes
+   hautes, elles, ne bougent pas — le desktop est inchangé.
+
+   Les marges utilitaires suivent le même raisonnement : `u-mt-2xl` (4,5 rem)
+   sépare un en-tête de section de son contenu, une distance juste à 1440 px et
+   très au-delà du nécessaire à 375 px. */
+@media (max-width: 640px) {
+  :root {
+    --section-y:       3rem;
+    --section-y-tight: 2.25rem;
+    --section-y-large: 3.75rem;
+  }
+  .u-mt-2xl { margin-top: var(--space-xl); }
+  .sec-head__rule { margin-bottom: var(--space-md); }
+  .sec-head .kicker + .sec-head__title { margin-top: var(--space-sm); }
+}

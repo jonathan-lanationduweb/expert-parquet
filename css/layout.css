@@ -209,90 +209,176 @@ body.has-fixed-header { padding-top: 0; }
   right: 0;
   height: 1px;
   background: var(--color-ink);
-  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
 }
 .nav-toggle__bars span:nth-child(1) { top: 0; }
 .nav-toggle__bars span:nth-child(2) { top: 5px; }
 .nav-toggle__bars span:nth-child(3) { top: 10px; }
-.nav-toggle[aria-expanded="true"] .nav-toggle__bars span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
-.nav-toggle[aria-expanded="true"] .nav-toggle__bars span:nth-child(2) { opacity: 0; }
-.nav-toggle[aria-expanded="true"] .nav-toggle__bars span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
-
-/* Drawer mobile : panneau sombre plein écran, liens en grande typographie. */
-.nav-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(23, 24, 26, 0.45);
-  opacity: 0;
-  pointer-events: none;
-  z-index: var(--z-overlay);
-  transition: opacity var(--dur-base) var(--ease-out);
-}
-body.nav-open .nav-overlay { opacity: 1; pointer-events: auto; }
 
 /* --- Empilement du drawer ----------------------------------------------------------
    Le header est `position: fixed` AVEC un z-index : il crée donc un contexte
-   d'empilement, et le `z-index` du drawer est local à ce contexte. L'overlay,
-   lui, est un enfant direct de <body> : à 190 il passait devant TOUT le header
-   (contexte à 100) — drawer, liens, CTA et bouton de fermeture compris. Comme
-   l'overlay est `pointer-events: auto` à l'ouverture, chaque tap sur un lien
-   atterrissait sur l'overlay, qui refermait simplement le menu : des boutons
-   parfaitement visibles et pourtant impossibles à activer.
+   d'empilement, et le `z-index` du drawer lui est local.
 
-   On élève donc le header au-dessus de l'overlay pendant l'ouverture, et on
-   ordonne les couches À L'INTÉRIEUR du header avec des valeurs locales. */
+   Le voile semi-transparent qui accompagnait l'ancien panneau partiel a été
+   supprimé : un panneau opaque qui occupe tout le viewport n'a pas de
+   « dehors » sur lequel cliquer. C'est aussi ce voile, enfant direct de <body>
+   et donc hors du contexte du header, qui interceptait les taps sur les liens
+   du menu au lot précédent — la classe de bug disparaît avec lui.
+
+   Le header reste élevé pendant l'ouverture pour rester au-dessus du rappel
+   d'action collant, qui est à la même valeur mais plus bas dans le document. */
 body.nav-open .site-header { z-index: var(--z-drawer); }
 
 @media (max-width: 1024px) {
   .nav-toggle { display: inline-flex; }
   /* Le drawer passe en position fixed, donc hors flux : c'est au bloc
-     d'actions de se pousser à droite à sa place. Il reste AU-DESSUS du panneau
-     du drawer, sans quoi le bouton de fermeture serait recouvert par le
-     panneau lui-même et le menu ne pourrait plus être refermé au doigt. */
+     d'actions de se pousser à droite à sa place. */
   .header__actions { margin-left: auto; position: relative; z-index: 2; }
   /* Spécificité renforcée : .btn impose display:inline-flex depuis
      components.css, chargé après layout.css. */
   .header__actions .header__cta-desktop { display: none; }
 
+  /* --- Drawer : panneau PLEIN ÉCRAN -------------------------------------------
+     L'ancien panneau faisait `min(440px, 92vw)` : il laissait 8 % du site
+     visible à gauche, ce qui le faisait lire comme une surface posée par-dessus
+     la page plutôt que comme un changement de contexte. Il occupe désormais
+     tout le viewport.
+
+     Hauteur : `100svh` est la hauteur du viewport AVEC la barre d'URL affichée,
+     `100dvh` la hauteur courante. `svh <= dvh` toujours, donc les deux
+     déclarations ensemble ne peuvent pas rendre le panneau plus haut que ce qui
+     est réellement visible — le CTA du bas reste atteignable pendant que la
+     barre d'URL se rétracte. `min-height` sert de repli pour les navigateurs qui
+     ignorent `dvh`.
+
+     Trois zones en colonne : une barre fixe (logo + croix), la liste qui prend
+     la place restante ET défile si la hauteur devient trop faible, puis le CTA
+     ancré en bas. Réduire les espacements plutôt que couper le bas. */
   .nav {
     position: fixed;
     top: 0;
+    left: 0;
     right: 0;
-    bottom: 0;
-    width: min(440px, 92vw);
-    /* Valeur LOCALE au contexte du header : il suffit d'être au-dessus du
-       contenu du header, pas de rivaliser avec l'overlay. */
+    height: 100dvh;
+    min-height: 100svh;
+    width: 100%;
+    max-width: none;
+    /* Valeur LOCALE au contexte d'empilement du header. */
     z-index: 1;
+    margin-left: 0;
     background: var(--color-ink);
     color: var(--text-inverse);
-    padding: calc(var(--header-h) + var(--space-lg)) var(--container-pad) var(--space-xl);
-    overflow-y: auto;
-    transform: translateX(101%);
-    transition: transform var(--dur-base) var(--ease-out);
-    margin-left: 0;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    padding-top: max(var(--space-xs), env(safe-area-inset-top));
+    padding-bottom: max(var(--space-md), env(safe-area-inset-bottom));
+    padding-left: max(var(--container-pad), env(safe-area-inset-left));
+    padding-right: max(var(--container-pad), env(safe-area-inset-right));
+    transform: translateX(100%);
+    /* `visibility` retire le panneau de la cible des clics quand il est fermé,
+       sans attendre la fin de la transition à l'ouverture. */
+    visibility: hidden;
+    transition: transform var(--dur-base) var(--ease-out),
+                visibility 0s linear var(--dur-base);
   }
-  body.nav-open .nav { transform: translateX(0); }
+  body.nav-open .nav {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform var(--dur-base) var(--ease-out), visibility 0s;
+  }
+
+  /* Barre du drawer : la hauteur suit celle de l'en-tête pour que le logo
+     reste exactement là où il était avant l'ouverture — pas de saut. */
+  .nav__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    min-height: clamp(52px, 8vh, var(--header-h));
+    flex: none;
+  }
+  .nav__logo {
+    display: block;
+    width: auto;
+    height: clamp(28px, 4.4vh, var(--brand-h));
+  }
+  .nav__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    /* Compense le padding du panneau : la croix reste optiquement alignée sur
+       le bord droit tout en gardant une cible de 48 px. */
+    margin-right: -0.7rem;
+    border: 0;
+    background: transparent;
+    color: var(--text-inverse);
+    cursor: pointer;
+    transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  }
+  /* Retour d'état immédiat à l'appui, pas au relâchement. */
+  .nav__close:active { opacity: 0.6; transform: scale(0.92); }
+
+  .nav__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    /* Le geste de défilement ne se propage pas à la page derrière. */
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 
   .nav__list { flex-direction: column; align-items: stretch; gap: 0; }
   .nav__link {
     display: block;
-    padding: 1.05rem 0;
+    /* Taille ET espacement suivent la HAUTEUR du viewport : en paysage
+       (390 px de haut) les six liens plus le CTA tiennent sans défilement ;
+       en portrait la typographie retrouve son échelle. */
+    padding-block: clamp(0.55rem, 1.35vh, 1.05rem);
     border-bottom: 1px solid var(--border-inverse);
     font-family: var(--font-display);
-    font-size: 1.6rem;
+    font-size: clamp(1.1rem, 0.35rem + 2.3vh, 1.6rem);
+    line-height: var(--lh-heading);
     letter-spacing: var(--ls-tight);
     color: var(--text-inverse);
+    transition: color var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
   }
   .nav__link::after { display: none; }
-  .nav__link:hover,
-  .nav__link[aria-current="page"] { color: var(--color-white); }
+  .nav__link:hover { color: var(--color-white); }
+  .nav__link:active { opacity: 0.55; }
   .nav__link[aria-current="page"] { color: var(--color-terra); }
-  .nav__cta-mobile { margin-top: auto; padding-top: var(--space-xl); display: block; }
+  .nav__cta-mobile {
+    display: block;
+    flex: none;
+    margin-top: clamp(var(--space-sm), 2.4vh, var(--space-lg));
+  }
+
+  /* Le panneau porte sa propre croix : conserver le hamburger par-dessus
+     donnerait deux commandes de fermeture pour une seule action. */
+  body.nav-open .nav-toggle { display: none; }
 }
 @media (min-width: 1025px) {
-  .nav .nav__cta-mobile { display: none; }
+  .nav .nav__cta-mobile,
+  .nav .nav__bar { display: none; }
+  /* Sur desktop le conteneur de défilement ne doit rien imposer : il doit se
+     comporter exactement comme l'ancien `.nav` inline. */
+  .nav .nav__scroll { display: contents; }
+}
+
+/* --- Verrouillage du défilement pendant l'ouverture ---------------------------
+   `overflow: hidden` sur <body> ne suffit pas sur iOS : Safari continue de
+   faire défiler la page derrière le panneau. Le décalage négatif appliqué par
+   le JavaScript (`body.style.top`) fige la position réelle ; la classe se
+   contente de sortir le corps du flux et d'en conserver la largeur. */
+body.nav-lock {
+  position: fixed;
+  inset-inline: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
 /* --- Fil d'Ariane ---------------------------------------------------------------- */
@@ -409,7 +495,3 @@ body.nav-open .site-header { z-index: var(--z-drawer); }
   .breadcrumb [aria-current="page"] { display: inline-block; padding-block: 0.5rem; }
 }
 
-/* Le bouton bascule reste visible par-dessus le panneau sombre du drawer :
-   ses trois barres sont graphite par défaut, invisibles sur ce fond. */
-body.nav-open .nav-toggle { border-color: var(--border-inverse); }
-body.nav-open .nav-toggle__bars span { background: var(--text-inverse); }
