@@ -18,3 +18,49 @@ _*.html
 
 # Configuration locale de l'agent (hors périmètre du projet)
 .claude/
+
+# --------------------------------------------------------------------------
+# Backend WordPress et données privées
+#
+# Le backend vit dans le même dossier que le site depuis le regroupement du
+# projet, mais tout n'a pas vocation à être versionné de la même façon.
+#
+# CE QUI RESTE VERSIONNABLE (volontairement PAS ignoré) :
+#   backend/README.md, backend/docs/, backend/scripts/, backend/config/
+#   backend/public/wp-content/plugins/expert-parquet-leads/   ← notre code
+#
+# Le cœur de WordPress, les extensions et thèmes tiers, les téléversements et
+# `wp-config.php` (identifiants de base et sels) n'ont rien à faire dans un
+# dépôt : ils s'installent, ils ne se lisent pas en diff.
+# --------------------------------------------------------------------------
+
+# Données privées : photographies de tiers, journaux, identifiants. JAMAIS.
+backend-private/
+
+# Secrets et configuration locale du backend
+backend/public/wp-config.php
+backend/public/.htaccess
+
+# Cœur de WordPress
+backend/public/wp-admin/
+backend/public/wp-includes/
+backend/public/wp-*.php
+backend/public/index.php
+backend/public/xmlrpc.php
+backend/public/license.txt
+backend/public/readme.html
+
+# Contenu non maison : extensions et thèmes tiers, téléversements, cache
+# Traductions telechargees par WordPress : elles se reinstallent, elles ne se
+# relisent pas en diff.
+backend/public/wp-content/languages/
+
+# Talon generique de WordPress, pas du code maison.
+backend/public/wp-content/index.php
+
+backend/public/wp-content/uploads/
+backend/public/wp-content/cache/
+backend/public/wp-content/upgrade/
+backend/public/wp-content/themes/
+backend/public/wp-content/plugins/*
+!backend/public/wp-content/plugins/expert-parquet-leads/
