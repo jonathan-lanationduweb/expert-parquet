@@ -8,13 +8,15 @@
  */
 
 import { rel, breadcrumb } from '../layout.mjs';
-import { ICONS, ctaBand, ARTICLES, articleCard, faqAccordion, faqJsonLd, pageHero } from '../partials.mjs';
+import { ICONS, ctaBand, faqAccordion, faqJsonLd, pageHero } from '../partials.mjs';
+import { relatedSection } from './graph.mjs';
 
 const D = 2;
 
-const PROBLEM_PAGES = [
+export const PROBLEM_PAGES = [
   {
     slug: 'parquet-qui-grince',
+    tags: ['grincement', 'support', 'structure', 'pose'],
     title: 'Parquet qui grince',
     h1: 'Parquet qui grince&nbsp;: d’où vient vraiment le bruit&nbsp;?',
     lead: 'Le grincement est le désordre le plus fréquent et le plus mal compris. Ce n’est pas le bois qui « craque »&nbsp;: c’est un frottement entre deux éléments qui ne sont plus solidaires.',
@@ -50,7 +52,7 @@ const PROBLEM_PAGES = [
     ],
     expertise:
       'Un grincement isolé et stable est rarement inquiétant. Une expertise se justifie quand le bruit s’étend, quand il s’accompagne d’un affaissement ou de lames mobiles, ou quand il apparaît sur un parquet récent&nbsp;: la question devient alors celle de la mise en œuvre.',
-    related: ['pourquoi-un-parquet-grince', 'pourquoi-le-support-est-essentiel'],
+    related: ['pourquoi-un-parquet-grince', 'parquet-qui-sonne-creux', 'lames-qui-secartent'],
     faq: [
       {
         q: 'Un parquet neuf peut-il grincer&nbsp;?',
@@ -64,6 +66,7 @@ const PROBLEM_PAGES = [
   },
   {
     slug: 'parquet-gondole',
+    tags: ['deformation', 'humidite', 'pose', 'sinistre'],
     title: 'Parquet qui gondole',
     h1: 'Parquet qui gondole ou se soulève',
     lead: 'Quand un parquet bombe, forme des vagues ou tuile, le bois a gonflé sans avoir où s’étendre. Deux familles de causes se combinent presque toujours&nbsp;: un apport d’humidité et un manque de jeu.',
@@ -98,7 +101,7 @@ const PROBLEM_PAGES = [
     ],
     expertise:
       'Un soulèvement qui progresse, qui touche plusieurs pièces, ou qui suit un sinistre justifie une expertise&nbsp;: la question n’est plus de savoir si le bois a gonflé, mais d’où vient l’eau et si le support est encore chargé.',
-    related: ['parquet-qui-se-souleve-que-faire', 'humidite-et-parquet-signes-qui-alertent'],
+    related: ['parquet-qui-se-souleve-que-faire', 'lames-qui-secartent', 'humidite-et-parquet-signes-qui-alertent'],
     faq: [
       {
         q: 'Un parquet gonflé peut-il revenir à plat&nbsp;?',
@@ -112,6 +115,7 @@ const PROBLEM_PAGES = [
   },
   {
     slug: 'lames-qui-bougent',
+    tags: ['structure', 'pose', 'support', 'grincement'],
     title: 'Lames qui bougent',
     h1: 'Lames qui bougent ou se désolidarisent',
     lead: 'Quand une lame joue sous le pied, le lien entre le revêtement et son support a cédé — ou l’assemblage entre lames ne remplit plus son rôle.',
@@ -144,7 +148,7 @@ const PROBLEM_PAGES = [
     ],
     expertise:
       'Une zone décollée étendue, un support suspecté non plan, ou des lames mobiles apparues rapidement après la pose&nbsp;: dans ces trois cas, comprendre avant de réparer évite de refaire deux fois.',
-    related: ['pourquoi-un-parquet-grince', 'pourquoi-le-support-est-essentiel'],
+    related: ['lames-qui-secartent', 'parquet-qui-sonne-creux', 'pourquoi-un-parquet-grince'],
     faq: [
       {
         q: 'Peut-on recoller une lame par le dessus&nbsp;?',
@@ -154,10 +158,11 @@ const PROBLEM_PAGES = [
   },
   {
     slug: 'humidite',
+    tags: ['humidite', 'mesure', 'support', 'sinistre'],
     title: 'Humidité et parquet',
     h1: 'Humidité et parquet&nbsp;: identifier la bonne origine',
     lead: 'Remontée, condensation ou infiltration&nbsp;: trois phénomènes différents, trois réponses techniques différentes. Se tromper d’origine, c’est traiter pendant des mois sans résultat.',
-    image: 'degat-eaux.jpg',
+    image: 'parquet-chevrons.jpg',
     description:
       'Humidité et parquet&nbsp;: distinguer remontée capillaire, condensation et infiltration. Signes, vérifications et erreurs fréquentes.',
     symptomes: [
@@ -189,7 +194,7 @@ const PROBLEM_PAGES = [
     ],
     expertise:
       'L’humidité est le domaine où la mesure remplace l’intuition. Dès que plusieurs origines restent plausibles, ou que des travaux sont envisagés, une observation avec mesures du support et de l’ambiance évite des dépenses mal orientées.',
-    related: ['humidite-et-parquet-signes-qui-alertent', 'parquet-qui-se-souleve-que-faire'],
+    related: ['humidite-et-parquet-signes-qui-alertent', 'traces-noires-sur-un-parquet', 'parquet-salle-de-bain'],
     faq: [
       {
         q: 'Quel taux d’humidité viser dans une pièce avec parquet&nbsp;?',
@@ -203,6 +208,7 @@ const PROBLEM_PAGES = [
   },
   {
     slug: 'parquet-abime',
+    tags: ['esthetique', 'renovation', 'entretien'],
     title: 'Parquet abîmé&nbsp;: taches et rayures',
     h1: 'Parquet abîmé&nbsp;: taches, rayures et usure',
     lead: 'Presque tout se joue sur une question&nbsp;: le défaut s’arrête-t-il à la finition, ou atteint-il le bois&nbsp;? La réponse sépare un raccord de trente minutes d’une rénovation complète.',
@@ -237,7 +243,7 @@ const PROBLEM_PAGES = [
     ],
     expertise:
       'L’expertise devient utile quand se pose la question du ponçage&nbsp;: y a-t-il assez de matière&nbsp;? Sur un contrecollé, cette mesure décide entre rénovation et remplacement. Voir aussi nos <a href="../conseils/entretien.html">conseils d’entretien</a>.',
-    related: ['renover-un-parquet-tres-abime'],
+    related: ['traces-noires-sur-un-parquet', 'renover-un-parquet-tres-abime', 'finition-parquet-huile-vitrifie'],
     faq: [
       {
         q: 'Combien de fois peut-on poncer un parquet&nbsp;?',
@@ -251,10 +257,11 @@ const PROBLEM_PAGES = [
   },
   {
     slug: 'degat-des-eaux',
+    tags: ['sinistre', 'humidite', 'renovation', 'mesure'],
     title: 'Dégât des eaux',
     h1: 'Parquet après un dégât des eaux',
     lead: 'L’état visible d’un parquet quelques jours après un sinistre ne dit presque rien de l’état de son support. La chronologie compte autant que le constat.',
-    image: 'degat-eaux.jpg',
+    image: 'rayures.jpg',
     description:
       'Parquet après un dégât des eaux : ce qu’il faut faire, ce qu’il faut documenter, et pourquoi l’état visible ne suffit pas à décider.',
     symptomes: [
@@ -285,7 +292,7 @@ const PROBLEM_PAGES = [
     ],
     expertise:
       'Après un sinistre, l’expertise sert d’abord à objectiver&nbsp;: quelle est l’étendue réelle des dommages, le support est-il sec, la repose est-elle possible et à quelles conditions. Ce site ne délivre ni rapport judiciaire ni avis d’assurance&nbsp;: précisez le contexte dès votre demande.',
-    related: ['parquet-qui-se-souleve-que-faire', 'humidite-et-parquet-signes-qui-alertent'],
+    related: ['traces-noires-sur-un-parquet', 'parquet-qui-se-souleve-que-faire', 'humidite-et-parquet-signes-qui-alertent'],
     faq: [
       {
         q: 'Combien de temps faut-il attendre avant de reposer&nbsp;?',
@@ -299,6 +306,7 @@ const PROBLEM_PAGES = [
   },
   {
     slug: 'defaut-de-pose',
+    tags: ['pose', 'support', 'structure', 'mesure'],
     title: 'Défaut de pose',
     h1: 'Suspicion de défaut de pose',
     lead: 'Un défaut de mise en œuvre se reconnaît souvent à sa régularité&nbsp;: contrairement à un désordre accidentel, il produit des symptômes cohérents sur toute la surface.',
@@ -334,7 +342,7 @@ const PROBLEM_PAGES = [
     ],
     expertise:
       'C’est le cas de figure où l’expertise apporte le plus&nbsp;: elle confronte les symptômes observés aux règles de mise en œuvre et aux documents du chantier. Ce site fournit une analyse technique&nbsp;; il ne délivre pas de rapport judiciaire.',
-    related: ['pourquoi-le-support-est-essentiel', 'pourquoi-un-parquet-grince'],
+    related: ['reception-chantier-parquet', 'pourquoi-le-support-est-essentiel', 'parquet-qui-sonne-creux'],
     faq: [
       {
         q: 'Comment distinguer un défaut de pose d’un mauvais entretien&nbsp;?',
@@ -357,17 +365,12 @@ function renderProblemPage(problem) {
     )
     .join('\n');
 
-  const relatedArticles = problem.related
-    .map((slug) => ARTICLES.find((article) => article.slug === slug))
-    .filter(Boolean);
-
   const body = `${pageHero(D, {
     crumbHtml: crumb.html,
     kicker: 'Problème de parquet',
     title: problem.h1,
     lead: problem.lead,
     image: problem.image,
-    imageAlt: '',
     actions: `<a class="btn btn--primary" href="${rel(D, 'pages/devis.html')}">Demander une expertise</a><a class="btn btn--on-dark" href="${rel(D, 'pages/diagnostic.html')}#pre-diagnostic">Pré-diagnostic</a>`,
   })}
 
@@ -413,8 +416,10 @@ ${faqAccordion(problem.faq, `${problem.slug}-faq`)}
 
         <aside class="article-aside">
           <nav class="toc" data-toc data-toc-scope="#article-body" aria-labelledby="toc-${problem.slug}">
-            <p class="toc__title" id="toc-${problem.slug}">Sur cette page</p>
-            <ul class="toc__list" data-toc-list></ul>
+            <details class="toc__box">
+              <summary class="toc__title" id="toc-${problem.slug}">Sur cette page</summary>
+              <ul class="toc__list" data-toc-list></ul>
+            </details>
           </nav>
           <div class="aside-card aside-card--accent">
             <p class="aside-card__title">Votre cas est différent&nbsp;?</p>
@@ -430,17 +435,7 @@ ${faqAccordion(problem.faq, `${problem.slug}-faq`)}
     </div>
   </section>
 
-  ${relatedArticles.length ? `<section class="section section--alt">
-    <div class="container">
-      <div class="sec-head" data-reveal>
-        <p class="kicker">Pour aller plus loin</p>
-        <h2>Contenus associés</h2>
-      </div>
-      <div class="grid grid--3 u-mt-lg">
-${relatedArticles.map((article, index) => articleCard(D, article, index)).join('\n')}
-      </div>
-    </div>
-  </section>` : ''}
+${relatedSection(D, { type: 'probleme', slug: problem.slug }, { kicker: 'Pour aller plus loin' })}
 
 ${ctaBand(D)}
 `;

@@ -4,13 +4,15 @@
  */
 
 import { rel, breadcrumb } from '../layout.mjs';
-import { ICONS, PROBLEMS, ctaBand, ARTICLES, articleCard, pageHero } from '../partials.mjs';
+import { ICONS, PROBLEMS, ctaBand, pageHero, PREMIBEL, premibelLink } from '../partials.mjs';
+import { relatedSection } from './graph.mjs';
 
 const D = 2;
 
-const CATEGORIES = [
+export const ADVICE_CATEGORIES = [
   {
     slug: 'entretien',
+    tags: ['entretien', 'esthetique'],
     title: 'Entretien du parquet',
     h1: 'Entretenir un parquet sans l’abîmer',
     lead: 'L’entretien n’est pas un détail cosmétique&nbsp;: c’est ce qui décide de la durée de vie de la finition, et donc du moment où une rénovation deviendra nécessaire.',
@@ -70,11 +72,12 @@ const CATEGORIES = [
           <p>À ce stade, une remise en état légère suffit souvent. Attendre davantage, c’est laisser le bois se salir en profondeur et transformer un entretien en ponçage.</p>`,
       },
     ],
-    related: ['renover-un-parquet-tres-abime'],
+    related: ['finition-parquet-huile-vitrifie', 'traces-noires-sur-un-parquet', 'renover-un-parquet-tres-abime'],
     problems: ['parquet-abime'],
   },
   {
     slug: 'renovation',
+    tags: ['renovation', 'esthetique', 'choix'],
     title: 'Rénovation de parquet',
     h1: 'Rénover un parquet&nbsp;: ce qui se décide avant de poncer',
     lead: 'Rénover, réparer ponctuellement ou remplacer&nbsp;? La réponse tient à trois mesures et à une question&nbsp;: la cause du désordre a-t-elle été traitée&nbsp;?',
@@ -123,14 +126,15 @@ const CATEGORIES = [
               </tbody>
             </table>
           </div>
-          <p>Lorsque le remplacement s’impose, le choix du nouveau revêtement se pose&nbsp;: essence, épaisseur, type de pose et compatibilité avec le support. Des fabricants et distributeurs spécialisés, comme <a href="https://premibel.fr" rel="noopener">Premibel</a>, présentent les différentes familles de parquets et leurs contraintes de mise en œuvre&nbsp;; ces critères techniques sont utiles à consulter une fois la cause du désordre traitée.</p>`,
+          <p>Lorsque le remplacement s’impose, le choix du nouveau revêtement se pose&nbsp;: essence, épaisseur, type de pose et compatibilité avec le support. Deux familles couvrent la quasi-totalité des remplacements en rénovation — le ${premibelLink(PREMIBEL.massif, 'parquet massif')}, qui se reponcera plus tard, et le ${premibelLink(PREMIBEL.contrecolle, 'contrecollé')}, plus tolérant sur un support existant. Ces caractéristiques sont utiles à comparer une fois la cause du désordre traitée, pas avant.</p>`,
       },
     ],
-    related: ['renover-un-parquet-tres-abime', 'parquet-qui-se-souleve-que-faire'],
+    related: ['renover-un-parquet-tres-abime', 'massif-ou-contrecolle', 'finition-parquet-huile-vitrifie'],
     problems: ['parquet-abime', 'parquet-gondole'],
   },
   {
     slug: 'pose',
+    tags: ['pose', 'support', 'structure', 'mesure'],
     title: 'Pose de parquet',
     h1: 'Pose de parquet&nbsp;: ce qui se joue avant la première lame',
     lead: 'La grande majorité des désordres de parquet trouvent leur origine dans les heures qui précèdent la pose, pas dans celles qui la suivent.',
@@ -183,11 +187,12 @@ const CATEGORIES = [
           <p>Le choix n’est pas libre&nbsp;: il découle du support, du type de parquet et de la présence éventuelle d’un plancher chauffant.</p>`,
       },
     ],
-    related: ['pourquoi-le-support-est-essentiel'],
+    related: ['reception-chantier-parquet', 'parquet-et-plancher-chauffant', 'pourquoi-le-support-est-essentiel'],
     problems: ['defaut-de-pose', 'parquet-gondole'],
   },
   {
     slug: 'choisir-parquet',
+    tags: ['choix', 'structure', 'pose'],
     title: 'Choisir un parquet',
     h1: 'Choisir un parquet&nbsp;: ce qui distingue réellement les familles',
     lead: 'Massif, contrecollé, stratifié&nbsp;: les trois mots reviennent partout, souvent mal employés. La différence n’est pas une question de gamme mais de structure — et elle décide de tout le reste.',
@@ -234,11 +239,11 @@ const CATEGORIES = [
       {
         id: 'ou-regarder',
         title: 'Où trouver les données techniques',
-        content: `<p>Les critères qui comptent — épaisseur totale, épaisseur de couche noble, essence, format, finition d’origine, compatibilité plancher chauffant, type de pose admis — figurent dans les fiches techniques produit. Les distributeurs spécialisés, comme <a href="https://premibel.fr" rel="noopener">Premibel</a>, publient ces caractéristiques pour chaque référence&nbsp;: c’est sur ces données qu’un choix se construit, pas sur une photo d’ambiance.</p>
+        content: `<p>Les critères qui comptent — épaisseur totale, épaisseur de couche noble, essence, format, finition d’origine, compatibilité plancher chauffant, type de pose admis — figurent dans les fiches techniques produit. C’est sur ces données qu’un choix se construit, pas sur une photo d’ambiance. Pour comparer concrètement essences, formats et finitions une fois ces critères posés, les catalogues des distributeurs spécialisés les publient référence par référence&nbsp;: ${premibelLink(PREMIBEL.massif, 'parquets massifs')} et ${premibelLink(PREMIBEL.contrecolle, 'contrecollés')} chez Premibel, par exemple.</p>
           <p>Un dernier conseil&nbsp;: si le parquet remplace un revêtement qui a posé problème, réglez la question de la cause avant celle du produit. Un excellent parquet posé sur un support défaillant se comportera comme un mauvais.</p>`,
       },
     ],
-    related: ['pourquoi-le-support-est-essentiel', 'renover-un-parquet-tres-abime'],
+    related: ['massif-ou-contrecolle', 'parquet-et-plancher-chauffant', 'finition-parquet-huile-vitrifie'],
     problems: ['defaut-de-pose'],
   },
 ];
@@ -257,17 +262,12 @@ function renderCategory(category) {
     )
     .join('\n\n');
 
-  const relatedArticles = category.related
-    .map((slug) => ARTICLES.find((article) => article.slug === slug))
-    .filter(Boolean);
-
   const body = `${pageHero(D, {
     crumbHtml: crumb.html,
     kicker: 'Conseils',
     title: category.h1,
     lead: category.lead,
     image: category.image,
-    imageAlt: '',
   })}
 
   <section class="section">
@@ -281,8 +281,10 @@ ${sections}
 
         <aside class="article-aside">
           <nav class="toc" data-toc data-toc-scope="#article-body" aria-labelledby="toc-${category.slug}">
-            <p class="toc__title" id="toc-${category.slug}">Sur cette page</p>
-            <ul class="toc__list" data-toc-list></ul>
+            <details class="toc__box">
+              <summary class="toc__title" id="toc-${category.slug}">Sur cette page</summary>
+              <ul class="toc__list" data-toc-list></ul>
+            </details>
           </nav>
           <div class="aside-card aside-card--accent">
             <p class="aside-card__title">Un doute sur votre situation&nbsp;?</p>
@@ -303,17 +305,7 @@ ${sections}
     </div>
   </section>
 
-  ${relatedArticles.length ? `<section class="section section--alt">
-    <div class="container">
-      <div class="sec-head" data-reveal>
-        <p class="kicker">À lire ensuite</p>
-        <h2>Articles associés</h2>
-      </div>
-      <div class="grid grid--3 u-mt-lg">
-${relatedArticles.map((article, index) => articleCard(D, article, index)).join('\n')}
-      </div>
-    </div>
-  </section>` : ''}
+${relatedSection(D, { type: 'conseil', slug: category.slug }, { kicker: 'À lire ensuite' })}
 
 ${ctaBand(D)}
 `;
@@ -332,5 +324,5 @@ ${ctaBand(D)}
 }
 
 export function advicePages() {
-  return CATEGORIES.map(renderCategory);
+  return ADVICE_CATEGORIES.map(renderCategory);
 }
