@@ -6,7 +6,7 @@
   <title>Dégât des eaux | Expert Parquet</title>
   <meta name="description" content="Parquet après un dégât des eaux : ce qu’il faut faire, ce qu’il faut documenter, et pourquoi l’état visible ne suffit pas à décider.">
   <link rel="canonical" href="https://expert-parquet.com/pages/problemes/degat-des-eaux.html">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="noindex, nofollow">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Expert Parquet">
@@ -14,11 +14,11 @@
   <meta property="og:title" content="Dégât des eaux | Expert Parquet">
   <meta property="og:description" content="Parquet après un dégât des eaux : ce qu’il faut faire, ce qu’il faut documenter, et pourquoi l’état visible ne suffit pas à décider.">
   <meta property="og:url" content="https://expert-parquet.com/pages/problemes/degat-des-eaux.html">
-  <meta property="og:image" content="https://expert-parquet.com/assets/images/degat-eaux.jpg">
+  <meta property="og:image" content="https://expert-parquet.com/assets/images/rayures.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Dégât des eaux | Expert Parquet">
   <meta name="twitter:description" content="Parquet après un dégât des eaux : ce qu’il faut faire, ce qu’il faut documenter, et pourquoi l’état visible ne suffit pas à décider.">
-  <meta name="twitter:image" content="https://expert-parquet.com/assets/images/degat-eaux.jpg">
+  <meta name="twitter:image" content="https://expert-parquet.com/assets/images/rayures.jpg">
 
   <link rel="icon" type="image/png" sizes="32x32" href="../../assets/icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../../assets/icons/favicon-16x16.png">
@@ -26,19 +26,19 @@
   <link rel="shortcut icon" href="../../assets/icons/favicon.ico">
   <meta name="theme-color" content="#17181A">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
+  <link rel="preload" href="../../assets/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../../assets/fonts/inter-tight-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 
-  <link rel="stylesheet" href="../../css/variables.css?v=4968b134">
+  <link rel="stylesheet" href="../../css/fonts.css?v=77d9f050">
+  <link rel="stylesheet" href="../../css/variables.css?v=52b3e6ec">
   <link rel="stylesheet" href="../../css/reset.css?v=f14d0489">
-  <link rel="stylesheet" href="../../css/base.css?v=1d1d3118">
-  <link rel="stylesheet" href="../../css/layout.css?v=f6b74372">
-  <link rel="stylesheet" href="../../css/components.css?v=d1559b19">
-  <link rel="stylesheet" href="../../css/pages/home.css?v=4d6bd405">
-  <link rel="stylesheet" href="../../css/pages/article.css?v=a7a5aab9">
+  <link rel="stylesheet" href="../../css/base.css?v=c4327834">
+  <link rel="stylesheet" href="../../css/layout.css?v=44456b68">
+  <link rel="stylesheet" href="../../css/components.css?v=d6cb16ec">
+  <link rel="stylesheet" href="../../css/pages/home.css?v=7e517310">
+  <link rel="stylesheet" href="../../css/pages/article.css?v=7338ad56">
 
-  <script type="module" src="../../js/main.js?v=f59024f2"></script>
+  <script type="module" src="../../js/main.js?v=0c7bfe2e"></script>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -97,14 +97,20 @@
       <img class="brand__logo" src="../../assets/brand/expert-parquet-logo-on-light.png" alt="" width="338" height="128" fetchpriority="high" decoding="async">
     </a>
     <nav class="nav" id="site-nav" data-nav aria-label="Navigation principale">
-      <ul class="nav__list">
-        <li><a class="nav__link" href="../../pages/expertise.html">Expertise</a></li>
-        <li><a class="nav__link" href="../../pages/diagnostic.html">Diagnostic</a></li>
-        <li><a class="nav__link" href="../../pages/problemes.html" aria-current="page">Problèmes</a></li>
-        <li><a class="nav__link" href="../../pages/conseils.html">Conseils</a></li>
-        <li><a class="nav__link" href="../../pages/a-propos.html">À propos</a></li>
-        <li><a class="nav__link" href="../../pages/contact.html">Contact</a></li>
-      </ul>
+      <div class="nav__bar">
+        <img class="nav__logo" src="../../assets/brand/expert-parquet-logo-on-dark.png" alt="" width="338" height="128" loading="lazy" decoding="async">
+        <button class="nav__close" type="button" data-nav-close aria-label="Fermer le menu"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" aria-hidden="true"><path d="M4.5 4.5 17.5 17.5M17.5 4.5 4.5 17.5"/></svg></button>
+      </div>
+      <div class="nav__scroll">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="../../pages/expertise.html">Expertise</a></li>
+          <li><a class="nav__link" href="../../pages/diagnostic.html">Diagnostic</a></li>
+          <li><a class="nav__link" href="../../pages/problemes.html" aria-current="page">Problèmes</a></li>
+          <li><a class="nav__link" href="../../pages/conseils.html">Conseils</a></li>
+          <li><a class="nav__link" href="../../pages/a-propos.html">À propos</a></li>
+          <li><a class="nav__link" href="../../pages/contact.html">Contact</a></li>
+        </ul>
+      </div>
       <a class="btn btn--primary btn--block nav__cta-mobile" href="../../pages/devis.html">Demander une expertise</a>
     </nav>
     <div class="header__actions">
@@ -116,12 +122,11 @@
     </div>
   </div>
 </header>
-<div class="nav-overlay" data-nav-overlay></div>
 
   <main id="main">
   <section class="page-hero page-hero--media">
     <div class="page-hero__bg" aria-hidden="true">
-      <img src="../../assets/images/degat-eaux.jpg" alt="" width="1800" height="1200" fetchpriority="high" decoding="async">
+      <img src="../../assets/images/rayures.jpg" srcset="../../assets/images/r/rayures-480.jpg 480w, ../../assets/images/r/rayures-768.jpg 768w, ../../assets/images/r/rayures-1200.jpg 1200w, ../../assets/images/rayures.jpg 1400w" sizes="100vw" alt="" width="1400" height="927" fetchpriority="high" decoding="async">
     </div>
     <div class="container">
       <nav class="breadcrumb" aria-label="Fil d’Ariane">
@@ -220,8 +225,10 @@
 
         <aside class="article-aside">
           <nav class="toc" data-toc data-toc-scope="#article-body" aria-labelledby="toc-degat-des-eaux">
-            <p class="toc__title" id="toc-degat-des-eaux">Sur cette page</p>
-            <ul class="toc__list" data-toc-list></ul>
+            <details class="toc__box">
+              <summary class="toc__title" id="toc-degat-des-eaux">Sur cette page</summary>
+              <ul class="toc__list" data-toc-list></ul>
+            </details>
           </nav>
           <div class="aside-card aside-card--accent">
             <p class="aside-card__title">Votre cas est différent&nbsp;?</p>
@@ -238,32 +245,32 @@
   </section>
 
   <section class="section section--alt">
-    <div class="container">
+    <div class="container container--mid">
       <div class="sec-head" data-reveal>
+        <div class="sec-head__rule"></div>
         <p class="kicker">Pour aller plus loin</p>
-        <h2>Contenus associés</h2>
+        <h2 class="sec-head__title">Continuer à comprendre</h2>
+        
       </div>
-      <div class="grid grid--3 u-mt-lg">
-      <article class="card" data-reveal data-reveal-delay="0">
-        <div class="card__media media--4x3">
-          <img src="../../assets/images/soulevement.jpg" alt="" width="1400" height="1050" loading="lazy" decoding="async">
-        </div>
-        <div class="card__body">
-          <p class="card__meta"><span>Défauts</span><span>7 min</span></p>
-          <h3 class="card__title"><a class="card__link" href="../../articles/parquet-qui-se-souleve-que-faire.html">Que faire lorsqu’un parquet se soulève&nbsp;?</a></h3>
-          <p class="card__text">Un parquet qui bombe réagit presque toujours à l’eau ou à un manque de jeu. Les premiers gestes conditionnent la suite.</p>
-        </div>
-      </article>
-      <article class="card" data-reveal data-reveal-delay="70">
-        <div class="card__media media--4x3">
-          <img src="../../assets/images/degat-eaux.jpg" alt="" width="1400" height="1050" loading="lazy" decoding="async">
-        </div>
-        <div class="card__body">
-          <p class="card__meta"><span>Humidité</span><span>8 min</span></p>
-          <h3 class="card__title"><a class="card__link" href="../../articles/humidite-et-parquet-signes-qui-alertent.html">Humidité et parquet&nbsp;: quels signes doivent alerter&nbsp;?</a></h3>
-          <p class="card__text">Certains signaux apparaissent bien avant le désordre visible. Savoir les lire permet d’agir avant la dégradation.</p>
-        </div>
-      </article>
+      <div class="next-read u-mt-lg" data-reveal>
+        <a class="next-read__item" href="../../articles/traces-noires-sur-un-parquet.html">
+          <span class="next-read__kind">Article</span>
+          <span class="next-read__title">Traces noires sur un parquet&nbsp;: comment les distinguer</span>
+          <span class="next-read__text">Réaction chimique, moisissure ou finition épuisée&nbsp;: trois phénomènes différents, trois réponses différentes.</span>
+          <span class="next-read__arrow" aria-hidden="true"></span>
+        </a>
+        <a class="next-read__item" href="../../articles/parquet-qui-se-souleve-que-faire.html">
+          <span class="next-read__kind">Article</span>
+          <span class="next-read__title">Que faire lorsqu’un parquet se soulève&nbsp;?</span>
+          <span class="next-read__text">Un parquet qui bombe réagit presque toujours à l’eau ou à un manque de jeu.</span>
+          <span class="next-read__arrow" aria-hidden="true"></span>
+        </a>
+        <a class="next-read__item" href="../../pages/problemes/humidite.html">
+          <span class="next-read__kind">Désordre</span>
+          <span class="next-read__title">Humidité et parquet</span>
+          <span class="next-read__text">Remontée, condensation ou infiltration&nbsp;: trois phénomènes différents, trois réponses techniques différentes.</span>
+          <span class="next-read__arrow" aria-hidden="true"></span>
+        </a>
       </div>
     </div>
   </section>
@@ -305,6 +312,7 @@
           <h2 class="footer__title">Comprendre</h2>
           <ul class="footer__list">
             <li><a href="../../pages/conseils.html">Conseils</a></li>
+            <li><a href="../../pages/conseils/choisir-parquet.html">Choisir un parquet</a></li>
             <li><a href="../../pages/conseils/entretien.html">Entretien</a></li>
             <li><a href="../../pages/conseils/renovation.html">Rénovation</a></li>
             <li><a href="../../pages/conseils/pose.html">Pose</a></li>
@@ -325,8 +333,6 @@
       <p>&copy; <span data-current-year>2026</span> Expert Parquet — site indépendant.</p>
       <ul class="footer__legal-links">
         <li><a href="../../pages/mentions-legales.html">Mentions légales</a></li>
-        <li><a href="../../pages/faq.html">FAQ</a></li>
-        <li><a href="../../pages/contact.html">Contact</a></li>
       </ul>
     </div>
   </div>

@@ -63,24 +63,40 @@ l'information existe :
   réapparaissent seuls dès que `js/config/site.js` est rempli, sans toucher au HTML
   (voir `ARCHITECTURE.md` §14).
 
-### 4. Backend des formulaires
+### 4. Backend des formulaires — écrit, à activer
 
-**Fichier** : `js/config/site.js` → objet `FORMS`.
+Le backend existe : `backend/public`, WordPress dédié, API
+`expert-parquet/v1`. `backend/README.md` couvre l'installation et la mise en service ;
+`docs/BACKEND-CONTRACT.md` décrit le contrat entre les deux.
+
+**Fichier** : `js/config/site.js`.
 
 ```js
 export const FORMS = {
-  endpoint: null,        // → 'https://api.expert-parquet.com/v1/leads'
-  method: 'POST',
-  uploadEnabled: false,  // → true quand le stockage de fichiers existe
-  maxFiles: 6,
-  maxFileSizeMo: 8,
+  contactEndpoint: null, // → 'https://api.expert-parquet.com/wp-json/expert-parquet/v1/contact'
+  quoteEndpoint: null,   // → 'https://api.expert-parquet.com/wp-json/expert-parquet/v1/quote'
+  …
+};
+
+export const RGPD = {
+  conservationMois: null, // → 36, et la MÊME valeur dans EP_CONSERVATION_MOIS côté backend
+  …
 };
 ```
 
+Trois valeurs de plus sont **obligatoires** dès qu'un point d'envoi est renseigné :
+`CONTACT.legalEntity`, `CONTACT.email` et `RGPD.conservationMois`. Sans elles,
+`node tools/check.mjs` échoue — renseigner un point d'envoi met le site à collecter
+des données personnelles, et la page de confidentialité doit alors nommer le
+responsable du traitement, la durée de conservation et le moyen d'exercer ses droits.
+Elle le fait automatiquement à partir de ces valeurs.
+
 Comportement actuel : à la validation, le formulaire affiche le JSON exact qui serait
-transmis et précise que rien n'a été envoyé. Dès que `endpoint` est renseigné, le module
-bascule automatiquement en `fetch` POST JSON, avec gestion des erreurs réseau et message
-de succès. **Aucune autre ligne de code n'est à modifier.**
+transmis et précise que rien n'a été envoyé. Dès qu'un point d'envoi est renseigné, le
+module bascule en `fetch` POST JSON, envoie les photographies dans une seconde requête,
+et gère l'attente, le succès, l'erreur réseau et le refus serveur. **Aucune autre ligne
+de code n'est à modifier**, et les mentions « formulaire de démonstration » disparaissent
+d'elles-mêmes du site généré.
 
 Charge utile envoyée par `pages/devis.html` :
 

@@ -6,7 +6,7 @@
   <title>Pourquoi un parquet se met-il à grincer&nbsp;? | Expert Parquet</title>
   <meta name="description" content="Le grincement est le désordre le plus courant, et le plus souvent traité à l’envers : on cherche à faire taire le bruit avant de comprendre ce qui frotte. Voici comment lire ce sig">
   <link rel="canonical" href="https://expert-parquet.com/articles/pourquoi-un-parquet-grince.html">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="noindex, nofollow">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Expert Parquet">
@@ -26,19 +26,19 @@
   <link rel="shortcut icon" href="../assets/icons/favicon.ico">
   <meta name="theme-color" content="#17181A">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
+  <link rel="preload" href="../assets/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-tight-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 
-  <link rel="stylesheet" href="../css/variables.css?v=4968b134">
+  <link rel="stylesheet" href="../css/fonts.css?v=77d9f050">
+  <link rel="stylesheet" href="../css/variables.css?v=52b3e6ec">
   <link rel="stylesheet" href="../css/reset.css?v=f14d0489">
-  <link rel="stylesheet" href="../css/base.css?v=1d1d3118">
-  <link rel="stylesheet" href="../css/layout.css?v=f6b74372">
-  <link rel="stylesheet" href="../css/components.css?v=d1559b19">
-  <link rel="stylesheet" href="../css/pages/home.css?v=4d6bd405">
-  <link rel="stylesheet" href="../css/pages/article.css?v=a7a5aab9">
+  <link rel="stylesheet" href="../css/base.css?v=c4327834">
+  <link rel="stylesheet" href="../css/layout.css?v=44456b68">
+  <link rel="stylesheet" href="../css/components.css?v=d6cb16ec">
+  <link rel="stylesheet" href="../css/pages/home.css?v=7e517310">
+  <link rel="stylesheet" href="../css/pages/article.css?v=7338ad56">
 
-  <script type="module" src="../js/main.js?v=f59024f2"></script>
+  <script type="module" src="../js/main.js?v=0c7bfe2e"></script>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -111,14 +111,20 @@
       <img class="brand__logo" src="../assets/brand/expert-parquet-logo-on-light.png" alt="" width="338" height="128" fetchpriority="high" decoding="async">
     </a>
     <nav class="nav" id="site-nav" data-nav aria-label="Navigation principale">
-      <ul class="nav__list">
-        <li><a class="nav__link" href="../pages/expertise.html">Expertise</a></li>
-        <li><a class="nav__link" href="../pages/diagnostic.html">Diagnostic</a></li>
-        <li><a class="nav__link" href="../pages/problemes.html">Problèmes</a></li>
-        <li><a class="nav__link" href="../pages/conseils.html" aria-current="page">Conseils</a></li>
-        <li><a class="nav__link" href="../pages/a-propos.html">À propos</a></li>
-        <li><a class="nav__link" href="../pages/contact.html">Contact</a></li>
-      </ul>
+      <div class="nav__bar">
+        <img class="nav__logo" src="../assets/brand/expert-parquet-logo-on-dark.png" alt="" width="338" height="128" loading="lazy" decoding="async">
+        <button class="nav__close" type="button" data-nav-close aria-label="Fermer le menu"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" aria-hidden="true"><path d="M4.5 4.5 17.5 17.5M17.5 4.5 4.5 17.5"/></svg></button>
+      </div>
+      <div class="nav__scroll">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="../pages/expertise.html">Expertise</a></li>
+          <li><a class="nav__link" href="../pages/diagnostic.html">Diagnostic</a></li>
+          <li><a class="nav__link" href="../pages/problemes.html">Problèmes</a></li>
+          <li><a class="nav__link" href="../pages/conseils.html" aria-current="page">Conseils</a></li>
+          <li><a class="nav__link" href="../pages/a-propos.html">À propos</a></li>
+          <li><a class="nav__link" href="../pages/contact.html">Contact</a></li>
+        </ul>
+      </div>
       <a class="btn btn--primary btn--block nav__cta-mobile" href="../pages/devis.html">Demander une expertise</a>
     </nav>
     <div class="header__actions">
@@ -130,7 +136,6 @@
     </div>
   </div>
 </header>
-<div class="nav-overlay" data-nav-overlay></div>
 
   <main id="main">
   <section class="section section--tight">
@@ -156,7 +161,7 @@
           </header>
 
           <figure class="media media--16x9 article__cover">
-            <img src="../assets/images/grincement.jpg" alt="Parquet en bois sombre vu de près" width="1400" height="788" fetchpriority="high" decoding="async">
+            <img src="../assets/images/grincement.jpg" srcset="../assets/images/r/grincement-480.jpg 480w, ../assets/images/r/grincement-768.jpg 768w, ../assets/images/r/grincement-1200.jpg 1200w, ../assets/images/grincement.jpg 1400w" sizes="(min-width: 901px) 68vw, 100vw" alt="" width="1400" height="893" fetchpriority="high" decoding="async">
           </figure>
 
           <div class="prose u-mt-xl" id="article-body">
@@ -181,7 +186,7 @@
           <p>C’est le cas inverse, et il est plus préoccupant. Quand un parquet ne dispose pas d’un jeu suffisant contre les murs, il se met en compression dès qu’il gonfle. Les lames s’appuient les unes contre les autres et frottent latéralement. Le grincement s’accompagne alors souvent d’un léger bombement, à vérifier en lumière rasante.</p>
 
           <h3 id="hygrometrie">La saison</h3>
-          <p>Le bois perd de l’humidité en période de chauffe et se rétracte. Les jeux s’ouvrent, les points de contact changent, des grincements apparaissent — puis disparaissent au printemps. Ce comportement est normal. Ce qui ne lest pas, c’est une amplitude qui s’aggrave d’année en année.</p>
+          <p>Le bois perd de l’humidité en période de chauffe et se rétracte. Les jeux s’ouvrent, les points de contact changent, des grincements apparaissent — puis disparaissent au printemps. Ce comportement est normal. Ce qui ne l’est pas, c’est une amplitude qui s’aggrave d’année en année.</p>
 
           <h2 id="diagnostic">Comment situer l’origine</h2>
           <p>Quatre observations suffisent généralement à orienter l’analyse.</p>
@@ -249,8 +254,10 @@
 
         <aside class="article-aside">
           <nav class="toc" data-toc data-toc-scope="#article-body" aria-labelledby="toc-pourquoi-un-parquet-grince">
-            <p class="toc__title" id="toc-pourquoi-un-parquet-grince">Sommaire</p>
-            <ul class="toc__list" data-toc-list></ul>
+            <details class="toc__box">
+              <summary class="toc__title" id="toc-pourquoi-un-parquet-grince">Sommaire</summary>
+              <ul class="toc__list" data-toc-list></ul>
+            </details>
           </nav>
           <div class="aside-card aside-card--accent">
             <p class="aside-card__title">Besoin d’un avis&nbsp;?</p>
@@ -263,42 +270,32 @@
   </section>
 
   <section class="section section--alt">
-    <div class="container">
+    <div class="container container--mid">
       <div class="sec-head" data-reveal>
+        <div class="sec-head__rule"></div>
         <p class="kicker">À lire ensuite</p>
-        <h2>Contenus associés</h2>
+        <h2 class="sec-head__title">Continuer à comprendre</h2>
+        
       </div>
-      <div class="grid grid--3 u-mt-lg">
-      <article class="card" data-reveal data-reveal-delay="0">
-        <div class="card__media media--4x3">
-          <img src="../assets/images/soulevement.jpg" alt="" width="1400" height="1050" loading="lazy" decoding="async">
-        </div>
-        <div class="card__body">
-          <p class="card__meta"><span>Défauts</span><span>7 min</span></p>
-          <h3 class="card__title"><a class="card__link" href="../articles/parquet-qui-se-souleve-que-faire.html">Que faire lorsqu’un parquet se soulève&nbsp;?</a></h3>
-          <p class="card__text">Un parquet qui bombe réagit presque toujours à l’eau ou à un manque de jeu. Les premiers gestes conditionnent la suite.</p>
-        </div>
-      </article>
-      <article class="card" data-reveal data-reveal-delay="70">
-        <div class="card__media media--4x3">
-          <img src="../assets/images/degat-eaux.jpg" alt="" width="1400" height="1050" loading="lazy" decoding="async">
-        </div>
-        <div class="card__body">
-          <p class="card__meta"><span>Humidité</span><span>8 min</span></p>
-          <h3 class="card__title"><a class="card__link" href="../articles/humidite-et-parquet-signes-qui-alertent.html">Humidité et parquet&nbsp;: quels signes doivent alerter&nbsp;?</a></h3>
-          <p class="card__text">Certains signaux apparaissent bien avant le désordre visible. Savoir les lire permet d’agir avant la dégradation.</p>
-        </div>
-      </article>
-      <article class="card" data-reveal data-reveal-delay="140">
-        <div class="card__media media--4x3">
-          <img src="../assets/images/rayures.jpg" alt="" width="1400" height="1050" loading="lazy" decoding="async">
-        </div>
-        <div class="card__body">
-          <p class="card__meta"><span>Rénovation</span><span>7 min</span></p>
-          <h3 class="card__title"><a class="card__link" href="../articles/renover-un-parquet-tres-abime.html">Peut-on rénover un parquet très abîmé&nbsp;?</a></h3>
-          <p class="card__text">Entre patine et dégradation, la frontière n’est pas toujours nette. Trois critères décident de la faisabilité.</p>
-        </div>
-      </article>
+      <div class="next-read u-mt-lg" data-reveal>
+        <a class="next-read__item" href="../pages/problemes/parquet-qui-grince.html">
+          <span class="next-read__kind">Désordre</span>
+          <span class="next-read__title">Parquet qui grince</span>
+          <span class="next-read__text">Le grincement est le désordre le plus fréquent et le plus mal compris.</span>
+          <span class="next-read__arrow" aria-hidden="true"></span>
+        </a>
+        <a class="next-read__item" href="../pages/problemes/lames-qui-bougent.html">
+          <span class="next-read__kind">Désordre</span>
+          <span class="next-read__title">Lames qui bougent</span>
+          <span class="next-read__text">Quand une lame joue sous le pied, le lien entre le revêtement et son support a cédé — ou l’assemblage entre lames ne remplit plus son rôle.</span>
+          <span class="next-read__arrow" aria-hidden="true"></span>
+        </a>
+        <a class="next-read__item" href="../pages/conseils/pose.html">
+          <span class="next-read__kind">Guide</span>
+          <span class="next-read__title">Pose de parquet</span>
+          <span class="next-read__text">La grande majorité des désordres de parquet trouvent leur origine dans les heures qui précèdent la pose, pas dans celles qui la suivent.</span>
+          <span class="next-read__arrow" aria-hidden="true"></span>
+        </a>
       </div>
     </div>
   </section>
@@ -340,6 +337,7 @@
           <h2 class="footer__title">Comprendre</h2>
           <ul class="footer__list">
             <li><a href="../pages/conseils.html">Conseils</a></li>
+            <li><a href="../pages/conseils/choisir-parquet.html">Choisir un parquet</a></li>
             <li><a href="../pages/conseils/entretien.html">Entretien</a></li>
             <li><a href="../pages/conseils/renovation.html">Rénovation</a></li>
             <li><a href="../pages/conseils/pose.html">Pose</a></li>
@@ -360,8 +358,6 @@
       <p>&copy; <span data-current-year>2026</span> Expert Parquet — site indépendant.</p>
       <ul class="footer__legal-links">
         <li><a href="../pages/mentions-legales.html">Mentions légales</a></li>
-        <li><a href="../pages/faq.html">FAQ</a></li>
-        <li><a href="../pages/contact.html">Contact</a></li>
       </ul>
     </div>
   </div>
