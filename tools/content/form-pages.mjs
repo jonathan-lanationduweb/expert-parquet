@@ -160,6 +160,7 @@ function quotePage() {
                   </label>
                   <p class="dropzone__hint">ou glissez-déposez vos fichiers ici — JPEG, PNG ou WebP, 6 fichiers maximum, 8&nbsp;Mo par fichier.</p>
                 </div>
+                <ul class="upload-errors" data-upload-errors role="alert" hidden></ul>
                 <div class="file-previews" data-upload-previews></div>
                 <p class="field__hint" data-upload-count aria-live="polite"></p>
                 ${mentionDemo('devis', `${ICONS.alert} Vos photos restent dans votre navigateur&nbsp;: elles servent uniquement à l’aperçu ci-dessous et ne sont pas envoyées.`)}
@@ -353,25 +354,37 @@ function contactPage() {
           <div data-form-output></div>
         </div>
 
+        <!-- Coordonnées injectées par js/modules/contact-info.js depuis
+             js/config/site.js. Les blocs sont MASQUÉS dans le HTML livré et
+             ne réapparaissent que si la valeur existe.
+
+             Deux raisons de partir masqué plutôt que visible :
+             — l'ancre de l'e-mail pointait vers un dièse, c'est-à-dire un lien
+               qui ne mène nulle part pour un robot d'indexation et pour un
+               visiteur sans JavaScript ;
+             — sans valeur, ces blocs n'affichent qu'une étiquette suivie du
+               vide, ce qui promet une information qui n'existe pas encore.
+             L'ancre n'a plus d'attribut href : tant qu'aucune adresse n'est
+             renseignée, ce n'est pas un lien, seulement du texte. -->
         <div class="contact-info">
-          <div data-contact-group>
-            <div class="contact-info__block" data-contact-block>
+          <div data-contact-group hidden>
+            <div class="contact-info__block" data-contact-block hidden>
               <p class="contact-info__label">E-mail</p>
-              <p class="contact-info__value"><a data-contact="email" data-contact-as="link" href="#">e-mail</a></p>
+              <p class="contact-info__value"><a data-contact="email" data-contact-as="link">e-mail</a></p>
             </div>
-            <div class="contact-info__block" data-contact-block>
+            <div class="contact-info__block" data-contact-block hidden>
               <p class="contact-info__label">Téléphone</p>
               <p class="contact-info__value"><span data-contact="phone"></span></p>
             </div>
-            <div class="contact-info__block" data-contact-block>
+            <div class="contact-info__block" data-contact-block hidden>
               <p class="contact-info__label">Adresse</p>
               <p class="contact-info__value"><span data-contact="address"></span></p>
             </div>
-            <div class="contact-info__block" data-contact-block>
+            <div class="contact-info__block" data-contact-block hidden>
               <p class="contact-info__label">Horaires</p>
               <p class="contact-info__value"><span data-contact="hours"></span></p>
             </div>
-            <div class="contact-info__block" data-contact-block>
+            <div class="contact-info__block" data-contact-block hidden>
               <p class="contact-info__label">Zone d’intervention</p>
               <p class="contact-info__value"><span data-contact="coverage"></span></p>
             </div>
@@ -409,7 +422,7 @@ ${faqAccordion(CONTACT_FAQ, 'contact-faq')}
     navCurrent: 'pages/contact.html',
     title: 'Contact',
     description:
-      'Contacter Expert Parquet pour une question technique, un point à éclaircir ou le suivi d’un dossier. Pour décrire un problème de parquet, utilisez la demande d’expertise.',
+      'Contacter Expert Parquet pour une question technique ou le suivi d’un dossier. Pour décrire un problème de parquet, utilisez la demande d’expertise.',
     css: ['pages/home.css', 'pages/article.css', 'pages/diagnostic.css'],
     body,
     jsonLd: [crumb.jsonLd, faqJsonLd(CONTACT_FAQ)],

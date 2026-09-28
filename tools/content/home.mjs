@@ -127,7 +127,7 @@ ${domain.points.map((point) => `              <li>${point}</li>`).join('\n')}
   <!-- ============================================== POSITIONNEMENT -->
   <section class="statement">
     <div class="container">
-      <p class="statement__text" data-reveal>Comprendre l’origine d’un problème <em>avant</em> de décider comment intervenir.</p>
+      <h2 class="statement__text" data-reveal>Comprendre l’origine d’un problème <em>avant</em> de décider comment intervenir.</h2>
       <div class="statement__grid">
         <div class="statement__item" data-reveal>
           <h3>Le symptôme n’est pas la cause</h3>
@@ -305,7 +305,7 @@ ${ctaBand(D)}
     fullTitle: 'Expert Parquet — Diagnostic et expertise de parquet',
     title: 'Diagnostic et expertise de parquet',
     description:
-      'Parquet qui grince, gonfle, se soulève ou s’abîme : identifiez l’origine du problème avant d’engager des travaux. Pré-diagnostic en ligne, expertise et conseils techniques.',
+      'Parquet qui grince, gonfle ou s’abîme : identifiez l’origine du problème avant d’engager des travaux. Pré-diagnostic en ligne, expertise et conseils techniques.',
     css: ['pages/home.css', 'pages/diagnostic.css'],
     navCurrent: null,
     headerOver: true,
