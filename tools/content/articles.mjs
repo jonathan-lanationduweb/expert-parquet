@@ -16,6 +16,34 @@ import { BODIES } from './article-bodies.mjs';
 
 const D = 1;
 
+/**
+ * Description courte a partir du chapeau de l'article.
+ *
+ * L'ancienne version coupait a 180 caracteres, net : les onze descriptions
+ * d'articles faisaient donc exactement 180, souvent en plein milieu d'un mot,
+ * et Google les tronquait une seconde fois vers 160. On prefere ici une VRAIE
+ * phrase : la premiere du chapeau si elle tient dans la limite, sinon une
+ * coupe sur une frontiere de mot suivie de points de suspension.
+ */
+function resumer(html, max = 158) {
+  const texte = html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+  if (texte.length <= max) return texte;
+
+  /* Une phrase complete vaut mieux qu'une coupe, a condition qu'elle dise
+     encore quelque chose : sous 100 caracteres, l'extrait devient un slogan. */
+  const phrases = texte.match(/[^.!?]+[.!?]+/g) || [];
+  let cumul = '';
+  for (const phrase of phrases) {
+    if ((cumul + phrase).trim().length > max) break;
+    cumul += phrase;
+  }
+  cumul = cumul.trim();
+  if (cumul.length >= 100) return cumul;
+
+  const coupe = texte.slice(0, max - 1);
+  return coupe.slice(0, coupe.lastIndexOf(' ')).replace(/[\s,;:]+$/, '') + '\u2026';
+}
+
 function renderArticle(article) {
   const content = BODIES[article.slug];
   const crumb = breadcrumb(D, [
@@ -88,7 +116,11 @@ ${ctaBand(D)}
     depth: D,
     navCurrent: 'pages/conseils.html',
     title: article.title,
-    description: content.standfirst.replace(/&nbsp;/g, ' ').replace(/<[^>]+>/g, '').slice(0, 180),
+    /* `title` reste le H1 visible ; `seoTitle`, quand il existe, ne
+       raccourcit QUE la balise <title>, qui depassait 60 caracteres sur
+       dix articles et se faisait tronquer dans les resultats. */
+    fullTitle: article.seoTitle ? `${article.seoTitle} | Expert Parquet` : null,
+    description: resumer(content.standfirst),
     css: ['pages/home.css', 'pages/article.css'],
     ogImage: `assets/images/${article.image}`,
     lastmod: article.date,
