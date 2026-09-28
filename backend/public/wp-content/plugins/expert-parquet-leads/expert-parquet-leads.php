@@ -104,6 +104,7 @@ require_once EP_PLUGIN_DIR . 'includes/class-ep-antispam.php';
 require_once EP_PLUGIN_DIR . 'includes/class-ep-photos.php';
 require_once EP_PLUGIN_DIR . 'includes/class-ep-mail.php';
 require_once EP_PLUGIN_DIR . 'includes/class-ep-rest.php';
+require_once EP_PLUGIN_DIR . 'includes/class-ep-connexion.php';
 require_once EP_PLUGIN_DIR . 'includes/class-ep-security.php';
 require_once EP_PLUGIN_DIR . 'includes/class-ep-purge.php';
 

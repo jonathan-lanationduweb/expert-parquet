@@ -1,0 +1,23 @@
+/*
+Theme Name: Expert Parquet Backend
+Theme URI: https://expert-parquet.com
+Author: Expert Parquet
+Description: Thème technique minimal. Cette installation de WordPress ne publie aucune page : elle sert uniquement l'API métier /wp-json/expert-parquet/v1/ et l'administration. WordPress exige un thème valide pour démarrer ; celui-ci se contente d'exister. Aucune feuille de style, aucun script, aucun gabarit public ne sont envoyés au navigateur.
+Version: 1.0.0
+Requires at least: 6.5
+Requires PHP: 8.1
+License: GPL-2.0-or-later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: expert-parquet-backend
+*/
+
+/* Volontairement vide.
+
+   Ce fichier n'est jamais servi à un visiteur : `EP_Security::fermer_front()`
+   répond 404 à toute requête publique avant qu'un gabarit ne soit rendu, et
+   aucun `wp_enqueue_style()` ne le réclame.
+
+   Il existe parce que WordPress lit l'en-tête ci-dessus pour reconnaître un
+   thème. Le supprimer rendrait le thème invalide et WordPress retomberait sur
+   un thème par défaut — c'est-à-dire exactement les 22 Mo qu'on cherche à ne
+   plus avoir sur le serveur. */

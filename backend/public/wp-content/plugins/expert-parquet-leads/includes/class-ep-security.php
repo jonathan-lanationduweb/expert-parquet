@@ -54,7 +54,10 @@ class EP_Security {
 
 		// Un formulaire de connexion ne dit jamais laquelle des deux
 		// informations est fausse.
-		add_filter( 'login_errors', static fn() => 'Identifiants incorrects.' );
+		add_filter( 'login_errors', static fn() => EP_Connexion::message( 'Identifiants incorrects.' ) );
+
+		// Verrou temporaire sur les tentatives repetees.
+		EP_Connexion::init();
 
 		// Version de WordPress retirée des en-têtes et des URL d'assets.
 		remove_action( 'wp_head', 'wp_generator' );
