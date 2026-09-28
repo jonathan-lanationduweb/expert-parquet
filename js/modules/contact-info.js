@@ -36,10 +36,13 @@ export function initContactInfo() {
     }
   });
 
-  // Un groupe dont tous les blocs sont masqués laisserait une colonne vide.
+  /* Un groupe dont tous les blocs sont masqués laisserait une colonne vide.
+     L'état est posé dans les DEUX sens : le HTML livré part masqué — pour
+     qu'un visiteur sans JavaScript ne voie pas des étiquettes sans valeur —
+     et seul ce calcul peut le rouvrir. Ne faire que masquer laissait le
+     groupe fermé pour toujours le jour où une coordonnée est renseignée. */
   document.querySelectorAll('[data-contact-group]').forEach((group) => {
     const blocks = group.querySelectorAll('[data-contact-block]');
-    const visible = [...blocks].some((block) => !block.hidden);
-    if (!visible) group.hidden = true;
+    group.hidden = ![...blocks].some((block) => !block.hidden);
   });
 }
