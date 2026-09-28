@@ -26,6 +26,9 @@
   --color-terra:      #B04A1E;
   --color-terra-dark: #8E3A16;
   --color-terra-soft: #F0E5DF;
+  /* Terre cuite eclaircie, reservee aux fonds sombres : #B04A1E n'y atteint
+     que 3,25:1, sous le seuil AA de 4,5 pour du texte courant. */
+  --color-terra-on-dark: #C96A38;
 
   /* --- États --------------------------------------------------------------- */
   --color-success:      #2F5D42;

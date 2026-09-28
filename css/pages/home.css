@@ -76,6 +76,40 @@
   .hero__actions .btn { flex: 1 1 auto; }
 }
 
+/* Téléphone tenu à l'horizontale : la largeur ne dit rien, la hauteur si.
+   Un 844 × 390 recevait la mise en page « large » — titre à 82 px, réserve de
+   156 px sous l'en-tête, accroche sur huit lignes — soit 858 px de hero pour
+   390 px d'écran : deux écrans et demi de photographie et de titre avant le
+   moindre bouton, qui se trouvait à y = 712.
+   Les règles se déclenchent donc sur la HAUTEUR disponible, pas sur la largeur.
+   Rien n'est masqué : tout est remis à l'échelle du format. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .hero { min-height: 0; }
+  .hero__inner { padding-block: calc(var(--header-h) + var(--space-xs)) var(--space-md); }
+  .hero__title { font-size: clamp(1.6rem, 4.2vw, 2.4rem); max-width: 20ch; }
+  .hero__sub { margin-top: var(--space-2xs); font-size: clamp(0.95rem, 1.8vw, 1.2rem); max-width: 34ch; }
+  .hero__foot {
+    align-items: center;
+    gap: var(--space-sm) var(--space-lg);
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+  }
+  .hero__lead { font-size: var(--fs-sm); line-height: 1.4; max-width: none; }
+  /* Les boutons gardent leur largeur naturelle : étirés sur toute la ligne,
+     ils poussaient l'accroche hors de l'écran. */
+  .hero__actions { flex-wrap: wrap; }
+  .hero__actions .btn { flex: 0 0 auto; }
+}
+
+/* Accroche et boutons côte à côte seulement quand la largeur le permet.
+   Sous 760 px, `auto` sur la colonne des boutons ne laissait qu'une centaine
+   de pixels à l'accroche, qui tombait à un mot par ligne. */
+@media (orientation: landscape) and (max-height: 520px) and (min-width: 760px) {
+  .hero__foot { grid-template-columns: minmax(0, 1fr) auto; }
+  .hero__lead { max-width: 52ch; }
+  .hero__actions { flex-wrap: nowrap; }
+}
+
 /* Entrée du hero : un seul mouvement, lent, sans rebond. */
 .hero__inner > * { animation: heroIn var(--dur-xslow) var(--ease-out) both; }
 .hero__inner > *:nth-child(2) { animation-delay: 110ms; }
@@ -220,9 +254,16 @@
   gap: clamp(var(--space-lg), 5vw, var(--space-3xl));
   align-items: center;
 }
-.domain + .domain { margin-top: clamp(var(--space-2xl), 8vw, var(--space-4xl)); }
+/* Trois planches empilées font la hauteur de la section : c'est le poste le
+   plus lourd de la page d'accueil. L'alternance gauche/droite et le débordement
+   de l'image sont l'identité de ce bloc et restent intacts ; ce qui se resserre
+   est le vide entre les planches et le format des images.
+   Un 3/2 au lieu d'un 5/4 retire environ un sixième de la hauteur de chaque
+   image sans changer le cadrage perçu — les photographies sont toutes en
+   `object-fit: cover`. */
+.domain + .domain { margin-top: clamp(var(--space-xl), 4.5vw, var(--space-3xl)); }
 .domain:nth-child(even) .domain__media { order: 2; }
-.domain__media { position: relative; overflow: hidden; background: var(--bg-fill); aspect-ratio: 5 / 4; }
+.domain__media { position: relative; overflow: hidden; background: var(--bg-fill); aspect-ratio: 3 / 2; }
 .domain__media img {
   width: 100%;
   height: 100%;
@@ -245,14 +286,47 @@
 }
 .domain__title { font-size: var(--fs-d2); }
 .domain__text { margin-top: var(--space-md); color: var(--text-body); }
-.domain__list { margin-top: var(--space-lg); }
-.domain__cta { margin-top: var(--space-xl); }
+.domain__list { margin-top: var(--space-md); }
+.domain__cta { margin-top: var(--space-lg); }
 
 /* Débordement volontaire de l'image côté extérieur, comme sur une planche
-   d'architecte : l'image touche le bord du conteneur. */
-@media (min-width: 1025px) {
+   d'architecte : l'image touche le bord du conteneur.
+   Ne vaut que dans la mise en page alternée, c'est-à-dire sous 1200 px. */
+@media (min-width: 1025px) and (max-width: 1199px) {
   .domain:nth-child(odd) .domain__media { margin-left: calc(var(--container-pad) * -1); }
   .domain:nth-child(even) .domain__media { margin-right: calc(var(--container-pad) * -1); }
+}
+
+/* Sur écran large : les trois approches côte à côte plutôt qu'empilées.
+   Trois planches alternées pleine largeur coûtaient 2 300 px — deux écrans et
+   demi — avant d'arriver à « Quel problème rencontrez-vous ? », qui est la
+   vraie porte d'entrée du site. Mises en regard, elles se comparent d'un coup
+   d'œil, ce qui est précisément ce qu'on demande au visiteur : choisir SON
+   entrée parmi trois.
+   Rien n'est retiré : numéro, titre, paragraphe, points et lien restent.
+   `reveal-more` ne pouvait pas servir ici — il est volontairement réservé au
+   mobile, où replier une longue liste a du sens ; sur grand écran il aurait
+   caché deux des trois approches derrière un bouton. */
+@media (min-width: 1200px) {
+  #domaines-liste {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+  .domain {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-lg);
+    align-items: start;
+  }
+  .domain + .domain { margin-top: 0; }
+  .domain:nth-child(even) .domain__media { order: 0; }
+  .domain__media { aspect-ratio: 4 / 3; }
+  .domain__body { max-width: none; }
+  /* Le titre d'affichage était calibré pour une demi-page. Dans une colonne de
+     370 px il passait à trois lignes et pesait plus lourd que la photographie
+     qu'il légende. */
+  .domain__title { font-size: var(--fs-h3); }
 }
 @media (max-width: 900px) {
   .domain { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
@@ -296,7 +370,9 @@
 .observation__factors li:nth-child(odd) { padding-right: var(--space-md); }
 .observation__factors span {
   font-size: var(--fs-2xs);
-  color: var(--color-terra);
+  /* Sur le fond encre, la terre cuite de la charte tombe a 3,25:1 — et il
+     s'agit ici de 12 px, donc du texte courant : le seuil est 4,5. */
+  color: var(--color-terra-on-dark);
   font-variant-numeric: tabular-nums;
 }
 .observation__cta { margin-top: var(--space-xl); }
