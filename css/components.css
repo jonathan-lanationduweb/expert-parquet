@@ -211,7 +211,10 @@
   font-size: var(--fs-numeral);
   line-height: 1;
   letter-spacing: var(--ls-display);
-  color: var(--border-default);
+  /* Couleur de TEXTE, pas de bordure : `--border-default` donnait 1,61:1,
+     illisible tant que l'animation d'apparition n'avait pas viré au terra —
+     c'est-a-dire toujours, sans JavaScript ou en mouvement reduit. */
+  color: var(--text-muted);
   font-variant-numeric: tabular-nums;
   transition: color var(--dur-slow) var(--ease-out);
 }
@@ -353,14 +356,24 @@
      n'apportait rien — mais elle rendait ANIMÉE chaque écriture de
      `scrollLeft` par la molette, qui arrivait alors en retard sur le geste. */
 }
-/* Sur grand écran, l'accrochage devient indicatif. En `mandatory`, le
-   navigateur ramène la position sur un point d'accrochage après chaque
-   opération de défilement : à la molette, cela corrigeait le mouvement en
-   permanence au lieu de l'accompagner. `proximity` n'intervient que lorsque la
-   position est déjà proche d'une diapositive. Le tactile, lui, garde
-   `mandatory` — c'est ce qui donne un balayage net. */
-@media (min-width: 1025px) {
-  .showcase__viewport { scroll-snap-type: x proximity; }
+/* À la souris, aucun accrochage.
+ *
+ * `proximity` avait été choisi contre `mandatory`, mais il ramenait encore.
+ * Mesuré : un cran de molette (120 px) puis deux crans (240 px) laissaient le
+ * carrousel immobile — le navigateur rendait la position au point d'accrochage
+ * le plus proche, qui restait le point de départ tant qu'on n'avait pas dépassé
+ * la demi-diapositive, soit 322 px. Il fallait donc trois crans pour obtenir un
+ * saut de 644 px : rien, rien, puis tout.
+ *
+ * Le pas n'a pas besoin de l'accrochage pour tomber juste : les flèches et le
+ * clavier appellent `scrollBy(± step)`, et `step` vaut exactement une
+ * diapositive plus l'écart. L'accrochage ne servait donc qu'à corriger la
+ * molette — c'est-à-dire à défaire ce que l'utilisateur venait de faire.
+ *
+ * Le tactile garde `mandatory` : au doigt, un balayage doit donner une
+ * diapositive nette, et aucun geste lent n'y produit le blocage décrit. */
+@media (hover: hover) and (pointer: fine) {
+  .showcase__viewport { scroll-snap-type: none; }
 }
 .showcase__viewport::-webkit-scrollbar { display: none; }
 .showcase__slide {
@@ -591,6 +604,24 @@
 .dropzone.is-dragover { border-color: var(--color-terra); background: var(--color-terra-soft); }
 .dropzone__hint { font-size: var(--fs-xs); color: var(--text-muted); margin-top: var(--space-xs); }
 .dropzone input[type="file"] { position: absolute; opacity: 0; width: 0; height: 0; }
+
+/* Photographies refusées : la liste se place SOUS la zone de dépôt, à l'endroit
+   même où le visiteur vient de déposer. Sans elle, un fichier trop lourd était
+   écarté en silence et le bouton passait pour cassé.
+   Elle n'emprunte pas `.field__error`, qui dépend de `.field.has-error` posé
+   par la validation d'étape : ces deux mécanismes ne doivent pas se gêner. */
+.upload-errors {
+  list-style: none;
+  margin: var(--space-xs) 0 0;
+  padding: var(--space-xs) var(--space-sm);
+  border-left: 2px solid var(--color-error);
+  background: var(--color-error-soft, transparent);
+  font-size: var(--fs-xs);
+  color: var(--color-error);
+  display: grid;
+  gap: var(--space-3xs, 0.25rem);
+}
+.upload-errors[hidden] { display: none; }
 
 .file-previews { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: var(--space-2xs); margin-top: var(--space-sm); }
 .file-preview { position: relative; overflow: hidden; border: 1px solid var(--border-hair); }
