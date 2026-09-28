@@ -291,7 +291,7 @@ export const ARTICLES = [
   },
   {
     slug: 'parquet-qui-se-souleve-que-faire',
-    related: ['parquet-gondole', 'degat-des-eaux', 'pose'],
+    related: ['parquet-gondole', 'lames-qui-secartent', 'degat-des-eaux'],
     tags: ['deformation', 'humidite', 'pose', 'sinistre'],
     title: 'Que faire lorsqu’un parquet se soulève&nbsp;?',
     category: 'Défauts',
@@ -304,6 +304,7 @@ export const ARTICLES = [
   },
   {
     slug: 'humidite-et-parquet-signes-qui-alertent',
+    seoTitle: 'Humidité et parquet&nbsp;: les signes d’alerte',
     related: ['parquet-gondole', 'degat-des-eaux', 'pose'],
     tags: ['humidite', 'mesure', 'support', 'sinistre'],
     title: 'Humidité et parquet&nbsp;: quels signes doivent alerter&nbsp;?',
@@ -330,6 +331,7 @@ export const ARTICLES = [
   },
   {
     slug: 'pourquoi-le-support-est-essentiel',
+    seoTitle: 'Le support&nbsp;: ce qui se joue avant la pose',
     related: ['defaut-de-pose', 'pose', 'parquet-gondole'],
     tags: ['support', 'pose', 'mesure', 'structure'],
     title: 'Pourquoi le support est-il essentiel avant la pose&nbsp;?',
@@ -343,6 +345,7 @@ export const ARTICLES = [
   },
   {
     slug: 'lames-qui-secartent',
+    seoTitle: 'Lames qui s’écartent&nbsp;: normal ou défaut&nbsp;?',
     tags: ['deformation', 'humidite', 'structure', 'mesure'],
     related: ['lames-qui-bougent', 'parquet-qui-sonne-creux', 'humidite'],
     title: 'Lames qui s’écartent&nbsp;: jeu normal ou défaut&nbsp;?',
@@ -356,6 +359,7 @@ export const ARTICLES = [
   },
   {
     slug: 'parquet-qui-sonne-creux',
+    seoTitle: 'Pourquoi un parquet sonne creux',
     tags: ['structure', 'support', 'pose', 'grincement'],
     related: ['lames-qui-bougent', 'defaut-de-pose', 'pourquoi-un-parquet-grince'],
     title: 'Parquet qui sonne creux&nbsp;: ce que le bruit indique',
@@ -369,6 +373,7 @@ export const ARTICLES = [
   },
   {
     slug: 'traces-noires-sur-un-parquet',
+    seoTitle: 'Traces noires sur un parquet&nbsp;: les causes',
     tags: ['esthetique', 'humidite', 'sinistre', 'entretien'],
     related: ['humidite', 'parquet-abime', 'parquet-salle-de-bain'],
     title: 'Traces noires sur un parquet&nbsp;: comment les distinguer',
@@ -382,6 +387,7 @@ export const ARTICLES = [
   },
   {
     slug: 'reception-chantier-parquet',
+    seoTitle: 'Réception d’un chantier de parquet',
     tags: ['pose', 'mesure', 'structure', 'support'],
     related: ['defaut-de-pose', 'pose', 'parquet-et-plancher-chauffant'],
     title: 'Réception d’un chantier de parquet&nbsp;: ce qu’on contrôle le jour J',
@@ -395,8 +401,9 @@ export const ARTICLES = [
   },
   {
     slug: 'parquet-et-plancher-chauffant',
+    seoTitle: 'Parquet et plancher chauffant&nbsp;: à vérifier',
     tags: ['choix', 'pose', 'support', 'mesure'],
-    related: ['massif-ou-contrecolle', 'choisir-parquet', 'pose'],
+    related: ['massif-ou-contrecolle', 'parquet-salle-de-bain', 'choisir-parquet'],
     title: 'Parquet et plancher chauffant&nbsp;: les points à vérifier',
     category: 'Pose',
     date: '2026-09-11',
@@ -408,6 +415,7 @@ export const ARTICLES = [
   },
   {
     slug: 'massif-ou-contrecolle',
+    seoTitle: 'Massif ou contrecollé&nbsp;: quelles différences',
     tags: ['choix', 'structure', 'renovation'],
     related: ['choisir-parquet', 'parquet-et-plancher-chauffant', 'renovation'],
     title: 'Massif ou contrecollé&nbsp;: ce qui les distingue vraiment',
@@ -421,6 +429,7 @@ export const ARTICLES = [
   },
   {
     slug: 'finition-parquet-huile-vitrifie',
+    seoTitle: 'Finition&nbsp;: huilé, vitrifié ou brut',
     tags: ['choix', 'entretien', 'esthetique'],
     related: ['entretien', 'traces-noires-sur-un-parquet', 'renovation'],
     title: 'Huilé, vitrifié ou brut&nbsp;: choisir une finition',
@@ -434,6 +443,7 @@ export const ARTICLES = [
   },
   {
     slug: 'parquet-salle-de-bain',
+    seoTitle: 'Poser du parquet en salle de bain',
     tags: ['choix', 'humidite', 'pose', 'structure'],
     related: ['humidite', 'finition-parquet-huile-vitrifie', 'choisir-parquet'],
     title: 'Parquet en salle de bain&nbsp;: à quelles conditions&nbsp;?',

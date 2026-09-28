@@ -72,7 +72,7 @@ export const ADVICE_CATEGORIES = [
           <p>À ce stade, une remise en état légère suffit souvent. Attendre davantage, c’est laisser le bois se salir en profondeur et transformer un entretien en ponçage.</p>`,
       },
     ],
-    related: ['finition-parquet-huile-vitrifie', 'traces-noires-sur-un-parquet', 'renover-un-parquet-tres-abime'],
+    related: ['finition-parquet-huile-vitrifie', 'renover-un-parquet-tres-abime', 'traces-noires-sur-un-parquet'],
     problems: ['parquet-abime'],
   },
   {
@@ -243,7 +243,7 @@ export const ADVICE_CATEGORIES = [
           <p>Un dernier conseil&nbsp;: si le parquet remplace un revêtement qui a posé problème, réglez la question de la cause avant celle du produit. Un excellent parquet posé sur un support défaillant se comportera comme un mauvais.</p>`,
       },
     ],
-    related: ['massif-ou-contrecolle', 'parquet-et-plancher-chauffant', 'finition-parquet-huile-vitrifie'],
+    related: ['massif-ou-contrecolle', 'finition-parquet-huile-vitrifie', 'parquet-et-plancher-chauffant'],
     problems: ['defaut-de-pose'],
   },
 ];

@@ -194,7 +194,7 @@ export const PROBLEM_PAGES = [
     ],
     expertise:
       'L’humidité est le domaine où la mesure remplace l’intuition. Dès que plusieurs origines restent plausibles, ou que des travaux sont envisagés, une observation avec mesures du support et de l’ambiance évite des dépenses mal orientées.',
-    related: ['humidite-et-parquet-signes-qui-alertent', 'traces-noires-sur-un-parquet', 'parquet-salle-de-bain'],
+    related: ['humidite-et-parquet-signes-qui-alertent', 'parquet-salle-de-bain', 'traces-noires-sur-un-parquet'],
     faq: [
       {
         q: 'Quel taux d’humidité viser dans une pièce avec parquet&nbsp;?',

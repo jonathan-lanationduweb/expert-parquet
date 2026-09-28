@@ -170,6 +170,7 @@ ${ctaBand(D)}
     depth: D,
     navCurrent: 'pages/expertise.html',
     title: 'Expertise parquet&nbsp;: comprendre l’origine d’un problème',
+    fullTitle: 'Expertise parquet&nbsp;: comprendre l’origine | Expert Parquet',
     description:
       'Pourquoi et quand demander une expertise de parquet, ce qui est observé, la différence entre symptôme et cause, le rôle du support et de l’humidité.',
     css: ['pages/home.css', 'pages/article.css'],
@@ -326,6 +327,7 @@ ${ctaBand(D, {
     depth: D,
     navCurrent: 'pages/diagnostic.html',
     title: 'Diagnostic parquet&nbsp;: méthode et pré-diagnostic en ligne',
+    fullTitle: 'Diagnostic parquet&nbsp;: pré-diagnostic guidé | Expert Parquet',
     description:
       'Méthode de diagnostic d’un problème de parquet : où, depuis quand, évolution, contexte. Observations à faire soi-même et pré-diagnostic guidé en 5 questions.',
     css: ['pages/home.css', 'pages/article.css', 'pages/diagnostic.css'],
@@ -407,8 +409,9 @@ ${ctaBand(D)}
     depth: D,
     navCurrent: 'pages/problemes.html',
     title: 'Problèmes de parquet&nbsp;: symptômes, causes et vérifications',
+    fullTitle: 'Problèmes de parquet&nbsp;: symptômes et causes | Expert Parquet',
     description:
-      'Parquet qui grince, gondole, lames qui bougent, humidité, taches, dégât des eaux, défaut de pose : causes possibles et premières vérifications pour chaque symptôme.',
+      'Parquet qui grince, gondole, lames qui bougent, humidité, taches, dégât des eaux, défaut de pose : causes possibles et premières vérifications.',
     css: ['pages/home.css'],
     body,
     jsonLd: [crumb.jsonLd],
@@ -562,6 +565,7 @@ ${ctaBand(D)}
     depth: D,
     navCurrent: 'pages/conseils.html',
     title: 'Conseils parquet&nbsp;: entretien, rénovation, pose, humidité',
+    fullTitle: 'Conseils parquet&nbsp;: entretien et rénovation | Expert Parquet',
     description:
       'Articles techniques sur le parquet : diagnostic, entretien, rénovation, pose, humidité, défauts et choix du revêtement. Contenus pédagogiques et concrets.',
     css: ['pages/home.css'],
@@ -639,7 +643,7 @@ ${ctaBand(D, {
     navCurrent: 'pages/a-propos.html',
     title: 'À propos d’Expert Parquet',
     description:
-      'Le positionnement d’Expert Parquet : traiter le parquet comme un système — revêtement, support, environnement, conditions de pose — et distinguer le symptôme de sa cause.',
+      'Le positionnement d’Expert Parquet : traiter le parquet comme un système — revêtement, support, environnement — et distinguer le symptôme de sa cause.',
     css: ['pages/home.css', 'pages/article.css'],
     ogImage: 'assets/images/interieur-clair.jpg',
     body,
@@ -768,8 +772,9 @@ ${ctaBand(D)}
     depth: D,
     navCurrent: null,
     title: 'FAQ parquet&nbsp;: symptômes, travaux et expertise',
+    fullTitle: 'FAQ parquet&nbsp;: symptômes et travaux | Expert Parquet',
     description:
-      'Réponses aux questions fréquentes sur le parquet : grincement, lames qui se soulèvent, humidité, remplacement, réparation partielle et déroulement d’une expertise.',
+      'Réponses aux questions fréquentes sur le parquet : grincement, lames qui se soulèvent, humidité, réparation partielle et déroulement d’une expertise.',
     css: ['pages/home.css', 'pages/article.css'],
     body,
     jsonLd: [crumb.jsonLd, faqJsonLd(allItems)],
