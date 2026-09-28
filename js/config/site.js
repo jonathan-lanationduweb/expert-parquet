@@ -75,10 +75,26 @@ export const FORMS = {
      d'envoi de la demande d'expertise.
 
      Ces limites sont appliquées côté navigateur pour épargner un envoi inutile,
-     et RÉAPPLIQUÉES côté serveur, qui ne fait jamais confiance au client. */
+     et RÉAPPLIQUÉES côté serveur, qui ne fait jamais confiance au client.
+
+     Les trois formats listés sont ceux que la chaîne sait traiter DE BOUT EN
+     BOUT : le navigateur les prévisualise, `EP_Photos::TYPES` les accepte, et
+     GD sait les décoder puis les réencoder — ce réencodage étant ce qui retire
+     les données EXIF, dont les coordonnées GPS du domicile.
+
+     HEIC a été retiré. Il était annoncé ici alors que l'attribut `accept` du
+     formulaire, le serveur et GD le refusaient tous les trois : un iPhone
+     pouvait donc déposer une photographie que l'aperçu affichait avant que le
+     serveur ne l'écarte en silence. Annoncer un format qu'on ne sait pas
+     traiter est pire que de ne pas l'annoncer. Vérifié le 28/09/2026 :
+     `imagecreatefromheic()` n'existe pas et `gd_info()` ne mentionne pas HEIC.
+
+     Cette liste est un CONTRAT : la modifier suppose de modifier en même temps
+     l'attribut `accept` (tools/content/form-pages.mjs), `EP_Photos::TYPES` et
+     le décodeur GD correspondant. */
   maxFiles: 6,
   maxFileSizeMo: 8,
-  acceptedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/heic'],
+  acceptedTypes: ['image/jpeg', 'image/png', 'image/webp'],
 };
 
 /**
