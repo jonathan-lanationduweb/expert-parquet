@@ -61,6 +61,12 @@ backend/public/wp-content/index.php
 backend/public/wp-content/uploads/
 backend/public/wp-content/cache/
 backend/public/wp-content/upgrade/
-backend/public/wp-content/themes/
+# Themes : le coeur de WordPress en livre quatre (22 Mo) dont aucun ne sert.
+# Seul le theme technique maison est versionne.
+backend/public/wp-content/themes/*
+!backend/public/wp-content/themes/expert-parquet-backend/
 backend/public/wp-content/plugins/*
 !backend/public/wp-content/plugins/expert-parquet-leads/
+
+# Sortie de publication, reconstruite a chaque build.
+dist/

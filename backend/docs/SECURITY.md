@@ -12,6 +12,11 @@ public de WordPress répond `404` texte. XML-RPC répond `403` dès
 redirige, `wp/v2` est fermé aux anonymes et ses routes `users` retirées.
 `robots.txt` répond `Disallow: /`. `expose_php = Off`.
 
+Thème actif : `expert-parquet-backend`, deux fichiers, aucun script, aucune
+feuille de style servie. Les quatre thèmes livrés avec WordPress (22 Mo,
+531 fichiers) ont été retirés du serveur : du code qui ne sert jamais ne peut
+que se retrouver vulnérable un jour sans que personne ne le surveille.
+
 ## Base de données
 
 - `$wpdb` confiné à `EP_DB` et aux quatre dépôts ; **toute valeur dynamique
@@ -62,7 +67,52 @@ au-delà de `post_max_size`.
   `lead_exported`.
 - Effacement : capacité + nonce + confirmation ; fichiers → photos → notes →
   événements → demande ; trace dans un journal privé sans donnée personnelle.
-- `DISALLOW_FILE_EDIT`, messages de connexion génériques.
+- `DISALLOW_FILE_EDIT` partout ; `DISALLOW_FILE_MODS` et `FORCE_SSL_ADMIN`
+  en production seulement (voir `wp-config.example.php`) ; messages de
+  connexion génériques et tentatives limitées (voir « Connexion »).
+
+## Connexion
+
+`wp-login.php` reste accessible — c'est la seule porte d'entrée de
+l'administration — mais les tentatives sont comptées (`EP_Connexion`).
+
+| Réglage | Valeur | Constante |
+|---|---|---|
+| Échecs tolérés | 6 | `EP_Connexion::PLAFOND` |
+| Fenêtre de comptage | 15 minutes | `EP_Connexion::FENETRE` |
+| Durée du blocage | 15 minutes | `EP_Connexion::BLOCAGE` |
+
+Le compteur est indexé sur une **empreinte HMAC-SHA256 de l'adresse IP**, salée
+avec une clé propre au site (`EP_Antispam::empreinte()`). L'adresse elle-même
+n'est écrite nulle part : ni en base, ni dans un transient, ni dans un journal.
+Il n'y a donc rien à purger, rien à exporter sur demande d'accès, rien à fuir.
+
+Le comptage porte sur l'**origine**, jamais sur l'identifiant soumis : compter
+par identifiant permettrait de verrouiller le compte d'un tiers en se trompant
+volontairement à sa place.
+
+Pendant un blocage, **même un mot de passe correct est refusé** — un verrou qui
+s'ouvre pour qui devine juste au bon moment ne verrouille rien. Une connexion
+réussie efface immédiatement les compteurs. Les transients expirent seuls : le
+nettoyage est automatique, et **aucun blocage n'est définitif**.
+
+Messages : identiques pour un compte existant et un compte inexistant
+(« Identifiants incorrects. »). Le blocage est la seule exception — il ne dit
+rien du compte, seulement de l'origine, et un utilisateur légitime doit
+comprendre pourquoi il attend.
+
+**Limite à connaître.** Ce verrou ne voit qu'une requête déjà parvenue jusqu'à
+PHP : il réduit le nombre de mots de passe essayés, il n'absorbe pas une charge.
+Il compte par origine, donc un attaquant réparti sur de nombreuses adresses le
+contourne. En production, il vient **en plus** d'un filtrage en amont
+(pare-feu applicatif, Cloudflare, ou restriction de `/wp-admin/` par IP), pas à
+sa place.
+
+**Local / production.** Mêmes seuils partout — un verrou qu'on désactive en
+développement n'est jamais testé. En local, les transients vivent dans la base
+WAMP et se réinitialisent avec elle ; en production, prévoir que le cache objet
+éventuel (Redis, Memcached) les porte aussi, faute de quoi le compteur repart à
+zéro à chaque vidage de cache.
 
 ## Données personnelles
 
@@ -100,4 +150,6 @@ type de contenu redirigée.
 
 HTTPS (local en HTTP ; le front refuse un point d'envoi en clair) ;
 restriction de `/wp-admin/` par IP ; `ServerTokens Prod` côté Apache ;
-CAPTCHA seulement si du spam passe réellement.
+filtrage en amont des attaques distribuées (le verrou de connexion compte
+par origine, il ne couvre pas une attaque répartie) ; authentification à
+deux facteurs ; CAPTCHA seulement si du spam passe réellement.
