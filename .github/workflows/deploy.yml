@@ -1,0 +1,85 @@
+# Publication du site statique sur GitHub Pages.
+#
+# Pourquoi ce fichier existe
+# --------------------------
+# Tant que GitHub Pages sert la RACINE d'une branche, il publie tout ce que la
+# branche contient : `tools/` (le générateur), `docs/` (dont le contrat d'API et
+# la conception de l'anti-spam — nom du champ leurre et règle de durée), les
+# `*.md` et, si un jour ils y entraient, les fichiers du backend. Publier la
+# conception d'une protection, c'est l'affaiblir.
+#
+# Ce workflow publie un ARTEFACT construit — le contenu de `dist/` — et non la
+# branche. Ce qui n'est pas explicitement recopié par `tools/build-deploy.mjs`
+# ne peut pas se retrouver en ligne par inadvertance.
+#
+# À FAIRE AVANT LE PREMIER USAGE (côté GitHub, pas ici)
+# -----------------------------------------------------
+#   Settings → Pages → Build and deployment → Source : « GitHub Actions »
+# Tant que la source reste « Deploy from a branch », ce workflow ne sert à rien
+# et la racine de la branche continue d'être publiée.
+
+name: Déployer le site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Une seule publication à la fois ; on ne coupe pas celle qui est en cours.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  construire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Aucune dépendance à installer : le générateur est en Node pur.
+      # `BUILD_ENV=prod` retire le `noindex` de préproduction.
+      - name: Construire le site
+        run: BUILD_ENV=prod node tools/build.mjs
+
+      - name: Contrôle qualité
+        run: node tools/check.mjs
+
+      # Ce script échoue si un fichier interdit se retrouve dans dist/,
+      # ou si le nombre de pages ne correspond pas au sitemap.
+      - name: Préparer l'arborescence publiable
+        run: node tools/build-deploy.mjs
+
+      - name: Vérifier que rien d'interne ne part en ligne
+        run: |
+          set -e
+          for chemin in tools docs backend backend-private .git .kilo; do
+            if [ -e "dist/$chemin" ]; then echo "REFUSÉ : dist/$chemin"; exit 1; fi
+          done
+          if find dist -name '*.md' -o -name '*.mjs' -o -name '*.php' | grep -q .; then
+            echo "REFUSÉ : source ou documentation dans dist/"; exit 1
+          fi
+          echo "dist/ ne contient que le site."
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  publier:
+    needs: construire
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - id: deploiement
+        uses: actions/deploy-pages@v4
