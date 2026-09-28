@@ -270,13 +270,47 @@ function updateRecap(form, recap) {
 
 /* ---------------------------------------------------------------- upload */
 
+/** « image/jpeg, image/png » → « JPEG, PNG ». */
+function libelleFormats() {
+  return FORMS.acceptedTypes
+    .map((type) => type.replace('image/', '').toUpperCase().replace('WEBP', 'WebP'))
+    .join(', ');
+}
+
+/** 12582912 → « 12 Mo ». Une décimale seulement au-dessous de 10 Mo. */
+function enMegaoctets(octets) {
+  const mo = octets / (1024 * 1024);
+  return `${mo < 10 ? mo.toFixed(1).replace('.', ',') : Math.round(mo)} Mo`;
+}
+
 function setupUpload(zone) {
   const input = zone.querySelector('input[type="file"]');
   const previews = zone.parentElement.querySelector('[data-upload-previews]');
   const counter = zone.parentElement.querySelector('[data-upload-count]');
+  const erreursNode = zone.parentElement.querySelector('[data-upload-errors]');
   if (!input || !previews) return;
 
   const files = [];
+  const erreurs = [];
+
+  /**
+   * Un fichier écarté doit se voir.
+   *
+   * Les trois contrôles ci-dessous se contentaient d'un `return` : une
+   * photographie trop lourde disparaissait sans un mot, et le visiteur en
+   * concluait que le bouton ne marchait pas. Un rejet silencieux sur le
+   * chemin de conversion est le pire endroit où en placer un.
+   */
+  const rendreErreurs = () => {
+    if (!erreursNode) return;
+    erreursNode.textContent = '';
+    erreurs.forEach((message) => {
+      const li = document.createElement('li');
+      li.textContent = message;
+      erreursNode.append(li);
+    });
+    erreursNode.hidden = erreurs.length === 0;
+  };
 
   const refresh = () => {
     previews.innerHTML = '';
@@ -287,9 +321,31 @@ function setupUpload(zone) {
       img.alt = `Aperçu de ${file.name}`;
       img.width = 120;
       img.height = 120;
-      img.loading = 'lazy';
+      /* Pas de `loading="lazy"` ici : la vignette pointe un `blob:` local, il
+         n'y a aucun octet à économiser, et six aperçus au maximum. Surtout, le
+         chargement différé empêchait la détection des fichiers illisibles —
+         l'étape « Photos » étant masquée tant qu'on est aux étapes 1 à 2, les
+         aperçus restaient hors écran, le décodage n'était jamais tenté et
+         l'événement `error` ne se déclenchait pas. */
       img.src = URL.createObjectURL(file);
       img.addEventListener('load', () => URL.revokeObjectURL(img.src), { once: true });
+      /* Dernier filet : un fichier peut annoncer `image/jpeg`, peser moins de
+         8 Mo, et n'être pas décodable. Le navigateur ne le dit qu'ici, à
+         l'échec du rendu de l'aperçu. On le retire plutôt que de laisser
+         partir vers le serveur un fichier qu'il refusera de toute façon. */
+      img.addEventListener(
+        'error',
+        () => {
+          URL.revokeObjectURL(img.src);
+          const position = files.indexOf(file);
+          if (position === -1) return;
+          files.splice(position, 1);
+          erreurs.push(`« ${file.name} » n’a pas pu être lu. Le fichier est peut-être endommagé.`);
+          refresh();
+          rendreErreurs();
+        },
+        { once: true }
+      );
       const name = document.createElement('p');
       name.className = 'file-preview__name';
       name.textContent = file.name;
@@ -313,14 +369,50 @@ function setupUpload(zone) {
     zone.dataset.count = String(files.length);
   };
 
+  /**
+   * Un fichier refusé n'en fait refuser aucun autre.
+   *
+   * Sélectionner six photographies dont la deuxième est trop lourde doit en
+   * ajouter cinq et expliquer la sixième, pas tout abandonner.
+   */
   const add = (fileList) => {
+    erreurs.length = 0;
+    const enTrop = [];
+
     Array.from(fileList).forEach((file) => {
-      if (files.length >= FORMS.maxFiles) return;
-      if (!FORMS.acceptedTypes.includes(file.type)) return;
-      if (file.size > FORMS.maxFileSizeMo * 1024 * 1024) return;
+      if (files.length >= FORMS.maxFiles) {
+        enTrop.push(file.name);
+        return;
+      }
+      if (!FORMS.acceptedTypes.includes(file.type)) {
+        erreurs.push(`« ${file.name} » : ce format n’est pas accepté. Utilisez ${libelleFormats()}.`);
+        return;
+      }
+      if (file.size > FORMS.maxFileSizeMo * 1024 * 1024) {
+        erreurs.push(
+          `« ${file.name} » pèse ${enMegaoctets(file.size)} : la taille maximale est de ${FORMS.maxFileSizeMo} Mo par photo.`
+        );
+        return;
+      }
+      if (file.size === 0) {
+        erreurs.push(`« ${file.name} » est vide et n’a pas pu être lu.`);
+        return;
+      }
       files.push(file);
     });
+
+    /* Le plafond est une seule information, pas une par fichier : dix photos
+       déposées d'un coup ne doivent pas produire quatre lignes identiques. */
+    if (enTrop.length === 1) {
+      erreurs.push(`Vous pouvez envoyer jusqu’à ${FORMS.maxFiles} photos. « ${enTrop[0]} » n’a pas été ajoutée.`);
+    } else if (enTrop.length > 1) {
+      erreurs.push(
+        `Vous pouvez envoyer jusqu’à ${FORMS.maxFiles} photos. ${enTrop.length} fichiers n’ont pas été ajoutés.`
+      );
+    }
+
     refresh();
+    rendreErreurs();
   };
 
   input.addEventListener('change', () => {
