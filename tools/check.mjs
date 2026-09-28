@@ -23,13 +23,35 @@ const stamped = new Set();
 const errors = [];
 const warnings = [];
 
+/* Dossiers qui vivent dans le projet sans faire partie du site.
+   `backend/` (WordPress) et `backend-private/` partagent le dossier du site
+   mais n'en sont pas : jamais analysés, jamais publiés.
+   `dist/` est la COPIE de publication : l'analyser reviendrait à contrôler deux
+   fois les mêmes pages et à reprocher au sitemap de ne pas lister `dist/…`. */
+const HORS_SITE = ['tools', 'node_modules', 'backend', 'backend-private', 'dist'];
+
+/**
+ * Tout dossier commençant par un point est écarté, pas seulement `.git`.
+ *
+ * Un outil tiers a créé un jour `.kilo/worktrees/<nom>/`, c'est-à-dire une
+ * copie complète et périmée du site à l'intérieur du projet. Le contrôle
+ * analysait alors 60 pages au lieu de 34 et signalait 26 erreurs qui
+ * n'existaient pas — le garde-fou devenait le problème.
+ *
+ * Lister `.kilo` nommément n'aurait protégé que de cet outil-là. La règle
+ * porte donc sur la convention : un dossier masqué est un dossier d'outillage,
+ * il n'appartient jamais au site publié.
+ */
+function horsSite(name) {
+  return name.startsWith('.') || HORS_SITE.includes(name);
+}
+
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
-    // `backend/` (WordPress) et `backend-private/` vivent dans le même dossier
-    // que le site mais n'en font pas partie : jamais analysés, jamais publiés.
-    if (['tools', 'node_modules', '.git', 'backend', 'backend-private'].includes(name)) continue;
     const full = join(dir, name);
-    if (statSync(full).isDirectory()) walk(full, out);
+    const estDossier = statSync(full).isDirectory();
+    if (estDossier && horsSite(name)) continue;
+    if (estDossier) walk(full, out);
     else if (name.endsWith('.html')) out.push(full);
   }
   return out;
