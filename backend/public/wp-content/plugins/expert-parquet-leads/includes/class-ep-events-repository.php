@@ -64,6 +64,38 @@ class EP_Events_Repository {
 		);
 	}
 
+	/**
+	 * Les derniers événements d'un ou plusieurs types, toutes demandes
+	 * confondues — l'écran Emails s'en sert pour montrer ce que le système a
+	 * fait des notifications. Les types viennent d'une liste blanche : ils
+	 * entrent dans la requête, jamais la valeur brute d'une URL.
+	 */
+	public static function derniers( array $types, int $limite = 20 ): array {
+		global $wpdb;
+		$types = array_values( array_intersect( $types, self::TYPES ) );
+		if ( ! $types ) {
+			return array();
+		}
+		$place  = implode( ',', array_fill( 0, count( $types ), '%s' ) );
+		$lignes = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT * FROM ' . self::table() . " WHERE event_type IN ($place) ORDER BY created_at DESC, id DESC LIMIT %d",
+				array_merge( $types, array( max( 1, $limite ) ) )
+			),
+			ARRAY_A
+		);
+		return array_map(
+			static function ( $l ) {
+				$l['id']         = (int) $l['id'];
+				$l['lead_id']    = (int) $l['lead_id'];
+				$l['wp_user_id'] = null === $l['wp_user_id'] ? null : (int) $l['wp_user_id'];
+				$l['metadata']   = $l['metadata'] ? ( json_decode( $l['metadata'], true ) ?: array() ) : array();
+				return $l;
+			},
+			$lignes ?: array()
+		);
+	}
+
 	public static function supprimer_pour_lead( int $lead_id ): int {
 		global $wpdb;
 		return (int) $wpdb->delete( self::table(), array( 'lead_id' => $lead_id ) );

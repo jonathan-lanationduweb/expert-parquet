@@ -1,0 +1,509 @@
+/*
+ * Back-office Expert Parquet.
+ *
+ * Chargée UNIQUEMENT sur nos écrans (voir EP_Admin::assets) : wp-admin reste
+ * wp-admin partout ailleurs. On n'impose ni police, ni couleur de fond, ni
+ * réinitialisation globale — les composants WordPress (.button, .notice,
+ * .widefat) gardent leur apparence, et nos blocs viennent s'y poser.
+ *
+ * Identité : blanc minéral, graphite, terre cuite avec parcimonie. Angles
+ * droits, bordures franches plutôt qu'ombres portées.
+ */
+
+.ep-ecran {
+	--ep-encre:     #17181A;
+	--ep-graphite:  #4A4845;
+	--ep-gris:      #6E6B66;
+	--ep-pierre:    #C6C3BD;
+	--ep-trait:     #DCDAD5;
+	--ep-papier:    #F6F5F3;
+	--ep-surface:   #FFFFFF;
+	--ep-terre:     #B04A1E;
+	--ep-terre-pale:#F0E5DF;
+	--ep-succes:    #2F5D42;
+	--ep-alerte:    #7A5A18;
+	--ep-erreur:    #932E22;
+}
+
+/* ------------------------------------------------------------------ en-tête */
+
+.ep-entete {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 8px 16px;
+	margin: 4px 0 16px;
+}
+
+.ep-entete__sous-titre {
+	color: var(--ep-gris);
+	margin: 0;
+}
+
+/* ------------------------------------------------------------- indicateurs */
+
+.ep-chiffres {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+	gap: 12px;
+	margin: 0 0 20px;
+}
+
+.ep-chiffre {
+	background: var(--ep-surface);
+	border: 1px solid var(--ep-trait);
+	border-left: 3px solid var(--ep-pierre);
+	padding: 14px 16px 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+/* La terre cuite ne sert qu'à ce qui demande une action aujourd'hui. */
+.ep-chiffre--attention { border-left-color: var(--ep-terre); }
+
+.ep-chiffre__libelle {
+	color: var(--ep-gris);
+	font-size: 13px;
+	line-height: 1.3;
+}
+
+.ep-chiffre__valeur {
+	font-size: 30px;
+	font-weight: 400;
+	line-height: 1.1;
+	color: var(--ep-encre);
+	font-variant-numeric: tabular-nums;
+}
+
+.ep-chiffre__lien {
+	font-size: 13px;
+	margin-top: 4px;
+	text-decoration: none;
+}
+
+.ep-chiffre__lien[aria-disabled="true"] {
+	color: var(--ep-gris);
+	pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ grille */
+
+.ep-grille {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	gap: 20px;
+	align-items: start;
+}
+
+/*
+ * `min-width: 0` sur les enfants de grille.
+ *
+ * Sans lui, la taille minimale automatique d'un élément de grille vaut sa
+ * largeur min-content : un tableau de 600 px élargit sa colonne, la colonne
+ * élargit la grille, et toute la page finit par déborder — mesuré à 390 px :
+ * 638 px de large pour 390 de fenêtre, soit 248 px de défilement horizontal
+ * sur l'écran entier. La zone de défilement interne ne sert alors plus à rien,
+ * puisque c'est la page qui défile.
+ */
+.ep-grille > *,
+.ep-reglages > *,
+.ep-chiffres > *,
+.ep-carte,
+.ep-defilement { min-width: 0; }
+
+.ep-grille--fiche { grid-template-columns: 2fr 1fr; }
+
+@media (max-width: 1100px) {
+	.ep-grille,
+	.ep-grille--fiche { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------------------------------------------ cartes */
+
+.ep-carte {
+	background: var(--ep-surface);
+	border: 1px solid var(--ep-trait);
+	margin: 0 0 16px;
+}
+
+.ep-carte__titre {
+	margin: 0;
+	padding: 10px 14px;
+	border-bottom: 1px solid var(--ep-trait);
+	font-size: 14px;
+	line-height: 1.4;
+	font-weight: 600;
+	color: var(--ep-encre);
+	background: var(--ep-papier);
+}
+
+.ep-carte__corps { padding: 12px 14px; }
+.ep-carte__corps > :first-child { margin-top: 0; }
+.ep-carte__corps > :last-child { margin-bottom: 0; }
+
+.ep-carte__pied {
+	padding: 10px 14px;
+	border-top: 1px solid var(--ep-trait);
+	background: var(--ep-papier);
+}
+
+.ep-vide {
+	color: var(--ep-gris);
+	margin: 0;
+}
+
+/* ------------------------------------------------------------------ badges */
+
+.ep-badge {
+	display: inline-block;
+	padding: 1px 8px;
+	border: 1px solid var(--ep-pierre);
+	border-radius: 2px;
+	background: #F2F1EF;
+	color: var(--ep-encre);
+	font-size: 12px;
+	line-height: 1.7;
+	white-space: nowrap;
+}
+
+/* Un liseré colore le statut ; le texte reste encre sur fond très clair,
+   pour rester lisible quel que soit le réglage de contraste. */
+.ep-badge--new        { background: #E7F0F7; border-color: #9CB6C9; }
+.ep-badge--to_contact { background: #F6EFDC; border-color: #C9B27A; }
+.ep-badge--contacted  { background: #F6EFDC; border-color: #C9B27A; }
+.ep-badge--qualified  { background: #E7F1E9; border-color: #9DBFA8; }
+.ep-badge--quote      { background: #E7F1E9; border-color: #9DBFA8; }
+.ep-badge--won        { background: #DDEBE1; border-color: #7FA98D; }
+.ep-badge--lost       { background: #F1EEED; border-color: #BFB5B2; }
+.ep-badge--archived   { background: #F1EEED; border-color: #BFB5B2; }
+.ep-badge--spam       { background: #F6E6E3; border-color: #C9968D; }
+
+.ep-badge--type {
+	background: transparent;
+	border-color: var(--ep-trait);
+	color: var(--ep-graphite);
+}
+
+/* ------------------------------------------------------------ état système */
+
+.ep-etat {
+	margin: 0;
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 2px 12px;
+	align-items: baseline;
+}
+
+.ep-etat dt {
+	color: var(--ep-graphite);
+	padding: 5px 0;
+	border-top: 1px solid var(--ep-trait);
+}
+
+.ep-etat dd {
+	margin: 0;
+	padding: 5px 0;
+	border-top: 1px solid var(--ep-trait);
+	text-align: right;
+	white-space: nowrap;
+}
+
+.ep-etat dt:first-of-type,
+.ep-etat dd:first-of-type { border-top: 0; }
+
+.ep-etat__valeur { font-weight: 600; }
+.ep-etat__valeur--ok      { color: var(--ep-succes); }
+.ep-etat__valeur--attente { color: var(--ep-alerte); }
+.ep-etat__valeur--ko      { color: var(--ep-erreur); }
+.ep-etat__valeur--neutre  { color: var(--ep-graphite); }
+
+.ep-etat__note {
+	grid-column: 1 / -1;
+	margin: 0 0 6px;
+	color: var(--ep-gris);
+	font-size: 12px;
+	text-align: left;
+}
+
+/* ------------------------------------------------------------------ listes */
+
+.ep-actions-rapides {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ep-actions-rapides li { border-top: 1px solid var(--ep-trait); }
+.ep-actions-rapides li:first-child { border-top: 0; }
+
+.ep-actions-rapides a {
+	display: block;
+	padding: 8px 0;
+	text-decoration: none;
+}
+
+/* Tableau compact des dernières demandes. */
+.ep-table-compacte { border-collapse: collapse; width: 100%; }
+
+.ep-table-compacte th,
+.ep-table-compacte td {
+	text-align: left;
+	padding: 8px 10px;
+	border-bottom: 1px solid var(--ep-trait);
+	vertical-align: top;
+}
+
+.ep-table-compacte th {
+	color: var(--ep-gris);
+	font-weight: 600;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: .02em;
+}
+
+.ep-table-compacte tbody tr:last-child td { border-bottom: 0; }
+.ep-table-compacte td a { text-decoration: none; }
+.ep-table-compacte .ep-date { color: var(--ep-gris); white-space: nowrap; }
+
+/* Le grand tableau déborde à l'étroit : on le fait défiler lui, pas la page. */
+.ep-defilement { overflow-x: auto; }
+
+/* ------------------------------------------------------------------- fiche */
+
+.ep-fiche-entete {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+	margin: 0 0 4px;
+}
+
+.ep-fiche-entete__ref {
+	font-family: Consolas, Monaco, monospace;
+	font-size: 13px;
+	background: var(--ep-papier);
+	border: 1px solid var(--ep-trait);
+	padding: 2px 8px;
+}
+
+.ep-fiche-entete__date { color: var(--ep-gris); }
+
+.ep-barre-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0 0 16px;
+}
+
+.ep-champs { width: 100%; border-collapse: collapse; }
+
+.ep-champs th,
+.ep-champs td {
+	text-align: left;
+	vertical-align: top;
+	padding: 7px 0;
+	border-top: 1px solid var(--ep-trait);
+}
+
+.ep-champs tr:first-child th,
+.ep-champs tr:first-child td { border-top: 0; }
+
+.ep-champs th {
+	width: 38%;
+	color: var(--ep-gris);
+	font-weight: 400;
+	padding-right: 12px;
+}
+
+.ep-champs td { color: var(--ep-encre); }
+
+.ep-texte-long {
+	background: var(--ep-papier);
+	border-left: 3px solid var(--ep-pierre);
+	padding: 10px 12px;
+	margin: 0;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	line-height: 1.6;
+}
+
+/* ------------------------------------------------------------------ photos */
+
+.ep-galerie {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	gap: 12px;
+	margin: 0;
+}
+
+.ep-galerie figure {
+	margin: 0;
+	border: 1px solid var(--ep-trait);
+	background: var(--ep-surface);
+}
+
+.ep-galerie img {
+	display: block;
+	width: 100%;
+	height: 132px;
+	object-fit: cover;
+	background: var(--ep-papier);
+}
+
+.ep-galerie figcaption {
+	padding: 6px 8px;
+	font-size: 12px;
+	color: var(--ep-gris);
+	border-top: 1px solid var(--ep-trait);
+}
+
+.ep-galerie__nom {
+	display: block;
+	color: var(--ep-graphite);
+	overflow-wrap: anywhere;
+}
+
+.ep-galerie a:focus-visible img { outline: 2px solid var(--ep-terre); outline-offset: -2px; }
+
+.ep-technique summary {
+	cursor: pointer;
+	color: var(--ep-gris);
+	font-size: 12px;
+	margin-top: 8px;
+}
+
+.ep-technique code { font-size: 11px; overflow-wrap: anywhere; }
+
+/* Aperçu agrandi. Sans JavaScript, le lien ouvre la photo dans un onglet ;
+   la boîte n'est utilisée que si le script a pu s'installer. */
+.ep-apercu {
+	position: fixed;
+	inset: 0;
+	z-index: 100100;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	background: rgba(23, 24, 26, .82);
+}
+
+.ep-apercu[hidden] { display: none; }
+
+.ep-apercu__boite {
+	background: var(--ep-surface);
+	border: 1px solid var(--ep-encre);
+	max-width: min(1100px, 100%);
+	max-height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.ep-apercu__barre {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 8px 10px;
+	border-bottom: 1px solid var(--ep-trait);
+}
+
+.ep-apercu__titre { font-size: 13px; color: var(--ep-graphite); overflow-wrap: anywhere; }
+.ep-apercu__image { display: block; max-width: 100%; max-height: calc(100vh - 140px); margin: auto; }
+
+/* ------------------------------------------------------- notes, historique */
+
+.ep-liste-notes,
+.ep-journal { list-style: none; margin: 0; padding: 0; }
+
+.ep-liste-notes li {
+	border-top: 1px solid var(--ep-trait);
+	padding: 10px 0;
+}
+
+.ep-liste-notes li:first-child { border-top: 0; }
+.ep-liste-notes p { margin: 0 0 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.ep-meta { color: var(--ep-gris); font-size: 12px; }
+
+.ep-journal li {
+	position: relative;
+	padding: 0 0 14px 18px;
+	border-left: 1px solid var(--ep-trait);
+}
+
+.ep-journal li:last-child { padding-bottom: 0; border-left-color: transparent; }
+
+.ep-journal li::before {
+	content: "";
+	position: absolute;
+	left: -4px;
+	top: 5px;
+	width: 7px;
+	height: 7px;
+	background: var(--ep-pierre);
+	border-radius: 50%;
+}
+
+.ep-journal li.ep-journal--fait::before { background: var(--ep-terre); }
+.ep-journal__quoi { display: block; color: var(--ep-encre); }
+
+/* ------------------------------------------------------------ zone sensible */
+
+.ep-danger {
+	border-color: #D9C3BE;
+}
+
+.ep-danger .ep-carte__titre {
+	background: #F6E6E3;
+	border-bottom-color: #D9C3BE;
+	color: #7A241A;
+}
+
+/* --------------------------------------------------------------- réglages */
+
+.ep-reglages {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+	gap: 16px;
+	align-items: start;
+}
+
+.ep-reglages .ep-carte { margin: 0; }
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 782px) {
+	.ep-chiffres { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+	.ep-chiffre__valeur { font-size: 26px; }
+	.ep-champs th { width: 42%; }
+	.ep-barre-actions .button { flex: 1 1 auto; text-align: center; }
+
+	/* La rangée de filtres est posée en ligne par WordPress : à 390 px, le
+	   bouton « Filtrer » sortait de l'écran (mesuré à 451 px pour 390 de
+	   fenêtre). On la laisse revenir à la ligne plutôt que de la masquer —
+	   filtrer depuis un téléphone est précisément ce qu'on vient y faire. */
+	.ep-ecran .tablenav .actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 6px;
+		float: none;
+		padding: 0;
+	}
+
+	.ep-ecran .tablenav .actions > * { margin: 0; }
+	.ep-ecran .tablenav .actions select { max-width: 100%; }
+	.ep-ecran .tablenav { height: auto; }
+}
+
+@media (max-width: 480px) {
+	.ep-chiffres { grid-template-columns: 1fr 1fr; gap: 8px; }
+	.ep-chiffre { padding: 10px 12px; }
+	.ep-galerie { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+	.ep-champs { display: block; }
+	.ep-champs tbody, .ep-champs tr, .ep-champs th, .ep-champs td { display: block; width: auto; }
+	.ep-champs th { border-top: 1px solid var(--ep-trait); padding: 7px 0 0; }
+	.ep-champs td { border-top: 0; padding: 0 0 7px; }
+	.ep-apercu { padding: 8px; }
+}

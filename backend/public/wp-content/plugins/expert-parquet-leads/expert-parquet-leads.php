@@ -117,14 +117,24 @@ require_once EP_PLUGIN_DIR . 'includes/class-ep-connexion.php';
 require_once EP_PLUGIN_DIR . 'includes/class-ep-security.php';
 require_once EP_PLUGIN_DIR . 'includes/class-ep-purge.php';
 
+require_once EP_PLUGIN_DIR . 'includes/class-ep-admin.php';
+
 if ( is_admin() ) {
+	/* Les écrans du back-office : un fichier par écran. Rien de tout cela
+	   n'est chargé sur le front, où seule `EP_Admin::url_fiche()` est utile
+	   à `EP_Mail::recapitulatif()`. */
+	require_once EP_PLUGIN_DIR . 'includes/class-ep-etat-systeme.php';
 	require_once EP_PLUGIN_DIR . 'includes/class-ep-liste-demandes.php';
-	require_once EP_PLUGIN_DIR . 'includes/class-ep-admin.php';
+	require_once EP_PLUGIN_DIR . 'includes/class-ep-admin-tableau-bord.php';
+	require_once EP_PLUGIN_DIR . 'includes/class-ep-admin-fiche.php';
+	require_once EP_PLUGIN_DIR . 'includes/class-ep-admin-photos.php';
+	require_once EP_PLUGIN_DIR . 'includes/class-ep-admin-emails.php';
+	require_once EP_PLUGIN_DIR . 'includes/class-ep-admin-reglages.php';
 	EP_Admin::init();
-} else {
-	// EP_Mail::recapitulatif() a besoin de EP_Admin::url_fiche() hors administration.
-	require_once EP_PLUGIN_DIR . 'includes/class-ep-admin.php';
 }
+
+// Redirection après connexion et barre supérieure : `wp-login.php` n'est pas l'administration.
+EP_Admin::init_global();
 
 EP_Lead::init();
 EP_Rest::init();
