@@ -7,8 +7,11 @@ dans les tables de contenu de WordPress. Aucune page publique n'est servie ; le
 site public reste le générateur statique de `expert-parquet.com`.
 
 ```
-  expert-parquet.test              api.expert-parquet.test
-  (site statique)   ──fetch──▶     WordPress = infrastructure
+  expert-parquet-dev.local  ── UN SEUL hote local ──────────────────
+  /  /pages  /articles …            le site statique
+  /wp-admin  /wp-login.php  /wp-json …  WordPress, route par alias Apache
+                    │
+                    ▼                 WordPress = infrastructure
                                    ├─ {prefix}expert_parquet_leads
                                    ├─ {prefix}expert_parquet_lead_photos   (octets hors racine web)
                                    ├─ {prefix}expert_parquet_lead_notes
@@ -39,9 +42,9 @@ constructeur de page.
 
 ## Démarrer
 
-`http://api.expert-parquet.test/wp-admin/` → menu **Expert Parquet ›
-Demandes**. Front sur `http://expert-parquet.test`, raccordé automatiquement
-au backend local. Détail et repli sans Apache dans
+`http://expert-parquet-dev.local/wp-admin/index.php` → menu **Expert Parquet ›
+Demandes**. Le site et WordPress partagent cet hôte : le front appelle l'API en
+chemin relatif, `/wp-json/expert-parquet/v1/…`. Détail et repli sans Apache dans
 [docs/LOCAL-DEVELOPMENT.md](docs/LOCAL-DEVELOPMENT.md).
 
 ## L'API en deux mots

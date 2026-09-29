@@ -1,7 +1,10 @@
 # API
 
 Espace de noms `expert-parquet/v1`. Base locale :
-`http://api.expert-parquet.test/wp-json/expert-parquet/v1`.
+`http://expert-parquet-dev.local/wp-json/expert-parquet/v1` — le site et
+WordPress partagent l'hôte, le front l'appelle donc en chemin relatif
+`/wp-json/expert-parquet/v1`. En production, l'API pourra vivre sur son
+propre domaine : c'est `FORMS.*Endpoint` qui décide.
 
 Aucune authentification, aucun nonce : les visiteurs ne sont pas connectés.
 Voir [SECURITY.md](SECURITY.md) pour ce qui protège ces routes à la place.
@@ -82,7 +85,7 @@ Forme du contrat, pas celle de WordPress :
 ## CORS
 
 Liste blanche `EP_ORIGINES_AUTORISEES` (`expert-parquet.com`, `www.`,
-`expert-parquet.test`, `localhost:8477`, `127.0.0.1:8477`). Réponse :
+`expert-parquet-dev.local`, `localhost:8477`, `127.0.0.1:8477`). Réponse :
 `Allow-Origin` égal à l'origine, `Allow-Methods: POST, GET, OPTIONS`,
 `Allow-Headers: Content-Type`, `Max-Age: 600`. **Jamais `*`, jamais
 `Allow-Credentials`** (le gestionnaire natif de WordPress est retiré). Une

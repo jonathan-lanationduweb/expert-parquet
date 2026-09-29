@@ -85,9 +85,18 @@ if ( ! defined( 'EP_PRIVATE_DIR' ) ) {
 define(
 	'EP_ORIGINES_AUTORISEES',
 	array(
+		/* Production : le site public appellera une API sur un autre domaine,
+		   la liste blanche reste donc indispensable. */
 		'https://expert-parquet.com',
 		'https://www.expert-parquet.com',
-		'http://expert-parquet.test',
+		/* Local : le site et WordPress partagent l'hote expert-parquet-dev.local.
+		   L'entree reste necessaire malgre la meme origine — un navigateur envoie
+		   `Origin` sur TOUTE requete dont la methode n'est ni GET ni HEAD, y
+		   compris de meme origine. Verifie : sans elle, un POST depuis
+		   http://expert-parquet-dev.local recoit « Origine non autorisee » (403).
+		   Les deux dernieres servent au site statique servi a part, par un
+		   serveur de developpement : l'origine est alors celle de ce serveur. */
+		'http://expert-parquet-dev.local',
 		'http://localhost:8477',
 		'http://127.0.0.1:8477',
 	)

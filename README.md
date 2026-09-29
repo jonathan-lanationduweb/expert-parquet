@@ -199,7 +199,7 @@ expert-parquet.com/
 ├── VIDEO_BRIEF.md
 │
 ├── backend/                      ⚠ NE FAIT PAS PARTIE DU SITE PUBLIÉ
-│   ├── public/                   WordPress (API + back-office) — racine de api.expert-parquet.test
+│   ├── public/                   WordPress (API + back-office) — routé par alias Apache
 │   ├── docs/                     ARCHITECTURE, DATABASE, API, SECURITY, LOCAL-DEVELOPMENT, PRODUCTION-CHECKLIST
 │   ├── config/                   Copies de référence de la configuration Apache
 │   ├── scripts/                  verifier-enums.php (contrôle du contrat front/back)
@@ -219,12 +219,14 @@ racine** : `index.html`, `pages/`, `articles/`, `assets/`, `css/`, `js/`.
 `backend/` et `backend-private/` partagent ce dossier sans faire partie du
 site. Ils sont tenus à l'écart par trois moyens indépendants :
 
-- le VirtualHost `expert-parquet.test` **refuse ces deux chemins** (404 sur
+- le VirtualHost `expert-parquet-dev.local` **refuse ces deux chemins** (404 sur
   l'URL, `Require all denied` sur les répertoires, `AllowOverride None`) ;
 - le générateur (`tools/build.mjs`, `tools/check.mjs`) ne les parcourt pas :
   ils n'apparaissent ni dans les pages, ni dans `sitemap.xml` ;
-- WordPress a son propre hôte, `api.expert-parquet.test`, dont la racine est
-  `backend/public` — un visiteur ne voit jamais `expert-parquet.test/backend/`.
+- WordPress est atteint par des **alias Apache** (`/wp-admin`, `/wp-login.php`,
+  `/wp-json`) qui pointent dans `backend/public`. Ce sont des chemins d'URL :
+  le chemin physique `/backend/` reste refusé, et un visiteur ne voit jamais
+  `expert-parquet-dev.local/backend/`.
 
 `backend-private/` contient des données personnelles de tiers et des
 identifiants : il est exclu de Git et ne doit jamais être copié dans le site

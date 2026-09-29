@@ -4,19 +4,23 @@
 
 | Hôte | Sert | Configuration |
 |---|---|---|
-| `http://expert-parquet.test` | le générateur statique (`expert-parquet.com`) | VirtualHost Apache, `httpd-vhosts.conf` ligne 64 |
-| `http://api.expert-parquet.test` | ce backend | VirtualHost Apache, ligne 79 |
+| `http://expert-parquet-dev.local` | le générateur statique **et** WordPress | VirtualHost unique, `httpd-vhosts.conf` |
+| `…/wp-admin/index.php`, `…/wp-login.php`, `…/wp-json/…` | ce backend | `Alias` / `AliasMatch` vers `backend/public` |
 
-Entrées `hosts` (IPv4) présentes depuis le 11/09/2026, Apache WAMP redémarré,
-`httpd -t` Syntax OK. Les deux hôtes répondent `200` ; le formulaire du front,
-servi sur `expert-parquet.test`, appelle automatiquement
-`api.expert-parquet.test` (table `LOCAL_API` de `js/config/site.js`).
+Un seul hôte local depuis le 29/09/2026. WordPress n'est pas déplacé : seuls
+les chemins dont l'administration et l'API ont besoin sont routés par alias.
+`/backend/`, `/backend/public/` et `/backend-private/` restent en 404.
+
+Entrée `hosts` (IPv4), Apache WAMP redémarré, `httpd -t` Syntax OK. Le
+formulaire du front appelle l'API en **chemin relatif**,
+`/wp-json/expert-parquet/v1/…` (table `LOCAL_API` de `js/config/site.js`) :
+même origine, donc rien à réécrire si le nom d'hôte change.
 
 ## Les trois états du front
 
 | Hôte du front | Mode | Pourquoi |
 |---|---|---|
-| `expert-parquet.test`, `localhost`, `127.0.0.1` | **LIVE LOCAL** — envoie au backend local | `LOCAL_API`, lue seulement dans un navigateur |
+| `expert-parquet-dev.local`, `localhost`, `127.0.0.1` | **LIVE LOCAL** — envoie au backend local | `LOCAL_API`, lue seulement dans un navigateur |
 | GitHub Pages, préproduction | **DEMO** — rien n'est envoyé, le site le dit | points d'envoi `null` dans `FORMS` |
 | production | inactive | tant que `FORMS.*Endpoint` (HTTPS), `CONTACT.legalEntity`, `CONTACT.email`, `RGPD.conservationMois` ne sont pas renseignés — `tools/check.mjs` refuse la construction sinon |
 

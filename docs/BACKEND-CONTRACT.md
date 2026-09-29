@@ -14,7 +14,7 @@ Le site reste **en mode démonstration** tant que les points d'envoi de
 `js/config/site.js` valent `null` — c'est l'état livré, et le site l'affiche
 honnêtement, sur les formulaires comme sur la page de confidentialité.
 
-Une exception, locale et uniquement à l'exécution : servi sur `expert-parquet.test`,
+Une exception, locale et uniquement à l'exécution : servi sur `expert-parquet-dev.local`,
 `localhost` ou `127.0.0.1`, le front appelle le backend **local** (table `LOCAL_API`
 de `site.js`) et masque les mentions de démonstration. Le générateur ne voit jamais
 cette table ; le HTML publié, GitHub Pages et la préproduction restent en

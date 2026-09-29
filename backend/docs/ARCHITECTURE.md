@@ -4,10 +4,12 @@
   navigateur du visiteur
         │  HTML/CSS/JS statiques
         ▼
-  expert-parquet.test  (Apache, DocumentRoot = dépôt du générateur statique)
-        │  fetch() JSON, puis multipart pour les photographies
+  expert-parquet-dev.local  (Apache, DocumentRoot = dépôt du générateur statique)
+        │  fetch() JSON vers /wp-json/… — MÊME hôte, chemin relatif,
+        │  puis multipart pour les photographies
         ▼
-  api.expert-parquet.test  (Apache + PHP 8.3, WordPress 7.1)
+  …/wp-admin, …/wp-login.php, …/wp-json  (alias Apache → backend/public,
+                                          PHP 8.3, WordPress 7.1)
         │
         ├─ /wp-json/expert-parquet/v1/*    EP_Rest → dépôts
         ├─ /wp-admin/?page=expert-parquet-* EP_Admin → dépôts
