@@ -1,12 +1,28 @@
 <?php
 /**
- * Back-office : pages dédiées, statut, notes, photographies, historique, export.
+ * Back-office : menu, actions, et ce qui est partagé par tous nos écrans.
+ *
+ * ---------------------------------------------------------------------------
+ * RÉPARTITION
+ *
+ * Cette classe tient le MENU, les ACTIONS (`admin-post.php`) et les
+ * utilitaires communs (URL, carte, badge, messages). Le rendu de chaque écran
+ * vit dans sa propre classe :
+ *
+ *   EP_Admin_Tableau_Bord   l'accueil
+ *   EP_Liste_Demandes       la liste (WP_List_Table), réutilisée par Contacts et Devis
+ *   EP_Admin_Fiche          la fiche d'une demande
+ *   EP_Admin_Photos         les photographies
+ *   EP_Admin_Emails         l'état des courriels
+ *   EP_Admin_Reglages       la configuration, en lecture seule
+ *   EP_Etat_Systeme         les points de contrôle, partagés par trois écrans
  *
  * ---------------------------------------------------------------------------
  * SANS TYPE DE CONTENU
  *
- * Deux pages d'administration ordinaires :
+ * Des pages d'administration ordinaires :
  *
+ *   admin.php?page=expert-parquet                  le tableau de bord
  *   admin.php?page=expert-parquet-leads            la liste
  *   admin.php?page=expert-parquet-lead&ref=<réf>   la fiche
  *
@@ -30,11 +46,18 @@ defined( 'ABSPATH' ) || exit;
 
 class EP_Admin {
 
-	public const PAGE_LISTE = 'expert-parquet-leads';
-	public const PAGE_FICHE = 'expert-parquet-lead';
+	public const PAGE_TB       = 'expert-parquet';
+	public const PAGE_LISTE    = 'expert-parquet-leads';
+	public const PAGE_CONTACTS = 'expert-parquet-contacts';
+	public const PAGE_DEVIS    = 'expert-parquet-devis';
+	public const PAGE_PHOTOS   = 'expert-parquet-photos';
+	public const PAGE_EMAILS   = 'expert-parquet-emails';
+	public const PAGE_REGLAGES = 'expert-parquet-reglages';
+	public const PAGE_FICHE    = 'expert-parquet-lead';
 
 	public static function init(): void {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'assets' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'avis' ) );
 		/* Les anciennes adresses du type de contenu (schéma ≤ 2) mènent à la
 		   nouvelle liste plutôt qu'à l'erreur « type de contenu invalide ». */
@@ -48,27 +71,68 @@ class EP_Admin {
 		add_action( 'admin_post_ep_export', array( __CLASS__, 'exporter' ) );
 	}
 
+	/**
+	 * Branchements qui doivent exister HORS administration.
+	 *
+	 * `login_redirect` se déclenche sur `wp-login.php`, où `is_admin()` est
+	 * faux : enregistré dans `init()`, le filtre ne serait jamais posé.
+	 */
+	public static function init_global(): void {
+		add_filter( 'login_redirect', array( __CLASS__, 'apres_connexion' ), 10, 3 );
+		add_action( 'admin_bar_menu', array( __CLASS__, 'barre' ), 999 );
+	}
+
 	/* ------------------------------------------------------------------ URLs */
 
-	public static function url_liste(): string {
-		return admin_url( 'admin.php?page=' . self::PAGE_LISTE );
+	public static function url_page( string $slug, array $args = array() ): string {
+		$url = admin_url( 'admin.php?page=' . $slug );
+		return $args ? add_query_arg( $args, $url ) : $url;
+	}
+
+	public static function url_liste( array $args = array() ): string {
+		return self::url_page( self::PAGE_LISTE, $args );
 	}
 
 	public static function url_fiche( string $ref ): string {
 		return admin_url( 'admin.php?page=' . self::PAGE_FICHE . '&ref=' . rawurlencode( $ref ) );
 	}
 
+	/** Export CSV : l'action porte les filtres courants et un nonce. */
+	public static function url_export( array $filtres = array() ): string {
+		return wp_nonce_url(
+			add_query_arg( array_filter( array_merge( array( 'action' => 'ep_export' ), $filtres ) ), admin_url( 'admin-post.php' ) ),
+			'ep_export'
+		);
+	}
+
 	/* ------------------------------------------------------------------ menu */
 
 	public static function menu(): void {
-		add_menu_page( 'Demandes — Expert Parquet', 'Expert Parquet', EP_Lead::CAP, self::PAGE_LISTE, array( __CLASS__, 'page_liste' ), 'dashicons-clipboard', 26 );
-		add_submenu_page( self::PAGE_LISTE, 'Demandes', 'Demandes', EP_Lead::CAP, self::PAGE_LISTE, array( __CLASS__, 'page_liste' ) );
+		$cap = EP_Lead::CAP;
+
+		/* Position 3 : juste sous le tableau de bord de WordPress. Ce back-office
+		   n'a qu'un métier, il doit être la première chose qu'on voie. */
+		add_menu_page( 'Expert Parquet', 'Expert Parquet', $cap, self::PAGE_TB, array( 'EP_Admin_Tableau_Bord', 'rendre' ), 'dashicons-clipboard', 3 );
+
+		$pages = array(
+			array( self::PAGE_TB, 'Tableau de bord', array( 'EP_Admin_Tableau_Bord', 'rendre' ) ),
+			array( self::PAGE_LISTE, 'Demandes', array( __CLASS__, 'page_liste' ) ),
+			array( self::PAGE_CONTACTS, 'Contacts', array( __CLASS__, 'page_contacts' ) ),
+			array( self::PAGE_DEVIS, 'Devis', array( __CLASS__, 'page_devis' ) ),
+			array( self::PAGE_PHOTOS, 'Photos', array( 'EP_Admin_Photos', 'rendre' ) ),
+			array( self::PAGE_EMAILS, 'Emails', array( 'EP_Admin_Emails', 'rendre' ) ),
+			array( self::PAGE_REGLAGES, 'Réglages', array( 'EP_Admin_Reglages', 'rendre' ) ),
+		);
+		foreach ( $pages as $p ) {
+			add_submenu_page( self::PAGE_TB, $p[1] . ' — Expert Parquet', $p[1], $cap, $p[0], $p[2] );
+		}
+
 		/* La fiche : une page enregistrée mais absente du menu. Parent VIDE, et
 		   non `remove_submenu_page()` après coup : retirer l'entrée du menu
 		   ferait échouer `user_can_access_admin_page()`, qui retrouve la page
 		   par son parent — d'où un 403 pour tout le monde, administrateur
 		   compris. */
-		$hook = add_submenu_page( '', 'Demande', 'Demande', EP_Lead::CAP, self::PAGE_FICHE, array( __CLASS__, 'page_fiche' ) );
+		$hook = add_submenu_page( '', 'Demande', 'Demande', $cap, self::PAGE_FICHE, array( 'EP_Admin_Fiche', 'rendre' ) );
 		/* Sans parent, WordPress ne retrouve pas le titre de la page et passe
 		   `null` à `strip_tags()` dans admin-header.php — une dépréciation PHP
 		   à chaque affichage de fiche. On le pose nous-mêmes, avant l'en-tête. */
@@ -80,6 +144,41 @@ class EP_Admin {
 		);
 	}
 
+	/**
+	 * Feuille de style et script d'aperçu, UNIQUEMENT sur nos écrans.
+	 *
+	 * Charger notre CSS partout maquillerait des pages de WordPress que nous
+	 * ne maîtrisons pas, et ferait payer un fichier de plus à chaque écran
+	 * d'administration. La version suit `filemtime` : pas de cache tenace
+	 * après une correction.
+	 */
+	public static function assets( string $hook ): void {
+		if ( ! self::est_notre_ecran() ) {
+			return;
+		}
+		$base = plugins_url( 'assets/', EP_PLUGIN_FILE );
+
+		wp_enqueue_style( 'ep-admin', $base . 'admin.css', array(), self::version_fichier( 'assets/admin.css' ) );
+
+		/* L'aperçu ne sert que là où il y a des photographies. `str_ends_with`
+		   et non `str_contains` : le crochet de la liste se termine par
+		   `expert-parquet-leads`, qui CONTIENT `expert-parquet-lead` — le
+		   script serait chargé sur un écran qui n'a pas de galerie. */
+		if ( str_ends_with( $hook, self::PAGE_FICHE ) || str_ends_with( $hook, self::PAGE_PHOTOS ) ) {
+			wp_enqueue_script( 'ep-admin', $base . 'admin.js', array(), self::version_fichier( 'assets/admin.js' ), true );
+		}
+	}
+
+	private static function version_fichier( string $relatif ): string {
+		$chemin = EP_PLUGIN_DIR . $relatif;
+		return is_file( $chemin ) ? (string) filemtime( $chemin ) : EP_VERSION;
+	}
+
+	private static function est_notre_ecran(): bool {
+		$ecran = get_current_screen();
+		return $ecran && str_contains( (string) $ecran->id, 'expert-parquet' );
+	}
+
 	public static function rediriger_ancien_cpt(): void {
 		global $pagenow;
 		if ( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && 'ep_lead' === $_GET['post_type'] ) {
@@ -88,207 +187,150 @@ class EP_Admin {
 		}
 	}
 
+	/* ------------------------------------------------------- confort du rôle */
+
+	/**
+	 * Après connexion, un gestionnaire arrive sur SON tableau de bord.
+	 *
+	 * Le tableau de bord de WordPress ne lui montre rien d'utile : ni
+	 * brouillons, ni commentaires, ni activité de site — ce WordPress ne
+	 * publie rien. On ne force rien pour un administrateur, qui a d'autres
+	 * raisons d'y passer, ni quand une destination précise a été demandée
+	 * (lien profond, session expirée en cours de route).
+	 */
+	public static function apres_connexion( $url, $demande, $utilisateur ) {
+		if ( ! $utilisateur instanceof WP_User || ! $utilisateur->has_cap( EP_Lead::CAP ) ) {
+			return $url;
+		}
+		if ( $utilisateur->has_cap( 'manage_options' ) ) {
+			return $url;
+		}
+		$generiques = array( '', admin_url(), admin_url( 'index.php' ), admin_url( '/' ) );
+		if ( is_string( $demande ) && ! in_array( untrailingslashit( $demande ), array_map( 'untrailingslashit', $generiques ), true ) ) {
+			return $url;
+		}
+		return self::url_page( self::PAGE_TB );
+	}
+
+	/**
+	 * Barre supérieure : on retire au gestionnaire ce qui ne le concerne pas.
+	 *
+	 * Le logo WordPress mène à la documentation et aux forums, « + » propose
+	 * de créer des articles qu'il ne peut pas écrire, et les commentaires sont
+	 * désactivés partout. L'expérience de l'administrateur n'est pas touchée.
+	 */
+	public static function barre( $barre ): void {
+		if ( ! is_object( $barre ) || ! is_user_logged_in() || current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		if ( ! current_user_can( EP_Lead::CAP ) ) {
+			return;
+		}
+		foreach ( array( 'wp-logo', 'new-content', 'comments' ) as $noeud ) {
+			$barre->remove_node( $noeud );
+		}
+	}
+
+	/* ----------------------------------------------------------------- liste */
+
+	public static function page_liste(): void {
+		self::rendre_liste( self::PAGE_LISTE, null, 'Demandes', 'Toutes les demandes reçues, hors indésirables.' );
+	}
+
+	public static function page_contacts(): void {
+		self::rendre_liste( self::PAGE_CONTACTS, 'contact', 'Contacts', 'Messages envoyés depuis le formulaire de contact.' );
+	}
+
+	public static function page_devis(): void {
+		self::rendre_liste( self::PAGE_DEVIS, 'devis', 'Demandes de devis', 'Demandes d’expertise : problème, surface, localisation, délai.' );
+	}
+
+	/**
+	 * Un seul écran de liste pour trois entrées de menu.
+	 *
+	 * Contacts et Devis ne sont PAS des tables, ni des copies : ce sont la même
+	 * liste, préfiltrée sur `form_type`. Dupliquer la logique aurait garanti
+	 * qu'un filtre corrigé ici reste cassé là.
+	 */
+	private static function rendre_liste( string $page, ?string $type, string $titre, string $sous_titre ): void {
+		self::exiger();
+		EP_Liste_Demandes::$type_impose = $type;
+
+		$table = new EP_Liste_Demandes( $page );
+		$table->prepare_items();
+
+		printf( '<div class="wrap ep-ecran"><h1 class="wp-heading-inline">%s</h1><hr class="wp-header-end">', esc_html( $titre ) );
+		self::afficher_message();
+		printf(
+			'<p class="ep-entete__sous-titre">%s %s</p>',
+			esc_html( $sous_titre ),
+			esc_html( sprintf( '%d au total.', $table->total() ) )
+		);
+
+		$table->views();
+		echo '<form method="get">';
+		printf( '<input type="hidden" name="page" value="%s">', esc_attr( $page ) );
+		$f = EP_Liste_Demandes::filtres();
+		if ( $f['status'] ) {
+			printf( '<input type="hidden" name="ep_status" value="%s">', esc_attr( $f['status'] ) );
+		}
+		/* Boîte de recherche écrite à la main plutôt que `$table->search_box()` :
+		   celle de WordPress emploie le MÊME texte pour l'étiquette et pour le
+		   bouton. Un intitulé utile — « nom, e-mail, téléphone, référence,
+		   ville, code postal » — donnait donc un bouton de 441 px, qui sortait
+		   de l'écran à 390 px de large. Ici l'explication va à l'étiquette et
+		   au texte indicatif, le bouton reste un verbe. */
+		printf(
+			'<p class="search-box">'
+			. '<label class="screen-reader-text" for="ep-recherche">Rechercher une demande par nom, adresse e-mail, téléphone, référence, ville ou code postal</label>'
+			. '<input type="search" id="ep-recherche" name="s" value="%s" placeholder="Nom, e-mail, référence, ville…">',
+			esc_attr( $f['s'] )
+		);
+		submit_button( 'Rechercher', '', '', false, array( 'id' => 'search-submit' ) );
+		echo '</p>';
+
+		echo '<div class="ep-defilement">';
+		$table->display();
+		echo '</div></form></div>';
+
+		EP_Liste_Demandes::$type_impose = null;
+	}
+
 	private static function exiger(): void {
 		if ( ! current_user_can( EP_Lead::CAP ) ) {
 			wp_die( 'Accès refusé.', 'Accès refusé', array( 'response' => 403 ) );
 		}
 	}
 
-	private static function style(): void {
-		echo '<style>
-		.ep-statut{display:inline-block;padding:2px 8px;border-radius:10px;background:#f0f0f1;font-size:12px}
-		.ep-statut--new{background:#dff0ff}.ep-statut--to_contact,.ep-statut--contacted{background:#fff3cd}
-		.ep-statut--qualified,.ep-statut--quote{background:#e5f3e5}.ep-statut--won{background:#c8e6c9}
-		.ep-statut--lost,.ep-statut--archived{background:#e9e9e9}.ep-statut--spam{background:#f8d7da}
-		.ep-fiche{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-top:16px}
-		.ep-fiche .postbox{margin:0 0 16px}.ep-fiche .inside{padding:0 12px 12px}
-		.ep-fiche table.widefat th{width:220px}
-		.ep-photos{display:flex;flex-wrap:wrap;gap:10px}.ep-photos figure{margin:0;text-align:center}
-		.ep-photos img{width:140px;height:140px;object-fit:cover;border:1px solid #ccd0d4;display:block}
-		.ep-journal li{margin-bottom:.7em}.ep-journal code{font-size:11px}
-		@media (max-width:1100px){.ep-fiche{grid-template-columns:1fr}}
-		</style>';
-	}
+	/* ------------------------------------------------------------ utilitaires */
 
-	/* ----------------------------------------------------------------- liste */
-
-	public static function page_liste(): void {
-		self::exiger();
-		self::style();
-		$table = new EP_Liste_Demandes();
-		$table->prepare_items();
-		echo '<div class="wrap"><h1 class="wp-heading-inline">Demandes</h1><hr class="wp-header-end">';
-		self::message();
-		$table->views();
-		echo '<form method="get">';
-		printf( '<input type="hidden" name="page" value="%s">', esc_attr( self::PAGE_LISTE ) );
-		$f = EP_Liste_Demandes::filtres();
-		if ( $f['status'] ) {
-			printf( '<input type="hidden" name="ep_status" value="%s">', esc_attr( $f['status'] ) );
-		}
-		$table->search_box( 'Rechercher (nom, e-mail, téléphone, référence, ville, code postal)', 'ep' );
-		$table->display();
-		echo '</form></div>';
-	}
-
-	/* ----------------------------------------------------------------- fiche */
-
-	public static function page_fiche(): void {
-		self::exiger();
-		self::style();
-		$ref  = isset( $_GET['ref'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['ref'] ) ) : '';
-		$lead = EP_Leads_Repository::par_reference( $ref );
-		echo '<div class="wrap">';
-		if ( ! $lead ) {
-			echo '<h1>Demande</h1><p>Demande introuvable.</p><p><a href="' . esc_url( self::url_liste() ) . '">← Retour à la liste</a></p></div>';
-			return;
-		}
+	/** Carte : le conteneur de tous nos écrans. `$html` est DÉJÀ échappé. */
+	public static function carte( string $titre, string $html, string $id = '', string $classe = '' ): void {
 		printf(
-			'<h1 class="wp-heading-inline">%s</h1> <span class="ep-statut ep-statut--%s">%s</span><hr class="wp-header-end">',
-			esc_html( EP_Lead::titre( $lead ) ),
-			esc_attr( $lead['status'] ),
-			esc_html( EP_Lead::libelle_statut( $lead['status'] ) )
+			'<div class="ep-carte %s"%s><h2 class="ep-carte__titre">%s</h2><div class="ep-carte__corps">%s</div></div>',
+			esc_attr( $classe ),
+			$id ? ' id="' . esc_attr( $id ) . '"' : '',
+			esc_html( $titre ),
+			$html
 		);
-		self::message();
-		printf( '<p><a href="%s">← Toutes les demandes</a></p>', esc_url( self::url_liste() ) );
-		echo '<div class="ep-fiche"><div>';
-		self::boite( 'Demande', self::html_detail( $lead ) );
-		self::boite( 'Photographies', self::html_photos( $lead ) );
-		echo '</div><div>';
-		self::boite( 'Suivi', self::html_suivi( $lead ) );
-		self::boite( 'Notes internes', self::html_notes( $lead ) );
-		self::boite( 'Historique', self::html_journal( $lead ) );
-		self::boite( 'Effacement', self::html_effacement( $lead ) );
-		echo '</div></div></div>';
 	}
 
-	private static function boite( string $titre, string $html ): void {
-		printf( '<div class="postbox"><div class="postbox-header"><h2 class="hndle">%s</h2></div><div class="inside">%s</div></div>', esc_html( $titre ), $html );
-	}
-
-	private static function html_detail( array $lead ): string {
-		$champs = 'contact' === $lead['form_type'] ? EP_Schema::champs_contact() : EP_Schema::champs_devis();
-		$h      = '<table class="widefat striped"><tbody>';
-		$h     .= sprintf( '<tr><th>Référence</th><td><code>%s</code></td></tr>', esc_html( $lead['public_id'] ) );
-		$h     .= sprintf( '<tr><th>Type</th><td>%s</td></tr>', 'devis' === $lead['form_type'] ? 'Demande d’expertise' : 'Contact' );
-		foreach ( $champs as $nom => $regle ) {
-			$v = EP_Leads_Repository::valeur( $lead, $nom );
-			if ( '' === $v || array() === $v ) {
-				continue;
-			}
-			$h .= sprintf( '<tr><th>%s</th><td>%s</td></tr>', esc_html( $regle[3] ), nl2br( esc_html( EP_Schema::afficher( $regle, $v ) ) ) );
-		}
-		$h .= sprintf( '<tr><th>Reçue le</th><td>%s</td></tr>', esc_html( mysql2date( 'd/m/Y à H\hi', $lead['created_at'] ) ) );
-		$h .= sprintf( '<tr><th>Page d’origine</th><td>%s</td></tr>', esc_html( $lead['source_url'] ?: '—' ) );
-		$h .= sprintf( '<tr><th>Référent</th><td>%s</td></tr>', esc_html( $lead['referrer_url'] ?: '—' ) );
-		$h .= sprintf( '<tr><th>Consentement</th><td>%s (version %s, %s)</td></tr>', esc_html( $lead['legal_basis'] ), esc_html( $lead['consent_version'] ), esc_html( $lead['consent_at'] ?: '—' ) );
-		if ( $lead['closed_at'] ) {
-			$h .= sprintf( '<tr><th>Close le</th><td>%s</td></tr>', esc_html( mysql2date( 'd/m/Y à H\hi', $lead['closed_at'] ) ) );
-		}
-		if ( $lead['diagnostic_context'] ) {
-			$ctx = json_decode( (string) $lead['diagnostic_context'], true );
-			$h  .= '<tr><th>Pré-diagnostic</th><td>';
-			$h  .= '<p class="description">Réponses données au pré-diagnostic en ligne. C’est une orientation, pas un constat ; le visiteur a pu les modifier dans le formulaire.</p>';
-			if ( is_array( $ctx ) ) {
-				$h .= '<ul style="margin:0">';
-				foreach ( $ctx as $k => $v ) {
-					$h .= sprintf( '<li><code>%s</code> : %s</li>', esc_html( (string) $k ), esc_html( is_array( $v ) ? implode( ', ', array_map( 'strval', $v ) ) : (string) $v ) );
-				}
-				$h .= '</ul>';
-			} else {
-				$h .= '<code>' . esc_html( (string) $lead['diagnostic_context'] ) . '</code>';
-			}
-			$h .= '</td></tr>';
+	/** Tableau libellé → valeur. Les valeurs arrivent DÉJÀ échappées. */
+	public static function table_champs( array $lignes ): string {
+		$h = '<table class="ep-champs"><tbody>';
+		foreach ( $lignes as $l ) {
+			$h .= sprintf( '<tr><th scope="row">%s</th><td>%s</td></tr>', esc_html( $l[0] ), $l[1] );
 		}
 		return $h . '</tbody></table>';
 	}
 
-	private static function html_photos( array $lead ): string {
-		$photos = EP_Photos_Repository::pour_lead( $lead['id'] );
-		if ( ! $photos ) {
-			return '<p>Aucune photographie.</p>';
-		}
-		$h = '<p class="description">Fichiers stockés hors de la racine web, servis uniquement à une session autorisée.</p><div class="ep-photos">';
-		foreach ( $photos as $p ) {
-			$url = wp_nonce_url( admin_url( 'admin-post.php?action=ep_photo&ref=' . rawurlencode( $lead['public_id'] ) . '&photo=' . rawurlencode( $p['public_id'] ) ), 'ep_photo_' . $lead['public_id'] );
-			$sup = wp_nonce_url( admin_url( 'admin-post.php?action=ep_supprimer_photo&ref=' . rawurlencode( $lead['public_id'] ) . '&photo=' . rawurlencode( $p['public_id'] ) ), 'ep_supprimer_photo_' . $p['public_id'] );
-			$h  .= sprintf(
-				'<figure><a href="%1$s" target="_blank" rel="noopener"><img src="%1$s" alt=""></a><figcaption class="description">%2$s × %3$s · %4$s Ko<br><a href="%5$s" onclick="return confirm(\'Supprimer définitivement cette photographie ?\')">Supprimer</a></figcaption></figure>',
-				esc_url( $url ),
-				(int) $p['width'],
-				(int) $p['height'],
-				(int) round( $p['size_bytes'] / 1024 ),
-				esc_url( $sup )
-			);
-		}
-		return $h . '</div>';
-	}
-
-	private static function html_suivi( array $lead ): string {
-		$h  = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-		$h .= '<input type="hidden" name="action" value="ep_statut">';
-		$h .= '<input type="hidden" name="ref" value="' . esc_attr( $lead['public_id'] ) . '">';
-		$h .= wp_nonce_field( 'ep_statut_' . $lead['public_id'], '_wpnonce', true, false );
-		$h .= '<p><label for="ep_statut"><strong>Statut</strong></label><br><select id="ep_statut" name="ep_statut" style="width:100%">';
-		foreach ( EP_Lead::statuts() as $cle => $libelle ) {
-			$h .= sprintf( '<option value="%s"%s>%s</option>', esc_attr( $cle ), selected( $lead['status'], $cle, false ), esc_html( $libelle ) );
-		}
-		$h .= '</select></p>';
-		$h .= '<p class="description">Gagnée, Perdue et Archivée sont des statuts clos : la durée de conservation court à partir de là.</p>';
-		$h .= '<p><button class="button button-primary" type="submit">Enregistrer le statut</button></p></form>';
-		return $h;
-	}
-
-	private static function html_notes( array $lead ): string {
-		$h  = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-		$h .= '<input type="hidden" name="action" value="ep_note">';
-		$h .= '<input type="hidden" name="ref" value="' . esc_attr( $lead['public_id'] ) . '">';
-		$h .= wp_nonce_field( 'ep_note_' . $lead['public_id'], '_wpnonce', true, false );
-		$h .= '<p><label for="ep_note" class="screen-reader-text">Nouvelle note</label><textarea id="ep_note" name="ep_note" rows="3" style="width:100%" placeholder="Visible uniquement ici." required></textarea></p>';
-		$h .= '<p><button class="button" type="submit">Ajouter la note</button></p></form>';
-		$notes = EP_Notes_Repository::pour_lead( $lead['id'] );
-		if ( ! $notes ) {
-			return $h . '<p class="description">Aucune note.</p>';
-		}
-		$h .= '<ul class="ep-journal" style="margin:0">';
-		foreach ( $notes as $n ) {
-			$auteur = $n['wp_user_id'] ? get_userdata( $n['wp_user_id'] ) : null;
-			$h     .= sprintf(
-				'<li>%s<br><span class="description">%s%s</span></li>',
-				nl2br( esc_html( $n['note'] ) ),
-				esc_html( mysql2date( 'd/m/Y H\hi', $n['created_at'] ) ),
-				$auteur ? ' — ' . esc_html( $auteur->display_name ) : ''
-			);
-		}
-		return $h . '</ul>';
-	}
-
-	private static function html_journal( array $lead ): string {
-		$events = EP_Events_Repository::pour_lead( $lead['id'] );
-		if ( ! $events ) {
-			return '<p>—</p>';
-		}
-		$h = '<ul class="ep-journal" style="margin:0">';
-		foreach ( array_reverse( $events ) as $e ) {
-			$auteur = $e['wp_user_id'] ? get_userdata( $e['wp_user_id'] ) : null;
-			$h     .= sprintf(
-				'<li><strong>%s</strong><br><span class="description">%s%s · <code>%s</code></span></li>',
-				esc_html( EP_Events_Repository::decrire( $e ) ),
-				esc_html( mysql2date( 'd/m/Y H\hi', $e['created_at'] ) ),
-				$auteur ? ' — ' . esc_html( $auteur->display_name ) : '',
-				esc_html( $e['event_type'] )
-			);
-		}
-		return $h . '</ul>';
-	}
-
-	private static function html_effacement( array $lead ): string {
-		$h  = '<p class="description">Efface définitivement la demande, ses photographies, ses notes et son historique. À utiliser pour une demande d’effacement (RGPD) ou une erreur manifeste. Irréversible.</p>';
-		$h .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" onsubmit="return confirm(\'Effacer définitivement cette demande et tout ce qui s’y rattache ?\')">';
-		$h .= '<input type="hidden" name="action" value="ep_supprimer"><input type="hidden" name="ref" value="' . esc_attr( $lead['public_id'] ) . '">';
-		$h .= wp_nonce_field( 'ep_supprimer_' . $lead['public_id'], '_wpnonce', true, false );
-		$h .= '<p><button class="button button-link-delete" type="submit">Effacer la demande</button></p></form>';
-		return $h;
+	/** Badge de statut : la couleur seule ne dit rien, le libellé reste écrit. */
+	public static function badge_statut( string $statut ): string {
+		return sprintf(
+			'<span class="ep-badge ep-badge--%s">%s</span>',
+			esc_attr( $statut ),
+			esc_html( EP_Lead::libelle_statut( $statut ) )
+		);
 	}
 
 	/* --------------------------------------------------------------- actions */
@@ -438,8 +480,8 @@ class EP_Admin {
 
 	/* ------------------------------------------------------------------ avis */
 
-	private static function message(): void {
-		$m = isset( $_GET['ep_msg'] ) ? sanitize_key( (string) $_GET['ep_msg'] ) : '';
+	public static function afficher_message(): void {
+		$m      = isset( $_GET['ep_msg'] ) ? sanitize_key( (string) $_GET['ep_msg'] ) : '';
 		$textes = array(
 			'statut'          => array( 'success', 'Statut enregistré.' ),
 			'statut_invalide' => array( 'error', 'Statut inconnu.' ),
@@ -459,16 +501,32 @@ class EP_Admin {
 		}
 	}
 
-	/** Rappelle l'état de la configuration sur nos pages, sans interrompre le travail. */
+	/**
+	 * Rappelle l'état de la configuration sur nos écrans de travail.
+	 *
+	 * Deux principes. D'abord ne pas crier au feu : un fournisseur d'envoi
+	 * absent est une décision remise à plus tard, pas une panne — c'est une
+	 * information, pas une erreur. Ensuite ne pas radoter : le tableau de bord,
+	 * la page Emails et les Réglages AFFICHENT déjà ces états ; y superposer un
+	 * bandeau qui répète la même chose apprend à ne plus lire les bandeaux.
+	 */
 	public static function avis(): void {
-		$ecran = get_current_screen();
-		if ( ! $ecran || ! str_contains( (string) $ecran->id, 'expert-parquet' ) ) {
+		if ( ! self::est_notre_ecran() ) {
 			return;
 		}
+
+		/* Une table manquante, elle, casse tout : partout, et en rouge. */
 		$manquantes = array_keys( array_filter( EP_DB::tables_presentes(), static fn( $ok ) => ! $ok ) );
 		if ( $manquantes ) {
 			echo '<div class="notice notice-error"><p><strong>Tables manquantes :</strong> ' . esc_html( implode( ', ', $manquantes ) ) . '. Désactivez puis réactivez l’extension.</p></div>';
 		}
+
+		$ecran = (string) get_current_screen()->id;
+		$deja  = static fn( string $page ): bool => str_contains( $ecran, $page );
+		if ( $deja( self::PAGE_REGLAGES ) || $deja( self::PAGE_EMAILS ) || str_ends_with( $ecran, self::PAGE_TB ) ) {
+			return;
+		}
+
 		$limites = EP_Photos::limites_php();
 		if ( $limites ) {
 			echo '<div class="notice notice-warning"><p><strong>La configuration PHP est en deçà de ce que le formulaire accepte.</strong> Des photographies peuvent être perdues à la réception.</p><ul style="list-style:disc;margin-left:2em">';
@@ -477,11 +535,19 @@ class EP_Admin {
 			}
 			echo '</ul></div>';
 		}
-		if ( ! EP_Purge::configuree() ) {
-			echo '<div class="notice notice-warning"><p><strong>Aucune durée de conservation configurée.</strong> Les demandes closes ne sont pas effacées automatiquement tant que <code>EP_CONSERVATION_MOIS</code> n’est pas définie dans <code>wp-config.php</code> — et la même valeur doit être annoncée par le site (<code>RGPD.conservationMois</code>).</p></div>';
-		}
+
 		if ( ! EP_Mail::configure() ) {
-			echo '<div class="notice notice-warning"><p><strong>Aucun fournisseur d’envoi configuré.</strong> Les notifications et accusés de réception sont écrits dans un journal privé au lieu d’être expédiés. Renseigner <code>EP_SMTP_HOTE</code> et <code>EP_MAIL_DEST</code> dans <code>wp-config.php</code> pour les activer.</p></div>';
+			printf(
+				'<div class="notice notice-info is-dismissible"><p><strong>Emails transactionnels : non configurés.</strong> Les demandes sont bien enregistrées ici, mais aucun courriel n’est expédié — les messages partent dans un journal privé. <a href="%s">Voir l’état des emails</a></p></div>',
+				esc_url( self::url_page( self::PAGE_EMAILS ) )
+			);
+		}
+
+		if ( ! EP_Purge::configuree() ) {
+			printf(
+				'<div class="notice notice-info is-dismissible"><p><strong>Durée de conservation : non décidée.</strong> Les demandes closes ne sont pas effacées automatiquement tant que <code>EP_CONSERVATION_MOIS</code> n’est pas définie dans <code>wp-config.php</code> — et la même valeur doit être annoncée par le site. <a href="%s">Voir les réglages</a></p></div>',
+				esc_url( self::url_page( self::PAGE_REGLAGES ) )
+			);
 		}
 	}
 }

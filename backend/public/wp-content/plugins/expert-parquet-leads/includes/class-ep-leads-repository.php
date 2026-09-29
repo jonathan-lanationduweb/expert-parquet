@@ -243,10 +243,104 @@ class EP_Leads_Repository {
 		return $r['items'];
 	}
 
-	/** Compteurs par statut, pour les vues de la liste. */
-	public static function compter_par_statut(): array {
+	/** Demandes par identifiants, en une requête — pour les écrans qui partent des satellites. */
+	public static function par_ids( array $ids ): array {
 		global $wpdb;
-		$lignes = $wpdb->get_results( 'SELECT status, COUNT(*) AS n FROM ' . self::table() . ' GROUP BY status', ARRAY_A );
+		$ids = array_values( array_unique( array_filter( array_map( 'intval', $ids ) ) ) );
+		if ( ! $ids ) {
+			return array();
+		}
+		$place  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+		$lignes = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . self::table() . " WHERE id IN ($place)", $ids ), ARRAY_A );
+		$out    = array();
+		foreach ( (array) $lignes as $l ) {
+			$l          = self::typer( $l );
+			$out[ $l['id'] ] = $l;
+		}
+		return $out;
+	}
+
+	/**
+	 * Les dernières demandes reçues.
+	 *
+	 * `$statuts` restreint à une liste blanche de statuts connus ; vide, la
+	 * méthode écarte les indésirables comme le fait la liste.
+	 */
+	public static function recentes( int $limite = 8, array $statuts = array() ): array {
+		global $wpdb;
+		$statuts = array_values( array_filter( $statuts, static fn( $s ) => isset( EP_Lead::statuts()[ $s ] ) ) );
+		if ( $statuts ) {
+			$place = implode( ',', array_fill( 0, count( $statuts ), '%s' ) );
+			$where = "status IN ($place)";
+			$args  = $statuts;
+		} else {
+			$where = 'status <> %s';
+			$args  = array( EP_Lead::STATUT_SPAM );
+		}
+		$args[] = max( 1, $limite );
+		$lignes = $wpdb->get_results(
+			$wpdb->prepare( 'SELECT * FROM ' . self::table() . " WHERE $where ORDER BY created_at DESC, id DESC LIMIT %d", $args ),
+			ARRAY_A
+		);
+		return array_map( array( __CLASS__, 'typer' ), $lignes ?: array() );
+	}
+
+	/**
+	 * Tous les compteurs du tableau de bord en UNE requête.
+	 *
+	 * Un COUNT par indicateur, c'est sept allers-retours pour sept nombres que
+	 * la base sait produire d'un coup. Le regroupement par statut ET par type
+	 * de formulaire suffit à tout reconstituer côté PHP.
+	 *
+	 * @return array{par_statut: array<string,int>, par_type: array<string,int>, total: int}
+	 */
+	public static function statistiques(): array {
+		global $wpdb;
+		$lignes = $wpdb->get_results(
+			'SELECT status, form_type, COUNT(*) AS n FROM ' . self::table() . ' GROUP BY status, form_type',
+			ARRAY_A
+		);
+		$par_statut = array();
+		$par_type   = array();
+		$total      = 0;
+		foreach ( (array) $lignes as $l ) {
+			$n      = (int) $l['n'];
+			$statut = (string) $l['status'];
+			$par_statut[ $statut ] = ( $par_statut[ $statut ] ?? 0 ) + $n;
+			// Les indésirables ne comptent pas comme des demandes reçues.
+			if ( EP_Lead::STATUT_SPAM !== $statut ) {
+				$par_type[ (string) $l['form_type'] ] = ( $par_type[ (string) $l['form_type'] ] ?? 0 ) + $n;
+				$total += $n;
+			}
+		}
+		return compact( 'par_statut', 'par_type', 'total' );
+	}
+
+	/** Demandes reçues depuis une date (hors indésirables). */
+	public static function compter_depuis( string $depuis ): int {
+		global $wpdb;
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COUNT(*) FROM ' . self::table() . ' WHERE created_at >= %s AND status <> %s',
+				$depuis,
+				EP_Lead::STATUT_SPAM
+			)
+		);
+	}
+
+	/**
+	 * Compteurs par statut, pour les vues de la liste.
+	 *
+	 * `$form_type` restreint aux contacts ou aux devis : les vues des écrans
+	 * préfiltrés doivent annoncer les nombres de CE qu'ils montrent, sinon
+	 * leurs onglets promettent des demandes qu'on ne verra jamais.
+	 */
+	public static function compter_par_statut( ?string $form_type = null ): array {
+		global $wpdb;
+		$sql    = 'SELECT status, COUNT(*) AS n FROM ' . self::table();
+		$lignes = in_array( $form_type, array( 'contact', 'devis' ), true )
+			? $wpdb->get_results( $wpdb->prepare( $sql . ' WHERE form_type = %s GROUP BY status', $form_type ), ARRAY_A )
+			: $wpdb->get_results( $sql . ' GROUP BY status', ARRAY_A );
 		$out    = array();
 		foreach ( (array) $lignes as $l ) {
 			$out[ $l['status'] ] = (int) $l['n'];

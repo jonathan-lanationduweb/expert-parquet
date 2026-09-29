@@ -88,6 +88,34 @@ class EP_Photos_Repository {
 		return $out;
 	}
 
+	/**
+	 * Les dernières photographies reçues, toutes demandes confondues.
+	 *
+	 * Aucune jointure vers la table des demandes : chaque dépôt reste maître de
+	 * sa table. L'écran qui a besoin des deux appelle
+	 * `EP_Leads_Repository::par_ids()` avec les `lead_id` obtenus ici — deux
+	 * requêtes au total, et la frontière tient.
+	 */
+	public static function recentes( int $limite = 24, int $offset = 0 ): array {
+		global $wpdb;
+		$lignes = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT * FROM ' . self::table() . ' WHERE deleted_at IS NULL ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d',
+				max( 1, $limite ),
+				max( 0, $offset )
+			),
+			ARRAY_A
+		);
+		return array_map( array( __CLASS__, 'typer' ), $lignes ?: array() );
+	}
+
+	/** Nombre et poids total des photographies actives, pour les écrans de suivi. */
+	public static function bilan(): array {
+		global $wpdb;
+		$l = $wpdb->get_row( 'SELECT COUNT(*) AS n, COALESCE(SUM(size_bytes), 0) AS octets FROM ' . self::table() . ' WHERE deleted_at IS NULL', ARRAY_A );
+		return array( 'nombre' => (int) ( $l['n'] ?? 0 ), 'octets' => (int) ( $l['octets'] ?? 0 ) );
+	}
+
 	/** Suppression définitive de la ligne (le fichier est retiré par EP_Photos). */
 	public static function supprimer( int $id ): bool {
 		global $wpdb;
