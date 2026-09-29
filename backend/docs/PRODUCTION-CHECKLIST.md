@@ -48,7 +48,7 @@ de ce qui revient à un humain.
 ## 4. Extension
 
 - [ ] `EP_ORIGINES_AUTORISEES` dans `expert-parquet-leads.php` : les seules
-      origines du site public en production ; retirer `expert-parquet.test`,
+      origines du site public en production ; retirer `expert-parquet-dev.local`,
       `localhost:8477`, `127.0.0.1:8477`.
 - [ ] Activer l'extension, vérifier que `ep_schema_version` vaut 3, que les
       quatre tables `{prefix}expert_parquet_*` existent (InnoDB) et que la tâche

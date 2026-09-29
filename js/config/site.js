@@ -150,8 +150,9 @@ const ENDPOINT_BY_FORM = {
  *
  * Trois états coexistent, et un seul fichier les porte :
  *
- *   - expert-parquet.test (ou le serveur de développement)  → LIVE LOCAL :
- *     le formulaire parle au WordPress local, on teste la chaîne entière ;
+ *   - expert-parquet-dev.local (ou le serveur de développement)  → LIVE LOCAL :
+ *     le formulaire parle au WordPress local, servi par le MÊME hôte, et on
+ *     teste la chaîne entière ;
  *   - GitHub Pages / préproduction                          → DEMO ;
  *   - production                                            → inactive tant
  *     que les valeurs juridiques (CONTACT, RGPD) et une URL HTTPS ne sont pas
@@ -169,9 +170,19 @@ const ENDPOINT_BY_FORM = {
  * n'est pas réécrite, c'est un environnement de développement.
  */
 const LOCAL_API = {
-  'expert-parquet.test': 'http://api.expert-parquet.test/wp-json/expert-parquet/v1',
-  localhost: 'http://127.0.0.1:8080/wp-json/expert-parquet/v1',
-  '127.0.0.1': 'http://127.0.0.1:8080/wp-json/expert-parquet/v1',
+  /* Chemin RELATIF : en local, le site statique et WordPress sont servis par le
+     même hôte — WordPress est routé par des alias Apache (/wp-admin, /wp-json...).
+     Les appels sont donc de même origine : pas de requête préalable CORS, pas
+     d'adresse à réécrire si le nom d'hôte change, et rien à corriger si l'on
+     ouvre le site par une autre interface réseau.
+
+     La production reste libre d'avoir une API sur un autre domaine : elle passe
+     par `FORMS.contactEndpoint` / `quoteEndpoint` ci-dessus, qui l'emportent sur
+     cette table. Les deux environnements ne se mélangent pas. */
+  'expert-parquet-dev.local': '/wp-json/expert-parquet/v1',
+  /* Serveur de développement statique servi à part : l'API reste sur son hôte. */
+  localhost: 'http://expert-parquet-dev.local/wp-json/expert-parquet/v1',
+  '127.0.0.1': 'http://expert-parquet-dev.local/wp-json/expert-parquet/v1',
 };
 
 const LOCAL_ROUTES = { contact: '/contact', devis: '/quote' };
