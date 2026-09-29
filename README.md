@@ -9,6 +9,28 @@ repris ailleurs, identité graphique et composants propres.
 
 ---
 
+## Statut
+
+**V1 validée et acceptée.** Environnement local complet et fonctionnel.
+**Pas encore en production.**
+
+La V1 acceptée comprend :
+
+| Domaine | Contenu |
+| --- | --- |
+| Frontend | 34 pages, responsive, design validé, pré-diagnostic, formulaires, articles et conseils |
+| SEO | métadonnées, données structurées, sitemap, maillage interne, contrôle qualité automatique |
+| Backend | WordPress en infrastructure seule, API REST dédiée, 4 tables métier, dépôts de photographies privés |
+| Back-office | gestion des demandes, statuts, notes, historique, export CSV |
+| Sécurité | partie publique fermée, limitation des connexions, secrets hors Git, uploads hors racine web |
+| Exploitation | hôte local unique, thème backend maison, déploiement statique, Git organisé |
+
+Contrôle de référence : **34 pages générées, 34 analysées, 0 erreur**.
+
+La branche `release/v1-validated` fige cet état.
+
+---
+
 ## 1. Objectif et parcours
 
 ```
@@ -20,6 +42,20 @@ Trois portes d'entrée mènent au même point de conversion :
 - les **pages « problème »** (un symptôme = une page) ;
 - le **pré-diagnostic interactif** (5 questions, orientation générale) ;
 - les **articles de conseils** (SEO longue traîne).
+
+Expert Parquet est d'abord un site **d'aide et d'expertise**. Il doit ensuite servir
+de **passerelle commerciale qualifiée** : générer des demandes, distinguer le
+particulier du professionnel, puis orienter chacun vers le bon interlocuteur.
+
+```
+Professionnel  →  Premibel
+Particulier    →  Over Parquet
+```
+
+> **Cette orientation appartient à la V2 et n'est pas intégrée.** Des liens
+> éditoriaux vers Premibel existent dans les conseils et les articles — ce sont des
+> références de contenu, pas une qualification. Over Parquet n'apparaît nulle part
+> dans le site. Voir la section **V2 — Conversion et leads**.
 
 ---
 
@@ -58,7 +94,27 @@ Trois règles structurent le reste :
 
 ---
 
-## 3. Lancer le site
+## 3. Environnement local
+
+Un seul hôte sert le site **et** WordPress. WordPress n'est ni déplacé ni dupliqué :
+Apache route `/wp-admin`, `/wp-login.php`, `/wp-includes`, `/wp-content` et `/wp-json`
+vers `backend/public` par des alias.
+
+| | |
+| --- | --- |
+| Site | <http://expert-parquet-dev.local> |
+| Administration | <http://expert-parquet-dev.local/wp-admin/index.php> |
+| API | <http://expert-parquet-dev.local/wp-json/expert-parquet/v1/> |
+
+Les chemins `/backend/`, `/backend/public/` et `/backend-private/` répondent **404**.
+
+**Identifiants locaux : `backend-private/IDENTIFIANTS.txt`.** Ce fichier n'est pas
+versionné et ne doit jamais l'être — aucun identifiant, aucun secret ne figure dans ce
+dépôt. Mise en place détaillée : [backend/docs/LOCAL-DEVELOPMENT.md](backend/docs/LOCAL-DEVELOPMENT.md).
+
+---
+
+## 4. Lancer le site
 
 Le site est composé de fichiers statiques. N'importe quel serveur HTTP convient :
 
@@ -75,9 +131,9 @@ Puis ouvrir <http://localhost:8477>.
 
 ---
 
-## 4. Régénérer les pages
+## 5. Régénérer les pages
 
-Les 26 pages partagent le même header, le même footer et les mêmes blocs. Elles sont
+Les 34 pages partagent le même header, le même footer et les mêmes blocs. Elles sont
 générées à partir des fichiers de contenu du dossier `tools/` :
 
 ```bash
@@ -155,7 +211,7 @@ plutôt que de produire une page avec un `alt` vide en silence.
 
 ---
 
-## 5. Structure
+## 6. Structure
 
 ```
 expert-parquet.com/
@@ -234,7 +290,7 @@ ni dans `backend/public`.
 
 ---
 
-## 6. Personnalisation
+## 7. Personnalisation
 
 ### Coordonnées et informations d'entreprise
 
@@ -278,25 +334,138 @@ son entrée de sitemap sont produits automatiquement.
 
 ---
 
-## 7. État actuel
+## 8. Architecture en bref
 
-Le site est **complet côté front**, et un backend existe désormais dans le projet
-dossier `backend/public` — une installation WordPress dédiée qui ne publie
-aucune page et sert uniquement d'API, de stockage et d'administration. Les articles et
-le référencement restent gérés ici, par le générateur statique.
+| Couche | Où | Quoi |
+| --- | --- | --- |
+| Frontend | racine (`index.html`, `pages/`, `articles/`, `css/`, `js/`) | HTML, CSS et JavaScript natifs, sans dépendance |
+| Génération | `node tools/build.mjs` | produit les 34 pages, `sitemap.xml`, `robots.txt` |
+| Contrôle qualité | `node tools/check.mjs` | liens, ancres, images, métadonnées, JSON-LD, cohérence du sitemap |
+| Backend | `backend/public/` | WordPress comme **infrastructure** : API, stockage, administration — aucune page publiée |
+| Extension métier | `backend/public/wp-content/plugins/expert-parquet-leads/` | API REST, 4 tables dédiées, back-office, courriels, purge RGPD |
+| Données privées | `backend-private/` | photographies, journaux, identifiants — hors Git, hors racine web |
+| Déploiement statique | `node tools/build-deploy.mjs` | prépare `dist/` par liste blanche, refuse tout chemin interne |
 
-Le site est livré **en mode démonstration** : le raccordement est écrit et vérifié de
-bout en bout, mais les points d'envoi valent `null`.
+Détails : [backend/docs/ARCHITECTURE.md](backend/docs/ARCHITECTURE.md),
+[backend/docs/DATABASE.md](backend/docs/DATABASE.md),
+[backend/docs/API.md](backend/docs/API.md),
+[docs/BACKEND-CONTRACT.md](docs/BACKEND-CONTRACT.md).
 
-- Les formulaires **ne sont connectés à aucun serveur** : à la validation, ils affichent
-  exactement les données qui seraient transmises. Rien ne quitte le navigateur, et
-  l'interface le dit explicitement.
-- Renseigner un point d'envoi dans `js/config/site.js` bascule **en même temps** le
-  comportement et tous les textes qui en parlent, page de confidentialité comprise.
-  `node tools/check.mjs` refuse la construction tant que le responsable du traitement,
+---
+
+## 9. Sécurité
+
+Résumé volontairement sommaire ; le détail est dans
+[backend/docs/SECURITY.md](backend/docs/SECURITY.md).
+
+- **Backend séparé du site.** WordPress ne rend aucune page publique ; les chemins
+  physiques `backend/` et `backend-private/` sont refusés par Apache.
+- **Photographies hors racine web.** Stockées sous `backend-private/`, servies
+  uniquement à une session autorisée, jamais mises en cache partagé.
+- **API fermée par défaut.** Écriture seule en public, liste blanche d'origines
+  explicite, jamais `*` ; l'API native de WordPress est fermée aux anonymes et la
+  liste des comptes en est retirée.
+- **Connexions limitées.** Les tentatives sont comptées par origine, jamais par
+  identifiant, et l'empreinte conservée est pseudonymisée.
+- **Anti-spam actif** sur les deux formulaires. Ses réglages ne sont pas documentés :
+  les écrire reviendrait à publier le mode d'emploi du contournement.
+- **Droits WordPress au minimum.** Une capacité métier dédiée, un rôle
+  « Gestionnaire de demandes » qui n'atteint ni les extensions, ni les réglages, ni
+  les comptes.
+- **Aucun secret dans Git.** `wp-config.php`, `backend-private/` et les identifiants
+  sont ignorés ; un modèle sans valeur (`backend/config/wp-config.example.php`) tient
+  lieu de documentation.
+
+---
+
+## 10. Git et branches
+
+Toutes les branches de travail sont **locales** : rien n'est publié sur `origin`.
+
+| Branche | Rôle |
+| --- | --- |
+| `main` | version historique stable, publiée |
+| `chore/repository-cleanup` | nettoyage du dépôt (données privées, cœur WordPress, outillage local ignorés) |
+| `feature/front-v1` | frontend V1 |
+| `feature/backend-v1` | backend et intégration V1 |
+| `release/v1-validated` | **photographie locale de la V1 officiellement acceptée** |
+| `feature/admin-backoffice-v2` | évolution de l'administration WordPress |
+| `feature/v2-conversion-leads` | conversion, qualification et orientation commerciale |
+
+```
+main
+  └── chore/repository-cleanup
+        └── feature/front-v1
+              └── feature/backend-v1
+                    └── release/v1-validated
+                          ├── feature/admin-backoffice-v2
+                          └── feature/v2-conversion-leads
+```
+
+Les deux chantiers V2 partent **du même point** et restent séparés : l'administration
+d'un côté, la conversion de l'autre. S'ils finissent par dépendre l'un de l'autre, le
+rapprochement sera une décision explicite, pas un effet de bord.
+
+---
+
+## 11. V2 — Conversion et leads
+
+Expert Parquet reste d'abord un site d'aide et d'expertise. Il doit ensuite permettre :
+
+- la **génération de demandes** qualifiées ;
+- la **distinction particulier / professionnel** ;
+- l'**orientation** vers le bon interlocuteur.
+
+```
+Professionnel  →  Premibel
+Particulier    →  Over Parquet
+```
+
+**STATUT : à développer.** Rien de cette logique n'existe aujourd'hui — ni
+qualification, ni routage, ni suivi d'orientation. Les liens vers Premibel présents
+dans les conseils et les articles sont éditoriaux ; Over Parquet n'est mentionné nulle
+part dans le site.
+
+Chantier : `feature/v2-conversion-leads`.
+
+---
+
+## 12. Avant la production
+
+Décisions encore ouvertes. Aucune ne relève du code : elles vous appartiennent.
+
+| Sujet | État |
+| --- | --- |
+| Identité de l'éditeur | à arrêter — les mentions légales sont un gabarit |
+| Durée de conservation RGPD | **non décidée** ; le back-office l'affiche comme telle et n'applique aucune valeur par défaut |
+| Fournisseur SMTP | non configuré ; les courriels partent dans un journal privé |
+| Relation commerciale avec Premibel | à documenter précisément |
+| Relation commerciale avec Over Parquet | à documenter précisément |
+| Mentions légales finales | à valider une fois l'identité arrêtée |
+| DNS et HTTPS | à mettre en place (`expert-parquet.com`, éventuel domaine d'API) |
+| Déploiement production | artefact prêt (`tools/build-deploy.mjs`), mise en ligne à décider |
+
+Liste opérationnelle complète :
+[backend/docs/PRODUCTION-CHECKLIST.md](backend/docs/PRODUCTION-CHECKLIST.md) et
+[TODO-INTEGRATIONS.md](TODO-INTEGRATIONS.md).
+
+---
+
+## 13. État actuel
+
+Le front est complet et le backend fonctionne : en local, les formulaires **écrivent
+réellement** dans WordPress. Le site reste servi en statique ; les articles et le
+référencement sont gérés par le générateur, jamais par WordPress.
+
+- **En local**, le point d'envoi est résolu automatiquement (`LOCAL_API` de
+  `js/config/site.js`) : contact et demande d'expertise enregistrent une demande, les
+  photographies sont reçues, réencodées et stockées hors racine web.
+- **Hors développement**, les points d'envoi (`FORMS.*Endpoint`) valent `null` : les
+  formulaires restent en **démonstration** et l'annoncent explicitement. Renseigner un
+  point d'envoi bascule en même temps le comportement et tous les textes qui en
+  parlent, page de confidentialité comprise.
+- `node tools/check.mjs` refuse la construction tant que le responsable du traitement,
   son adresse et la durée de conservation ne sont pas renseignés.
-- Les photos sélectionnées dans le formulaire de devis sont **prévisualisées localement
-  et jamais téléversées**.
 - Les coordonnées, mentions légales, tarifs et zone d'intervention sont des
   **placeholders explicites**.
 
@@ -305,7 +474,7 @@ La liste complète des branchements à faire figure dans
 
 ---
 
-## 8. Crédits images
+## 14. Crédits images
 
 Les photographies proviennent de Pexels (licence libre). Sources détaillées :
 [assets/images/CREDITS.md](assets/images/CREDITS.md).
