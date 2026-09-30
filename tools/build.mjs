@@ -16,6 +16,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { renderPage, SITE, BUILD_ENV, IS_PROD } from './layout.mjs';
+import { exigerConfigurationProduction } from './production-guard.mjs';
 import { homePage } from './content/home.mjs';
 import { corePages } from './content/core-pages.mjs';
 import { formPages } from './content/form-pages.mjs';
@@ -35,6 +36,10 @@ function priorityFor(path) {
 }
 
 async function main() {
+  /* Avant d'écrire quoi que ce soit : une production incomplète ne doit pas
+     exister, même à l'état de fichiers sur le disque. */
+  exigerConfigurationProduction({ isProd: IS_PROD });
+
   const pages = [
     homePage(),
     ...corePages(),

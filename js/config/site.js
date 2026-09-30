@@ -331,6 +331,14 @@ const ENDPOINT_BY_FORM = {
   devis: 'quoteEndpoint',
 };
 
+/* DEV-ONLY:START — ce bloc est RETIRÉ de l'artefact publié.
+
+   `tools/build-deploy.mjs` remplace tout ce qui sépare ces deux marques par une
+   table vide avant la mise en ligne : le site publié n'a aucune raison de citer
+   un nom d'hôte de développement, et un contrôle du contenu refuse l'artefact
+   s'il en reste un. En production, `LOCAL_API` est donc vide, `localEndpointFor`
+   rend `null`, et ce sont `FORMS.contactEndpoint` / `quoteEndpoint` qui
+   décident — exactement le comportement attendu. */
 /**
  * Backend LOCAL, par nom d'hôte — et uniquement à l'exécution dans un
  * navigateur.
@@ -371,6 +379,7 @@ const LOCAL_API = {
   localhost: 'http://expert-parquet-dev.local/wp-json/expert-parquet/v1',
   '127.0.0.1': 'http://expert-parquet-dev.local/wp-json/expert-parquet/v1',
 };
+/* DEV-ONLY:END */
 
 const LOCAL_ROUTES = { contact: '/contact', devis: '/quote' };
 
