@@ -14,9 +14,10 @@ repris ailleurs, identité graphique et composants propres.
 | Chantier | État |
 | --- | --- |
 | **V1** | **validée et acceptée**, figée sur `release/v1-validated` |
-| **V2 — Conversion et leads** | **en validation** — destination particulier à confirmer |
-| **V2 — Back-office** | **en validation** |
-| **Production** | **pas encore ouverte** |
+| **V2 — Conversion et leads** | **validée techniquement** |
+| **V2 — Back-office** | **validé techniquement** |
+| **Préproduction** | **en cours** — `release/v2-preproduction` |
+| **Production** | **non ouverte** — voir [la liste de contrôle](backend/docs/PRODUCTION-CHECKLIST.md) |
 
 Orientation commerciale : **c'est le besoin qui décide**, pas le profil. Aide et
 expertise d'abord, commerce ensuite — voir **V2 — Conversion et leads**.
@@ -407,7 +408,8 @@ Toutes les branches de travail sont **locales** : rien n'est publié sur `origin
 | `release/v1-validated` | **photographie locale de la V1 officiellement acceptée** |
 | `feature/admin-backoffice-v2` | évolution de l'administration WordPress |
 | `feature/v2-conversion-leads` | conversion, qualification et orientation commerciale |
-| `feature/v2-integration` | **les deux chantiers V2 réunis** — c'est la branche de travail courante |
+| `feature/v2-integration` | les deux chantiers V2 réunis |
+| `release/v2-preproduction` | **préparation de la mise en production** — branche de travail courante |
 
 ```
 main
@@ -417,6 +419,7 @@ main
                     └── release/v1-validated
                           ├── feature/admin-backoffice-v2 ─┐
                           └── feature/v2-conversion-leads ─┴─► feature/v2-integration
+                                                                └── release/v2-preproduction
 ```
 
 Les deux chantiers V2 partent **du même point** et restent séparés : l'administration
@@ -473,24 +476,25 @@ Chantier : `feature/v2-conversion-leads`.
 
 ## 12. Avant la production
 
-Décisions encore ouvertes. Aucune ne relève du code : elles vous appartiennent.
+Le code ne laisse plus passer une production incomplète : `BUILD_ENV=prod`
+**échoue** tant que l'identité de l'éditeur, le SIRET, l'adresse, l'e-mail public,
+la durée de conservation RGPD et des points d'envoi HTTPS ne sont pas renseignés,
+et il énumère ce qui manque. L'artefact publiable, lui, est refusé s'il contient un
+chemin interne, un secret ou une adresse de développement.
+
+Restent les décisions qui n'appartiennent qu'à l'éditeur :
 
 | Sujet | État |
 | --- | --- |
-| Identité de l'éditeur | à arrêter — les mentions légales sont un gabarit |
-| Durée de conservation RGPD | **non décidée** ; le back-office l'affiche comme telle et n'applique aucune valeur par défaut |
-| Fournisseur SMTP | non configuré ; les courriels partent dans un journal privé |
-| Relation commerciale avec Premibel | à documenter précisément |
-| Relation commerciale avec Over Parquet | à documenter précisément |
-| Mentions légales finales | à valider une fois l'identité arrêtée |
-| DNS et HTTPS | à mettre en place (`expert-parquet.com`, éventuel domaine d'API) |
-| Déploiement production | artefact prêt (`tools/build-deploy.mjs`), mise en ligne à décider |
+| Identité, SIRET, adresse, e-mail | **à renseigner** — bloque le build de production |
+| Durée de conservation RGPD | **à décider** — 36 mois en local est une valeur de travail |
+| Fournisseur SMTP, SPF, DKIM, DMARC | **à choisir** — les courriels partent dans un journal privé |
+| DNS et HTTPS (front et API) | à mettre en place |
+| Serveur API, base de production | à provisionner |
+| Sauvegardes, cron système, surveillance | à mettre en place |
 
-Liste opérationnelle complète :
-[backend/docs/PRODUCTION-CHECKLIST.md](backend/docs/PRODUCTION-CHECKLIST.md) et
-[TODO-INTEGRATIONS.md](TODO-INTEGRATIONS.md).
-
----
+La marche à suivre, point par point :
+[backend/docs/PRODUCTION-CHECKLIST.md](backend/docs/PRODUCTION-CHECKLIST.md).
 
 ## 13. État actuel
 

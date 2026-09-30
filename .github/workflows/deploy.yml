@@ -47,25 +47,37 @@ jobs:
 
       # Aucune dépendance à installer : le générateur est en Node pur.
       # `BUILD_ENV=prod` retire le `noindex` de préproduction.
+      #
+      # Cette étape ÉCHOUE volontairement tant que les valeurs juridiques
+      # manquent — identité de l'éditeur, SIRET, adresse, e-mail, durée de
+      # conservation, points d'envoi HTTPS. Voir tools/production-guard.mjs.
+      # Un échec ici n'est pas une panne : c'est le garde-fou qui fait son
+      # travail, et la sortie énumère exactement ce qu'il faut renseigner.
       - name: Construire le site
         run: BUILD_ENV=prod node tools/build.mjs
 
       - name: Contrôle qualité
         run: node tools/check.mjs
 
-      # Ce script échoue si un fichier interdit se retrouve dans dist/,
-      # ou si le nombre de pages ne correspond pas au sitemap.
+      # Ce script échoue si dist/ contient un chemin interdit, un secret, une
+      # adresse de développement, ou si le nombre de pages ne correspond pas au
+      # sitemap. Il retire aussi la table des hôtes locaux de la copie publiée.
       - name: Préparer l'arborescence publiable
         run: node tools/build-deploy.mjs
 
       - name: Vérifier que rien d'interne ne part en ligne
         run: |
           set -e
-          for chemin in tools docs backend backend-private .git .kilo; do
+          for chemin in tools docs backend backend-private .git .kilo .claude; do
             if [ -e "dist/$chemin" ]; then echo "REFUSÉ : dist/$chemin"; exit 1; fi
           done
           if find dist -name '*.md' -o -name '*.mjs' -o -name '*.php' | grep -q .; then
             echo "REFUSÉ : source ou documentation dans dist/"; exit 1
+          fi
+          # Deuxième filet, indépendant de build-deploy.mjs : une adresse de
+          # développement dans l'artefact signerait un build fait de travers.
+          if grep -rIlE 'https?://[^"]*(\.local|\.test|localhost|127\.0\.0\.1)' dist | grep -q .; then
+            echo "REFUSÉ : adresse de développement dans dist/"; exit 1
           fi
           echo "dist/ ne contient que le site."
 
