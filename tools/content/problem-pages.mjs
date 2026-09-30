@@ -209,8 +209,12 @@ export const PROBLEM_PAGES = [
   {
     slug: 'parquet-abime',
     /* Le remplacement est ici une suite plausible : la page elle-meme
-       oppose « un raccord de trente minutes » a « une renovation complete ». */
+       oppose « un raccord de trente minutes » a « une renovation complete ».
+       Le symptome transmis au moteur d'orientation est celui du catalogue
+       (`js/config/options.js`), pas le slug de la page : les deux vocabulaires
+       ne doivent pas se confondre. */
     remplacement: true,
+    orientationProbleme: ['vieillissement'],
     tags: ['esthetique', 'renovation', 'entretien'],
     title: 'Parquet abîmé&nbsp;: taches et rayures',
     h1: 'Parquet abîmé&nbsp;: taches, rayures et usure',
@@ -262,6 +266,7 @@ export const PROBLEM_PAGES = [
     slug: 'degat-des-eaux',
     /* Apres un sinistre, la depose fait partie des issues courantes. */
     remplacement: true,
+    orientationProbleme: ['degat-des-eaux'],
     tags: ['sinistre', 'humidite', 'renovation', 'mesure'],
     title: 'Dégât des eaux',
     h1: 'Parquet après un dégât des eaux',
@@ -408,7 +413,7 @@ ${problem.verifications.map((item) => `            <li>${item}</li>`).join('\n')
           <h2 id="expertise">Quand demander une expertise</h2>
           <p>${problem.expertise}</p>
 
-${problem.remplacement ? orientationCommerciale({ campagne: `probleme-${problem.slug}` }) : ''}
+${problem.remplacement ? orientationCommerciale({ campagne: `probleme-${problem.slug}`, probleme: problem.orientationProbleme }) : ''}
 
           <div class="callout u-mt-lg">
             <p class="callout__title">${ICONS.alert} Portée de cette page</p>

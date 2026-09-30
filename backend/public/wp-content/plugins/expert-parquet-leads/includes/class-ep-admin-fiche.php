@@ -107,20 +107,38 @@ class EP_Admin_Fiche {
 	 * serait pire que de n'en afficher aucun.
 	 */
 	private static function bloc_orientation( array $lead ): void {
-		$profil = (string) ( $lead['customer_type'] ?? '' );
-		if ( '' === EP_Lead::libelle_profil( $profil ) ) {
+		$profil   = (string) ( $lead['customer_type'] ?? '' );
+		$decision = EP_Orientation::pour_lead( $lead );
+
+		/* Le bloc n'a de sens que s'il apprend quelque chose : ni profil, ni
+		   besoin établi, il ne s'affiche pas. */
+		if ( '' === EP_Lead::libelle_profil( $profil ) && EP_Orientation::BESOIN_INCONNU === $decision['besoin'] ) {
 			return;
 		}
 
-		$lignes = array( array( 'Profil déclaré', EP_Admin::badge_profil( $profil ) ) );
+		$lignes   = array();
+		$lignes[] = array(
+			'Profil déclaré',
+			'' !== EP_Lead::libelle_profil( $profil )
+				? EP_Admin::badge_profil( $profil )
+				: '<span class="ep-etat__valeur ep-etat__valeur--attente">non renseigné</span>',
+		);
+		$lignes[] = array( 'Besoin détecté', esc_html( EP_Orientation::libelle_besoin( $decision['besoin'] ) ) );
 
-		$enseigne = EP_Lead::orientation_commerciale( $profil );
-		if ( '' !== $enseigne ) {
-			$lignes[] = array( 'Orientation possible', esc_html( $enseigne ) );
+		$noms = EP_Orientation::noms( $decision['destinations'] );
+		if ( count( $noms ) > 1 ) {
+			$lignes[] = array( 'Orientations possibles', esc_html( implode( ' ou ', $noms ) ) );
+		} elseif ( 1 === count( $noms ) ) {
+			$lignes[] = array( 'Orientation possible', esc_html( $noms[0] ) );
+		} elseif ( EP_Orientation::BESOIN_EXPERTISE === $decision['besoin'] ) {
+			$lignes[] = array( 'Orientation commerciale', 'Aucune — expertise uniquement' );
+		} else {
+			$lignes[] = array( 'Orientation commerciale', '<span class="ep-etat__valeur ep-etat__valeur--attente">à qualifier</span>' );
 		}
 
 		$h  = EP_Admin::table_champs( $lignes );
-		$h .= '<p class="ep-meta" style="margin-top:12px">Le profil vient du formulaire, ou du pré-diagnostic quand la personne l’y a choisi. L’orientation est une proposition faite sur le site&nbsp;: elle ne préjuge ni d’un clic, ni d’un achat.</p>';
+		$h .= '<p class="ep-meta" style="margin-top:12px">' . esc_html( $decision['raison'] ) . '</p>';
+		$h .= '<p class="ep-meta">Déduit des réponses de la demande&nbsp;: profil, problème, surface, délai, type de local. C’est une proposition faite sur le site&nbsp;— elle ne préjuge ni d’un clic, ni d’un achat.</p>';
 
 		EP_Admin::carte( 'Orientation', $h );
 	}

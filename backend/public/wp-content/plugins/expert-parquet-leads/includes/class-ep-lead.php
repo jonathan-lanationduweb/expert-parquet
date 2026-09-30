@@ -74,21 +74,7 @@ class EP_Lead {
 		return self::profils()[ $profil ] ?? '';
 	}
 
-	/**
-	 * Vers qui le site oriente ce profil, pour information dans le back-office.
-	 *
-	 * La décision et les URL vivent dans `js/config/site.js` (`PARCOURS`,
-	 * `PARTNERS`) : c'est le site qui oriente, pas l'administration. On ne
-	 * recopie ici que le NOM de l'enseigne, pour que le gestionnaire sache de
-	 * quoi on parle en lisant une demande.
-	 */
-	public static function orientation_commerciale( string $profil ): string {
-		$table = array(
-			'particulier'  => 'Over Parquet',
-			'professionnel' => 'Premibel',
-		);
-		return $table[ $profil ] ?? '';
-	}
+
 
 	public static function libelle_statut( string $statut ): string {
 		return self::statuts()[ $statut ] ?? $statut;

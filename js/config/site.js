@@ -203,48 +203,29 @@ export const PARTNERS = {
   premibel: {
     nom: 'Premibel',
     /**
-     * Page officielle dédiée aux professionnels — « Guide d'Inscription pour
-     * les Professionnels sur Premibel.fr » : compte pro, tarifs dédiés,
-     * commande simplifiée. Plus adaptée qu'un accueil générique pour une
-     * orientation qui s'adresse nommément à cette audience.
-     *
-     * Repli possible si vous préférez une entrée neutre :
-     * `https://www.premibel.fr/`.
+     * Entrée générale : le site est ouvert aux particuliers comme aux
+     * professionnels, et c'est là qu'on choisit un parquet — showroom,
+     * plus de 700 références, conseil.
      *
      * `www` est la forme canonique : `premibel.fr` redirige (301) vers elle.
      * Les liens ÉDITORIAUX du site emploient encore la forme sans `www` — ils
      * appartiennent à la V1 validée et ne sont pas réécrits ici.
      */
-    url: 'https://www.premibel.fr/guide-inscription-pro/',
+    url: 'https://www.premibel.fr/',
+    /**
+     * Un professionnel a une porte à lui : compte pro, tarifs dédiés,
+     * commande simplifiée. L'envoyer sur l'entrée grand public lui ferait
+     * refaire le chemin.
+     */
+    urlParProfil: {
+      professionnel: 'https://www.premibel.fr/guide-inscription-pro/',
+    },
     /** Le site vend aux particuliers ET tient un espace professionnel. */
     audience: ['particulier', 'professionnel'],
     resume: 'Distributeur de parquets ouvert aux particuliers comme aux professionnels.',
   },
 };
 
-/**
- * Qui oriente-t-on vers qui.
- *
- * --------------------------------------------------------------------------
- * DÉCISION COMMERCIALE, PAS DÉCISION TECHNIQUE
- *
- * Cette table est la règle arrêtée en réunion : professionnel → Premibel,
- * particulier → Over Parquet. Elle tient en deux lignes pour qu'on puisse la
- * changer sans toucher au code.
- *
- * ATTENTION — la réalité vérifiée des deux sites ne suit pas cette règle :
- * Over Parquet est réservé aux professionnels (voir `audience` ci-dessus).
- * Tant que la règle reste en l'état, `partnerUrl('particulier')` renvoie
- * `null` et l'interface affiche un état informatif, non cliquable, au lieu
- * d'envoyer un particulier vers une porte fermée.
- *
- * Si la règle devait suivre ce que les deux enseignes acceptent, il suffit
- * d'échanger les deux valeurs ci-dessous.
- */
-export const PARCOURS = {
-  particulier: 'overparquet',
-  professionnel: 'premibel',
-};
 
 /**
  * Paramètres de campagne ajoutés aux liens d'orientation — et à eux seuls.
@@ -262,18 +243,15 @@ export const PARTNER_UTM = {
   medium: 'referral',
 };
 
-/** Le partenaire vers qui ce profil est orienté, ou `null`. */
-export function partnerFor(profil) {
-  return PARTNERS[PARCOURS[profil]] || null;
+/** Une enseigne par sa clé (`premibel`, `overparquet`), ou `null`. */
+export function partnerFor(cle) {
+  return PARTNERS[cle] || null;
 }
 
-/**
- * Vrai si ce profil peut réellement être orienté : une destination est
- * connue, ET cette destination accepte ce profil.
- */
-export function partnerConfigured(profil) {
-  const p = partnerFor(profil);
-  return Boolean(p && p.url && (!p.audience || p.audience.includes(profil)));
+/** Vrai si cette enseigne a une destination connue. */
+export function partnerConfigured(cle) {
+  const p = partnerFor(cle);
+  return Boolean(p && p.url);
 }
 
 /**
@@ -281,15 +259,21 @@ export function partnerConfigured(profil) {
  * pas connue. L'appelant doit traiter ce `null` — c'est ce qui garantit
  * qu'aucun lien mort n'est rendu.
  *
- * @param {string} profil    'particulier' | 'professionnel'
+ * Le choix de l'enseigne, lui, appartient au moteur d'orientation
+ * (js/config/orientation-rules.js) : cette fonction ne fait que fabriquer
+ * l'adresse d'une enseigne déjà retenue.
+ *
+ * @param {string} cle       'premibel' | 'overparquet'
  * @param {string} campagne  d'où part le visiteur : 'pre-diagnostic', 'accueil',
  *                           'probleme-degat-des-eaux'…
  */
-export function partnerUrl(profil, campagne) {
-  const p = partnerFor(profil);
-  // Le garde-fou d'audience : pas de lien vers une porte fermée à ce profil.
-  if (!partnerConfigured(profil)) return null;
-  const url = new URL(p.url);
+export function partnerUrl(cle, campagne, customerType) {
+  const p = partnerFor(cle);
+  if (!p || !p.url) return null;
+  /* Une enseigne peut avoir une porte par profil : on prend la plus directe
+     pour ce visiteur, l'entrée générale sinon. */
+  const base = (p.urlParProfil && p.urlParProfil[customerType]) || p.url;
+  const url = new URL(base);
   url.searchParams.set('utm_source', PARTNER_UTM.source);
   url.searchParams.set('utm_medium', PARTNER_UTM.medium);
   if (campagne) url.searchParams.set('utm_campaign', campagne);

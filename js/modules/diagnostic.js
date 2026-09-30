@@ -19,6 +19,7 @@ import {
   DISCLAIMER,
 } from '../config/diagnostic-rules.js';
 import { ORIENTATION, partnerFor, partnerUrl } from '../config/site.js';
+import { orienter, DIFFERENCE } from '../config/orientation-rules.js';
 
 const STEPS = [
   {
@@ -251,32 +252,41 @@ function setupDiagnostic(root) {
     }
 
     function afficherDestination(profil) {
-      const partenaire = partnerFor(profil);
-      const url = partnerUrl(profil, `pre-diagnostic-${reponses.probleme}`);
+      const decision = orienter({ customerType: profil, probleme: [reponses.probleme] });
 
       box.innerHTML = '';
       box.append(el('p', 'callout__title', ORIENTATION.titre));
-      box.append(
-        el(
-          'p',
-          null,
-          url ? `${ORIENTATION.pour[profil]} — ${partenaire.resume}` : `${ORIENTATION.pour[profil]} — ${ORIENTATION.indisponible}`
-        )
-      );
+      box.append(el('p', null, `${ORIENTATION.pour[profil]} — ${decision.raison}`));
 
+      /* Une destination, deux, ou aucune : c'est le moteur qui tranche, à
+         partir du besoin. L'interface ne fait que présenter — et quand elle en
+         présente deux, elle dit ce qui les distingue, faute de quoi elle
+         déléguerait un choix sans donner de quoi le faire. */
       const groupe = el('div', 'btn-group u-mt-sm');
-      if (url) {
+      decision.destinations.forEach((cle) => {
+        const partenaire = partnerFor(cle);
+        const url = partnerUrl(cle, `pre-diagnostic-${reponses.probleme}`, profil);
+        if (!url) return;
         const lien = document.createElement('a');
         lien.className = 'btn btn--outline btn--sm';
         lien.href = url;
-        // Parcours commercial : le lien le déclare (voir le partial statique).
         lien.rel = 'sponsored noopener';
         lien.textContent = ORIENTATION.action.replace('%s', partenaire.nom);
         lien.dataset.event = 'commercial_orientation';
-        lien.dataset.destination = destinationSlug(partenaire.nom);
+        lien.dataset.destination = destinationSlug(cle);
         lien.dataset.customerType = profil;
         lien.dataset.context = `pre-diagnostic:${reponses.probleme}`;
         groupe.append(lien);
+      });
+
+      if (decision.destinations.length > 1) {
+        const liste = el('ul', 'rich-list u-mt-sm');
+        decision.destinations.forEach((cle) => {
+          liste.append(el('li', null, `${partnerFor(cle).nom} — ${DIFFERENCE[cle]}`));
+        });
+        box.append(liste);
+      } else if (decision.destinations.length === 0) {
+        box.append(el('p', 'disclaimer u-mt-sm', ORIENTATION.indisponible));
       }
 
       const retour = button(ORIENTATION.retour, 'btn btn--ghost btn--sm');
@@ -332,13 +342,8 @@ function buildStepper() {
 const PROFILS_ORIENTES = ['particulier', 'professionnel'];
 
 /** Identifiant stable d'une destination, pour les attributs de suivi. */
-function destinationSlug(nom) {
-  return nom
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+function destinationSlug(cle) {
+  return cle === 'overparquet' ? 'over-parquet' : cle;
 }
 
 /** Pré-remplit le formulaire de devis avec les réponses du pré-diagnostic. */
