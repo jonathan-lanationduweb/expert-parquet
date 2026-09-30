@@ -52,27 +52,21 @@ class EP_Admin_Emails {
 	/* ------------------------------------------------------------------ état */
 
 	private static function bloc_etat( bool $configure ): void {
+		/* Chaque réglage du relais, présent ou non. `EP_Mail::configuration()`
+		   ne rend que des booléens : aucune valeur ne traverse cet écran. */
+		$config = EP_Mail::configuration();
+		$etat   = static fn( bool $present, string $oui, string $non, string $niveauNon = 'attente' ): string
+			=> self::valeur( $present ? 'ok' : $niveauNon, $present ? $oui : $non );
+
 		$lignes = array(
-			array(
-				'Fournisseur SMTP',
-				self::valeur( defined( 'EP_SMTP_HOTE' ) ? 'ok' : 'attente', defined( 'EP_SMTP_HOTE' ) ? 'Configuré' : 'Non configuré' ),
-			),
-			array(
-				'Adresse destinataire',
-				self::valeur( defined( 'EP_MAIL_DEST' ) ? 'ok' : 'attente', defined( 'EP_MAIL_DEST' ) ? 'Configurée' : 'Non configurée' ),
-			),
-			array(
-				'Authentification',
-				self::valeur( defined( 'EP_SMTP_USER' ) ? 'ok' : 'neutre', defined( 'EP_SMTP_USER' ) ? 'Configurée' : 'Aucune' ),
-			),
-			array(
-				'Adresse d’expédition',
-				self::valeur( defined( 'EP_MAIL_FROM' ) ? 'ok' : 'neutre', defined( 'EP_MAIL_FROM' ) ? 'Configurée' : 'Par défaut de WordPress' ),
-			),
-			array(
-				'Mode actuel',
-				self::valeur( $configure ? 'ok' : 'attente', $configure ? 'Envoi SMTP' : 'Journal privé' ),
-			),
+			array( 'Fournisseur SMTP', $etat( $config['hote'], 'Configuré', 'À configurer avant production' ) ),
+			array( 'Port', $etat( $config['port'], 'Défini', 'Défaut (587)', 'neutre' ) ),
+			array( 'Chiffrement', $etat( $config['securite'], 'Défini', 'Défaut (TLS)', 'neutre' ) ),
+			array( 'Authentification', $etat( $config['utilisateur'], 'Configurée', 'Aucune', 'neutre' ) ),
+			array( 'Adresse d’expédition', $etat( $config['expediteur'], 'Configurée', 'Par défaut de WordPress', 'neutre' ) ),
+			array( 'Nom d’expéditeur', $etat( $config['nom_expediteur'], 'Défini', 'Défaut (Expert Parquet)', 'neutre' ) ),
+			array( 'Adresse destinataire', $etat( $config['destinataire'], 'Configurée', 'À configurer avant production' ) ),
+			array( 'Mode actuel', self::valeur( $configure ? 'ok' : 'attente', $configure ? 'Envoi SMTP' : 'Journal privé' ) ),
 		);
 
 		$h  = EP_Admin::table_champs( $lignes );

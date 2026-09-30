@@ -101,12 +101,21 @@ define( 'EP_PRIVATE_DIR', '/chemin/hors/racine/web/backend-private' );
    A REMPLIR avec un fournisseur transactionnel. Sans ces constantes, rien n'est
    expedie : tout est ecrit dans un journal prive et trace en evenement.
    Le mot de passe SMTP est un secret : il reste dans CE fichier, jamais ailleurs.
-   define( 'EP_SMTP_HOTE', 'smtp-relay.exemple.fr' );
-   define( 'EP_SMTP_PORT', 587 );
-   define( 'EP_SMTP_USER', 'A_REMPLIR' );
-   define( 'EP_SMTP_PASS', 'A_REMPLIR' );
-   define( 'EP_MAIL_FROM', 'ne-pas-repondre@exemple.fr' );
-   define( 'EP_MAIL_DEST', 'demandes@exemple.fr' ); */
+   define( 'EP_SMTP_HOTE',     'smtp-relay.exemple.fr' );
+   define( 'EP_SMTP_PORT',     587 );
+   define( 'EP_SMTP_SECURITE', 'tls' );              // tls | ssl | none
+   define( 'EP_SMTP_USER',     'A_REMPLIR' );
+   define( 'EP_SMTP_PASS',     'A_REMPLIR' );        // SECRET — jamais dans Git
+   define( 'EP_MAIL_FROM',     'ne-pas-repondre@exemple.fr' );
+   define( 'EP_MAIL_FROM_NOM', 'Expert Parquet' );
+   define( 'EP_MAIL_DEST',     'demandes@exemple.fr' ); */
+
+/* Le chiffrement n'est PAS deduit du port : certains relais ecoutent en
+   STARTTLS sur 465 et l'inverse existe. On le declare.
+
+   Avant la mise en service, cote DNS : SPF, DKIM et DMARC doivent autoriser ce
+   relais a expedier pour le domaine, sans quoi les accuses de reception
+   partiront en indesirables. Voir backend/docs/PRODUCTION-CHECKLIST.md. */
 
 /* --- Adresses --------------------------------------------------------------
    Cette installation ne publie aucune page : elle sert `/wp-json/` et

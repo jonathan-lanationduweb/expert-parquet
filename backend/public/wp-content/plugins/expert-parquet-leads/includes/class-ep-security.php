@@ -66,6 +66,15 @@ class EP_Security {
 		// En-têtes de sécurité sur tout ce que sert ce backend.
 		add_action( 'send_headers', array( __CLASS__, 'entetes' ) );
 
+		/* `send_headers` ne se déclenche ni sur `wp-login.php` ni dans
+		   l'administration : ce sont des requêtes qui ne passent pas par le
+		   chargement d'un gabarit. Mesuré — la page de connexion n'avait donc
+		   AUCUN `X-Content-Type-Options`. On complète, sans toucher à la
+		   politique de cadre : WordPress pose lui-même `SAMEORIGIN` sur la
+		   connexion, et certains parcours d'authentification en dépendent. */
+		add_action( 'login_init', array( __CLASS__, 'entetes_admin' ) );
+		add_action( 'admin_init', array( __CLASS__, 'entetes_admin' ) );
+
 		/* Ce WordPress n'a aucune raison d'être indexé. `blog_public` à 0 pose
 		   l'en-tête X-Robots-Tag ; mais depuis WordPress 5.7, `do_robots()`
 		   n'écrit plus « Disallow: / » pour autant — il ne bloque que
@@ -193,6 +202,16 @@ class EP_Security {
 	 * `frame-ancestors 'none'` empêche d'encadrer l'administration, donc le
 	 * détournement de clic sur les actions d'un gestionnaire connecté.
 	 */
+	/** Les en-têtes qui valent partout, y compris là où le gabarit n'est pas chargé. */
+	public static function entetes_admin(): void {
+		if ( headers_sent() ) {
+			return;
+		}
+		header( 'X-Content-Type-Options: nosniff' );
+		header( 'Referrer-Policy: strict-origin-when-cross-origin' );
+		header( 'Permissions-Policy: geolocation=(), camera=(), microphone=(), interest-cohort=()' );
+	}
+
 	public static function entetes(): void {
 		header( 'X-Content-Type-Options: nosniff' );
 		header( 'Referrer-Policy: strict-origin-when-cross-origin' );
