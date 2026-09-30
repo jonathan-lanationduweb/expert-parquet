@@ -9,16 +9,22 @@
  * obligatoires). Quelqu'un qui veut simplement acheter du parquet n'a rien à
  * faire dans un formulaire d'expertise : il passait un péage.
  *
- * Ici : deux questions, aucun champ, aucune donnée personnelle. Trois clics au
- * plus séparent le bloc de la boutique — besoin, profil, lien.
+ * Ici : UNE question, aucun champ, aucune donnée personnelle. Deux clics
+ * séparent le bloc de la boutique — l'intention, puis le lien.
  *
  * ---------------------------------------------------------------------------
- * POURQUOI LA SECONDE QUESTION EXISTE
+ * POURQUOI IL N'Y A PLUS DE SECONDE QUESTION
  *
- * Parce qu'elle change la réponse, et pour deux raisons vérifiables : Over
- * Parquet n'accepte pas les particuliers, et Premibel a une porte d'entrée
- * distincte pour les professionnels. Aucune troisième question n'est posée —
- * surface, délai, type de local ne changeraient pas la destination.
+ * Il y en avait une : « particulier ou professionnel ? ». Elle ne changeait la
+ * réponse dans aucun des trois cas. Premibel accueille les deux profils, donc
+ * « choisir ou remplacer » mène chez Premibel quoi qu'il arrive ; et
+ * « approvisionner un chantier professionnel » contient déjà le profil dans son
+ * libellé. Poser une question dont on connaît la réponse, ce n'est pas
+ * qualifier, c'est faire attendre.
+ *
+ * `customer_type` n'est pas supprimé pour autant : le formulaire d'expertise le
+ * demande toujours, le lead le porte, le back-office s'en sert. Il disparaît
+ * d'ici seulement, où il ne servait à rien.
  *
  * ---------------------------------------------------------------------------
  * SANS JAVASCRIPT
@@ -29,7 +35,7 @@
  */
 
 import { ORIENTATION, partnerFor, partnerUrl } from '../config/site.js';
-import { ROUTEUR, DIFFERENCE, orientation } from '../config/orientation-rules.js';
+import { ROUTEUR, DIFFERENCE, BESOINS, orientation } from '../config/orientation-rules.js';
 
 /* Plusieurs routeurs peuvent coexister (page + pré-diagnostic) : les
    identifiants d'accessibilité doivent rester uniques. */
@@ -53,6 +59,9 @@ function monter(racine) {
     need: racine.dataset.besoin || '',
     customerType: racine.dataset.profil || '',
   };
+  /* Le lien interne de la branche « expertise ». C'est le gabarit qui le
+     fournit : lui seul connaît la profondeur de la page. */
+  const urlExpertise = racine.dataset.expertiseUrl || '';
   /* Ce qui vient du contexte n'appartient pas au routeur : il ne propose pas
      de revenir sur une réponse que le visiteur n'a pas donnée ici. L'écran qui
      a fourni la valeur garde son propre retour. */
@@ -66,8 +75,7 @@ function monter(racine) {
   function rendre() {
     racine.innerHTML = '';
     if (!etat.need) demander(ROUTEUR.besoin, 'need');
-    else if (!etat.customerType) demander(ROUTEUR.profil, 'customerType');
-    else afficherDestinations();
+    else afficherSuite();
     annoncer();
     premierRendu = false;
   }
@@ -114,23 +122,59 @@ function monter(racine) {
     if (retour) racine.append(retour);
   }
 
-  function afficherDestinations() {
+  /**
+   * La suite, quelle qu'elle soit.
+   *
+   * Un problème de parquet ne mène nulle part ailleurs qu'ici : c'est le métier
+   * du site. Les deux autres intentions mènent chez une enseigne. Dans les
+   * trois cas, le visiteur a cliqué une fois et voit déjà où aller.
+   */
+  function afficherSuite() {
     const decision = orientation(etat);
+    racine.append(el('p', 'orientation__question', decision.raison));
 
+    if (decision.besoin === BESOINS.EXPERTISE) return afficherExpertise();
     if (decision.destinations.length === 0) {
-      racine.append(el('p', 'orientation__question', decision.raison));
       const retour = recommencer();
       if (retour) racine.append(retour);
       return;
     }
+    return afficherDestinations(decision);
+  }
 
+  /**
+   * Rester chez Expert Parquet : le pré-diagnostic, pas une enseigne.
+   *
+   * Sans URL fournie par le gabarit, on n'invente pas de chemin : la raison
+   * reste affichée, et le visiteur garde la navigation du site.
+   */
+  function afficherExpertise() {
+    if (urlExpertise) {
+      const lien = document.createElement('a');
+      lien.className = 'btn btn--primary btn--block';
+      lien.href = urlExpertise;
+      lien.textContent = 'Faire le pré-diagnostic';
+      lien.dataset.event = 'orientation_expertise';
+      lien.dataset.context = contexte;
+
+      const carte = el('div', 'orientation__destination');
+      carte.append(el('p', 'orientation__nom', 'Expert Parquet'), lien);
+
+      const liste = el('div', 'orientation__destinations');
+      liste.append(carte);
+      racine.append(liste);
+    }
+    const retour = recommencer();
+    if (retour) racine.append(retour);
+  }
+
+  function afficherDestinations(decision) {
     const multiple = decision.destinations.length > 1;
-    racine.append(el('p', 'orientation__question', decision.raison));
 
     const liste = el('div', 'orientation__destinations');
     decision.destinations.forEach((cle) => {
       const partenaire = partnerFor(cle);
-      const url = partnerUrl(cle, contexte, etat.customerType);
+      const url = partnerUrl(cle, contexte, decision.profil);
       if (!url) return;
 
       const carte = el('div', 'orientation__destination');
@@ -144,7 +188,7 @@ function monter(racine) {
       lien.textContent = ORIENTATION.action.replace('%s', partenaire.nom);
       lien.dataset.event = 'commercial_orientation';
       lien.dataset.destination = cle === 'overparquet' ? 'over-parquet' : cle;
-      lien.dataset.customerType = etat.customerType;
+      lien.dataset.customerType = decision.profil;
       lien.dataset.context = contexte;
       carte.append(lien);
 

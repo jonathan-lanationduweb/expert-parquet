@@ -90,7 +90,7 @@ export function premibelLink(url, texte) {
    Quand le moteur n'en retient aucune, une phrase le dit — jamais un bouton
    mort. */
 
-export function orientationCommerciale({ campagne, compact = false, titre, intro, besoin, profil } = {}) {
+export function orientationCommerciale(depth, { campagne, compact = false, titre, intro, besoin, profil } = {}) {
   /* Le HTML servi porte le repli SANS JavaScript : un lien vers l'enseigne
      ouverte à tous. Le mini-routeur le remplace dès qu'il s'installe. Personne
      ne tombe donc sur un bloc muet, et personne n'a de formulaire à remplir
@@ -110,6 +110,9 @@ export function orientationCommerciale({ campagne, compact = false, titre, intro
 
   const attributs = [
     `data-orientation-routeur="${campagne}"`,
+    /* Le routeur est en JavaScript et ne sait pas où il est servi : la
+       profondeur de la page se résout ici, une bonne fois. */
+    `data-expertise-url="${rel(depth, 'pages/diagnostic.html')}#pre-diagnostic"`,
     besoin ? `data-besoin="${besoin}"` : '',
     profil ? `data-profil="${profil}"` : '',
   ].filter(Boolean).join(' ');
