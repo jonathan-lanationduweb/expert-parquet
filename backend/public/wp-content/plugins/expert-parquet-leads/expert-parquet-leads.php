@@ -105,6 +105,7 @@ define(
 require_once EP_PLUGIN_DIR . 'includes/class-ep-db.php';
 require_once EP_PLUGIN_DIR . 'includes/class-ep-schema.php';
 require_once EP_PLUGIN_DIR . 'includes/class-ep-lead.php';
+require_once EP_PLUGIN_DIR . 'includes/class-ep-orientation.php';
 require_once EP_PLUGIN_DIR . 'includes/class-ep-leads-repository.php';
 require_once EP_PLUGIN_DIR . 'includes/class-ep-photos-repository.php';
 require_once EP_PLUGIN_DIR . 'includes/class-ep-notes-repository.php';

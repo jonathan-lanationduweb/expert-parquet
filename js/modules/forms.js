@@ -8,7 +8,7 @@
  */
 
 import { FORMS, ORIENTATION, endpointFor, formMode, partnerFor, partnerUrl, uploadEnabled } from '../config/site.js';
-import { REMPLACEMENT_PLAUSIBLE } from '../config/diagnostic-rules.js';
+import { orienter, DIFFERENCE } from '../config/orientation-rules.js';
 import * as OPTIONS from '../config/options.js';
 
 const LISTS = {
@@ -699,14 +699,18 @@ function renderSuccess(form, output, photos, payload) {
 function orientationApresEnvoi(payload) {
   if (!payload || payload._form !== 'devis') return null;
 
-  const profil = payload.profil;
-  if (!profil) return null;
+  /* Le MÊME moteur que le pré-diagnostic, avec en plus ce que seul le
+     formulaire connaît : surface, délai, type de local. Deux moteurs auraient
+     fini par se contredire d'un écran à l'autre. */
+  const decision = orienter({
+    customerType: payload.profil,
+    probleme: payload.probleme,
+    surface: payload.surface,
+    delai: payload.delai,
+    logement: payload.logement,
+  });
 
-  const problemes = [].concat(payload.probleme || []);
-  if (!problemes.some((p) => REMPLACEMENT_PLAUSIBLE.includes(p))) return null;
-
-  const partenaire = partnerFor(profil);
-  const url = partnerUrl(profil, `devis-${profil}`);
+  if (decision.destinations.length === 0) return null;
 
   const bloc = document.createElement('div');
   bloc.className = 'callout callout--neutral u-mt-lg';
@@ -718,25 +722,37 @@ function orientationApresEnvoi(payload) {
   bloc.append(titre);
 
   const texte = document.createElement('p');
-  texte.textContent = url
-    ? `${ORIENTATION.pour[profil]} — ${partenaire.resume}`
-    : `${ORIENTATION.pour[profil]} — ${ORIENTATION.indisponible}`;
+  texte.textContent = decision.raison;
   bloc.append(texte);
 
-  if (url) {
-    const groupe = document.createElement('div');
-    groupe.className = 'btn-group u-mt-sm';
+  const groupe = document.createElement('div');
+  groupe.className = 'btn-group u-mt-sm';
+  decision.destinations.forEach((cle) => {
+    const partenaire = partnerFor(cle);
+    const url = partnerUrl(cle, `devis-${decision.besoin}`, payload.profil);
+    if (!url) return;
     const lien = document.createElement('a');
     lien.className = 'btn btn--outline btn--sm';
     lien.href = url;
     lien.rel = 'sponsored noopener';
     lien.textContent = ORIENTATION.action.replace('%s', partenaire.nom);
     lien.dataset.event = 'commercial_orientation';
-    lien.dataset.destination = partenaire.nom.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    lien.dataset.customerType = profil;
+    lien.dataset.destination = cle === 'overparquet' ? 'over-parquet' : cle;
+    lien.dataset.customerType = payload.profil || '';
     lien.dataset.context = 'devis-envoye';
     groupe.append(lien);
-    bloc.append(groupe);
+  });
+  bloc.append(groupe);
+
+  if (decision.destinations.length > 1) {
+    const liste = document.createElement('ul');
+    liste.className = 'rich-list u-mt-sm';
+    decision.destinations.forEach((cle) => {
+      const li = document.createElement('li');
+      li.textContent = `${partnerFor(cle).nom} — ${DIFFERENCE[cle]}`;
+      liste.append(li);
+    });
+    bloc.append(liste);
   }
 
   const mention = document.createElement('p');

@@ -18,9 +18,8 @@ repris ailleurs, identité graphique et composants propres.
 | **V2 — Back-office** | **en validation** |
 | **Production** | **pas encore ouverte** |
 
-Orientation commerciale validée : **professionnel → Premibel**, **particulier →
-Over Parquet**. Aide et expertise d'abord, commerce ensuite — voir la section
-**V2 — Conversion et leads** pour la réserve qui reste à lever.
+Orientation commerciale : **c'est le besoin qui décide**, pas le profil. Aide et
+expertise d'abord, commerce ensuite — voir **V2 — Conversion et leads**.
 
 Environnement local complet et fonctionnel.
 
@@ -439,23 +438,34 @@ Professionnel  →  Premibel
 Particulier    →  Over Parquet
 ```
 
-**STATUT : en validation — destination particulier à confirmer.**
+**STATUT : en validation.**
 
-Ce qui fonctionne : la qualification (le profil choisi au pré-diagnostic remplit
-`customer_type` sans nouvelle donnée), l'orientation en fin de pré-diagnostic pour les
-trois symptômes où un remplacement est plausible, un bloc compact sur l'accueil et sur
-deux pages problème, et une suite commerciale après un devis enregistré.
+L'orientation ne dépend plus du profil seul. Une fonction unique —
+`orienter()` dans [js/config/orientation-rules.js](js/config/orientation-rules.js) —
+reçoit le problème, le profil, la surface, le délai et le type de local, puis rend
+un besoin et zéro, une ou deux destinations. Le pré-diagnostic, les pages problème
+et l'après-devis l'appellent tous les trois ; le back-office en tient un miroir en
+PHP pour relire une demande.
 
-Ce qui bloque, et n'est pas une question technique : **Over Parquet s'annonce « 100 % PRO
-— Site réservé aux professionnels » et demande un KBIS à l'inscription.** La règle validée
-envoie pourtant les particuliers chez lui. Tant qu'elle n'est pas tranchée, le code refuse
-de produire ce lien et affiche un état informatif : aucun particulier n'est envoyé vers une
-porte fermée. La table `PARCOURS` de `js/config/site.js` tient la décision en deux lignes.
+| Besoin | Profil | Destination | Pourquoi |
+| --- | --- | --- | --- |
+| Expertise ou réparation | tous | **Expert Parquet** | rien à vendre : le besoin porte sur la cause |
+| Choix d'un parquet | particulier ou inconnu | **Premibel** | showroom, 700 références, conseil — et la seule enseigne ouverte aux particuliers |
+| Choix d'un parquet | professionnel | **Premibel** puis Over Parquet | choisir d'abord ; le stock reste utile ensuite |
+| Approvisionnement de chantier | professionnel | **Over Parquet** puis Premibel | stock immédiat, retrait en 3 h, remises pro |
 
-| Profil | Destination validée | Ce que le site accepte |
-| --- | --- | --- |
-| Professionnel | Premibel — [guide d'inscription pro](https://www.premibel.fr/guide-inscription-pro/) | particuliers **et** professionnels |
-| Particulier | Over Parquet — `over-parquet.com` | professionnels **uniquement** |
+Le besoin vaut « approvisionnement » quand un professionnel décrit un local
+professionnel, une surface d'au moins 50 m² ou un délai urgent. Le remplacement
+n'est envisagé que pour trois symptômes — déformation, dégât des eaux,
+vieillissement : un grincement ou une tache ne déclenchent jamais d'orientation.
+
+Ce que les deux enseignes proposent réellement, relevé sur leurs sites le
+30/09/2026 : **Premibel** est ouvert aux particuliers et aux professionnels, avec
+deux showrooms, plus de 700 références et un espace pro ; **Over Parquet** est
+« 100 % PRO », inscription sur KBIS, avec plus de 500 références en stock
+immédiat et un retrait en trois heures. Les deux vendent les mêmes familles de
+produits : ce n'est pas le produit qui les distingue, c'est la manière de
+l'obtenir.
 
 Chantier : `feature/v2-conversion-leads`.
 
