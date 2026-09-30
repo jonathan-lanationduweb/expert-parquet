@@ -188,7 +188,15 @@ function monter(racine) {
       lien.textContent = ORIENTATION.action.replace('%s', partenaire.nom);
       lien.dataset.event = 'commercial_orientation';
       lien.dataset.destination = cle === 'overparquet' ? 'over-parquet' : cle;
-      lien.dataset.customerType = decision.profil;
+      /* L'intention, elle, est toujours vraie : le visiteur vient de cliquer
+         dessus. C'est elle qu'on mesure, pas un profil supposé. */
+      lien.dataset.besoin = decision.besoin;
+      /* Le profil DÉCLARÉ, jamais celui que le routage a déduit. Choisir
+         « approvisionner un chantier professionnel » suffit à orienter vers
+         Over Parquet, mais personne n'a demandé à ce visiteur qui il est :
+         écrire « professionnel » dans la mesure ferait croire à une
+         qualification qui n'a pas eu lieu. Attribut absent = inconnu. */
+      if (etat.customerType) lien.dataset.customerType = etat.customerType;
       lien.dataset.context = contexte;
       carte.append(lien);
 
