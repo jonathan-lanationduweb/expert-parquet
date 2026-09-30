@@ -4,7 +4,7 @@
  */
 
 import { rel, breadcrumb } from '../layout.mjs';
-import { ICONS, PROBLEMS, ctaBand, pageHero, PREMIBEL, premibelLink, orientationCommerciale } from '../partials.mjs';
+import { ICONS, PROBLEMS, ctaBand, pageHero, PREMIBEL, premibelLink, blocRemplacement } from '../partials.mjs';
 import { relatedSection } from './graph.mjs';
 
 const D = 2;
@@ -76,13 +76,19 @@ export const ADVICE_CATEGORIES = [
     problems: ['parquet-abime'],
   },
   {
-    /* Orientation commerciale DESACTIVEE ici, a dessein.
-       Ces deux pages portent deja DEUX liens editoriaux vers Premibel, et la
-       regle que le projet s'est donnee (voir PREMIBEL dans tools/partials.mjs)
-       plafonne a deux liens par page. Un troisieme ferait basculer une page de
-       conseil en page d'apport d'affaires. Le mecanisme reste en place : passer
-       cette ligne a `true` suffit si la regle change.
-       remplacement: true, */
+    /* La regle a change, et la distinction avec elle.
+       Le plafond de DEUX liens editoriaux Premibel par page tient toujours :
+       il protege le texte, ou un lien de trop transforme un paragraphe de
+       conseil en argumentaire. Mais un encart de fin de page n'est pas un lien
+       editorial — c'est la reponse a la question que le lecteur se pose une
+       fois qu'il a fini de lire : « maintenant, ou vais-je ? ». Les deux
+       categories se comptent separement. */
+    remplacement: true,
+    sortie: {
+      titre: 'La rénovation n’est plus possible&nbsp;?',
+      texte: 'Quand l’épaisseur utile ne permet plus de poncer, la question devient celle du remplaçant : essence, structure, compatibilité avec le support existant. Premibel accueille particuliers et professionnels, sans formulaire ni inscription.',
+      action: 'Voir les parquets chez Premibel',
+    },
     slug: 'renovation',
     tags: ['renovation', 'esthetique', 'choix'],
     title: 'Rénovation de parquet',
@@ -198,13 +204,17 @@ export const ADVICE_CATEGORIES = [
     problems: ['defaut-de-pose', 'parquet-gondole'],
   },
   {
-    /* Orientation commerciale DESACTIVEE ici, a dessein.
-       Ces deux pages portent deja DEUX liens editoriaux vers Premibel, et la
-       regle que le projet s'est donnee (voir PREMIBEL dans tools/partials.mjs)
-       plafonne a deux liens par page. Un troisieme ferait basculer une page de
-       conseil en page d'apport d'affaires. Le mecanisme reste en place : passer
-       cette ligne a `true` suffit si la regle change.
-       remplacement: true, */
+    /* Voir la note sur 'renovation' : le plafond de deux liens editoriaux ne
+       concerne pas l'encart de fin de page. Cette page-ci est meme celle ou il
+       se justifie le plus — quelqu'un qui vient d'apprendre a distinguer un
+       massif d'un contrecolle cherche ensuite ou les voir. */
+    remplacement: true,
+    sortie: {
+      titre: 'Vous savez maintenant quel parquet chercher&nbsp;?',
+      texte: 'Massif, contrecollé, épaisseur utile, finition : une fois les critères en tête, il reste à les voir. Premibel réunit plus de 700 références, deux showrooms et des conseillers pour comparer.',
+      action: 'Découvrir la sélection Premibel',
+      secondaire: null,
+    },
     slug: 'choisir-parquet',
     tags: ['choix', 'structure', 'pose'],
     title: 'Choisir un parquet',
@@ -292,7 +302,7 @@ function renderCategory(category) {
 
 ${sections}
 
-${category.remplacement ? orientationCommerciale(D, { campagne: `conseils-${category.slug}` }) : ''}
+${category.remplacement ? blocRemplacement(D, { campagne: `conseils-${category.slug}`, ...(category.sortie || {}) }) : ''}
         </div>
 
         <aside class="article-aside">
