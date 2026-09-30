@@ -11,6 +11,7 @@ import { initAnimations } from './modules/animations.js';
 import { initAccordions } from './modules/accordion.js';
 import { initCarousels } from './modules/carousel.js';
 import { initDiagnostic } from './modules/diagnostic.js';
+import { initOrientation } from './modules/orientation.js';
 import { initForms } from './modules/forms.js';
 import { initToc } from './modules/toc.js';
 import { initIndexLists } from './modules/index-list.js';
@@ -30,6 +31,7 @@ function boot() {
     initIndexLists,
     initToc,
     initDiagnostic,
+    initOrientation,
     initForms,
     initStickyCta,
     initRevealMore,

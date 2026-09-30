@@ -292,7 +292,7 @@ function renderCategory(category) {
 
 ${sections}
 
-${category.remplacement ? orientationCommerciale({ campagne: `conseils-${category.slug}` }) : ''}
+${category.remplacement ? orientationCommerciale(D, { campagne: `conseils-${category.slug}` }) : ''}
         </div>
 
         <aside class="article-aside">

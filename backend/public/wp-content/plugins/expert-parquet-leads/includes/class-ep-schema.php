@@ -218,7 +218,10 @@ class EP_Schema {
 			'logement'      => array( 'enum',       false, 'logements',       'Type de logement' ),
 			'profil'        => array( 'enum',       false, 'profils',         'Profil' ),
 			'code_postal'   => array( 'cp',         true,  null,              'Code postal' ),
-			'ville'         => array( 'texte',      true,  self::MAX_COURT,   'Ville' ),
+			/* La ville n'est plus exigee : le code postal suffit a situer une
+			   intervention, et demander les deux ajoutait un champ obligatoire
+			   sans rien apprendre. Elle reste acceptee quand elle est donnee. */
+			'ville'         => array( 'texte',      false, self::MAX_COURT,   'Ville' ),
 			'delai'         => array( 'enum',       false, 'delais',          'Délai souhaité' ),
 			'description'   => array( 'long',       true,  self::MAX_LONG,    'Description' ),
 			'prenom'        => array( 'texte',      true,  self::MAX_COURT,   'Prénom' ),

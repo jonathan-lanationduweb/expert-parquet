@@ -25,6 +25,18 @@
  * Deviner. Sans profil, sans problème exploitable, elle répond « à qualifier »
  * plutôt que d'inventer une orientation qui orienterait un rappel commercial
  * dans le vide.
+ *
+ * ---------------------------------------------------------------------------
+ * POURQUOI « APPROVISIONNEMENT » N'APPARAÎT PLUS ICI
+ *
+ * Le site ne DÉDUIT plus ce besoin : il le DEMANDE, en un clic, dans le
+ * mini-routeur — et ce routeur ne remplit aucun formulaire, donc rien n'en
+ * arrive jusqu'à cette table. Une demande enregistrée ne porte pas le besoin
+ * exprimé ; la déduire de la surface, du délai ou du type de local reviendrait
+ * à réintroduire la supposition qu'on vient de retirer du site.
+ *
+ * Une demande de devis dit donc au plus : la personne envisage peut-être de
+ * changer de parquet. Le reste se demande au téléphone.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -42,9 +54,6 @@ class EP_Orientation {
 	 * Miroir de `REMPLACEMENT_PLAUSIBLE` (js/config/diagnostic-rules.js).
 	 */
 	private const REMPLACEMENT_PLAUSIBLE = array( 'deformation', 'degat-des-eaux', 'vieillissement' );
-
-	/** Surfaces qui relèvent d'un chantier plutôt que d'une pièce. */
-	private const GRANDES_SURFACES = array( '50-100', 'plus-100' );
 
 	/** Nom affichable de chaque enseigne. Les URL restent côté site. */
 	private const ENSEIGNES = array(
@@ -92,17 +101,13 @@ class EP_Orientation {
 			);
 		}
 
-		$chantier = 'professionnel' === $profil && (
-			'local-pro' === ( $lead['building_type'] ?? '' )
-			|| in_array( (string) ( $lead['surface'] ?? '' ), self::GRANDES_SURFACES, true )
-			|| 'urgent' === ( $lead['desired_delay'] ?? '' )
-		);
-		$besoin = $chantier ? self::BESOIN_APPROVISIONNEMENT : self::BESOIN_SELECTION;
+		/* Le seul besoin qu'une demande enregistrée permette d'établir. Voir
+		   l'en-tête : l'approvisionnement se dit, il ne se déduit pas. */
+		$besoin = self::BESOIN_SELECTION;
 
-		$ordre        = $chantier ? array( 'overparquet', 'premibel' ) : array( 'premibel', 'overparquet' );
 		$destinations = array_values(
 			array_filter(
-				$ordre,
+				array( 'premibel', 'overparquet' ),
 				static function ( $cle ) use ( $profil ) {
 					// Profil inconnu : seules les enseignes ouvertes à tous.
 					$cible = '' === $profil ? 'particulier' : $profil;
@@ -120,9 +125,7 @@ class EP_Orientation {
 		return self::resultat(
 			$besoin,
 			$destinations,
-			$chantier
-				? 'Le projet ressemble à un approvisionnement de chantier.'
-				: 'Le projet suppose de choisir un parquet, avec conseil et showroom.'
+			'Le projet suppose de choisir un parquet, avec conseil et showroom.'
 		);
 	}
 

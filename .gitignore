@@ -70,3 +70,8 @@ backend/public/wp-content/plugins/*
 
 # Sortie de publication, reconstruite a chaque build.
 dist/
+
+# Traces d'automatisation du navigateur : captures et instantanes de pages
+# servies depuis l'hote de developpement. Elles contiennent des adresses
+# locales et n'ont aucune valeur hors de la session qui les a produites.
+.playwright-mcp/
