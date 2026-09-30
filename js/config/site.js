@@ -138,6 +138,209 @@ export const RGPD = {
   sousTraitants: [],
 };
 
+/* ==========================================================================
+   ORIENTATION COMMERCIALE
+   ========================================================================== */
+
+/**
+ * Partenaires vers qui orienter un visiteur dont le projet dépasse la
+ * réparation.
+ *
+ * --------------------------------------------------------------------------
+ * CE QUE CE BLOC EST, ET CE QU'IL N'EST PAS
+ *
+ * Expert Parquet aide d'abord. L'orientation n'apparaît qu'au moment où
+ * l'achat devient une suite plausible, elle est toujours formulée au
+ * conditionnel, et elle demande un clic. Aucune redirection automatique :
+ * un visiteur venu comprendre un grincement ne doit jamais se retrouver sur
+ * un catalogue sans l'avoir demandé.
+ *
+ * --------------------------------------------------------------------------
+ * LES CLÉS SONT CELLES DE `customer_type`
+ *
+ * `particulier` et `professionnel` sont exactement les valeurs de `PROFILS`
+ * (js/config/options.js), du champ `profil` du formulaire de devis, de
+ * l'énumération `profils` du backend et de la colonne `customer_type`. Une
+ * troisième nomenclature — `individual`, `b2b`, `visitor_type` — obligerait à
+ * traduire d'un bout à l'autre de la chaîne, et divergerait au premier oubli.
+ *
+ * --------------------------------------------------------------------------
+ * UNE URL MANQUANTE EST `null`, JAMAIS DEVINÉE
+ *
+ * `url: null` signifie « destination pas encore connue ». L'interface l'annonce
+ * alors clairement au lieu de fabriquer un lien : un lien inventé qui tombe en
+ * 404 coûte plus cher que l'absence de lien.
+ *
+ * --------------------------------------------------------------------------
+ * `audience` : À QUI CHAQUE ENSEIGNE OUVRE RÉELLEMENT SA PORTE
+ *
+ * Ce champ n'est pas décoratif, et il n'est pas déduit d'une intention
+ * commerciale : il rapporte ce que chaque site DÉCLARE de lui-même, vérifié le
+ * 29/09/2026. Il sert de garde-fou — `partnerUrl()` refuse de produire un lien
+ * vers une enseigne qui n'accepte pas le profil du visiteur.
+ *
+ * Sans ce garde-fou, un particulier pourrait être envoyé vers un grossiste qui
+ * exige un KBIS à l'inscription : un cul-de-sac, et une promesse trahie.
+ */
+export const PARTNERS = {
+  /* L'ordre est celui de `PROFILS` et du formulaire : particulier d'abord,
+     parce que c'est le public majoritaire du site. */
+  overparquet: {
+    nom: 'Over Parquet',
+    /**
+     * Forme canonique vérifiée : `www.over-parquet.com` redirige (301) vers
+     * `over-parquet.com`.
+     */
+    url: 'https://over-parquet.com/',
+    /**
+     * Le site s'annonce « 100 % PRO — Site réservé aux professionnels » et
+     * demande un KBIS à la création de compte. Il n'ouvre donc PAS aux
+     * particuliers, quelle que soit la règle commerciale retenue.
+     */
+    audience: ['professionnel'],
+    resume: 'Distributeur de parquets réservé aux professionnels, sur justificatif d’entreprise.',
+  },
+  premibel: {
+    nom: 'Premibel',
+    /**
+     * Page officielle dédiée aux professionnels — « Guide d'Inscription pour
+     * les Professionnels sur Premibel.fr » : compte pro, tarifs dédiés,
+     * commande simplifiée. Plus adaptée qu'un accueil générique pour une
+     * orientation qui s'adresse nommément à cette audience.
+     *
+     * Repli possible si vous préférez une entrée neutre :
+     * `https://www.premibel.fr/`.
+     *
+     * `www` est la forme canonique : `premibel.fr` redirige (301) vers elle.
+     * Les liens ÉDITORIAUX du site emploient encore la forme sans `www` — ils
+     * appartiennent à la V1 validée et ne sont pas réécrits ici.
+     */
+    url: 'https://www.premibel.fr/guide-inscription-pro/',
+    /** Le site vend aux particuliers ET tient un espace professionnel. */
+    audience: ['particulier', 'professionnel'],
+    resume: 'Distributeur de parquets ouvert aux particuliers comme aux professionnels.',
+  },
+};
+
+/**
+ * Qui oriente-t-on vers qui.
+ *
+ * --------------------------------------------------------------------------
+ * DÉCISION COMMERCIALE, PAS DÉCISION TECHNIQUE
+ *
+ * Cette table est la règle arrêtée en réunion : professionnel → Premibel,
+ * particulier → Over Parquet. Elle tient en deux lignes pour qu'on puisse la
+ * changer sans toucher au code.
+ *
+ * ATTENTION — la réalité vérifiée des deux sites ne suit pas cette règle :
+ * Over Parquet est réservé aux professionnels (voir `audience` ci-dessus).
+ * Tant que la règle reste en l'état, `partnerUrl('particulier')` renvoie
+ * `null` et l'interface affiche un état informatif, non cliquable, au lieu
+ * d'envoyer un particulier vers une porte fermée.
+ *
+ * Si la règle devait suivre ce que les deux enseignes acceptent, il suffit
+ * d'échanger les deux valeurs ci-dessous.
+ */
+export const PARCOURS = {
+  particulier: 'overparquet',
+  professionnel: 'premibel',
+};
+
+/**
+ * Paramètres de campagne ajoutés aux liens d'orientation — et à eux seuls.
+ *
+ * Ils sont construits ici, une fois, plutôt que recopiés dans les gabarits :
+ * une campagne mal orthographiée dans un seul fichier produirait des
+ * statistiques fausses sans que rien ne le signale.
+ *
+ * Les liens ÉDITORIAUX déjà présents dans les articles n'en reçoivent pas :
+ * ce sont des références de contenu, pas des apports d'affaires, et les
+ * marquer reviendrait à réécrire la V1 validée.
+ */
+export const PARTNER_UTM = {
+  source: 'expert-parquet',
+  medium: 'referral',
+};
+
+/** Le partenaire vers qui ce profil est orienté, ou `null`. */
+export function partnerFor(profil) {
+  return PARTNERS[PARCOURS[profil]] || null;
+}
+
+/**
+ * Vrai si ce profil peut réellement être orienté : une destination est
+ * connue, ET cette destination accepte ce profil.
+ */
+export function partnerConfigured(profil) {
+  const p = partnerFor(profil);
+  return Boolean(p && p.url && (!p.audience || p.audience.includes(profil)));
+}
+
+/**
+ * URL d'orientation, marquée pour l'analyse, ou `null` si la destination n'est
+ * pas connue. L'appelant doit traiter ce `null` — c'est ce qui garantit
+ * qu'aucun lien mort n'est rendu.
+ *
+ * @param {string} profil    'particulier' | 'professionnel'
+ * @param {string} campagne  d'où part le visiteur : 'pre-diagnostic', 'accueil',
+ *                           'probleme-degat-des-eaux'…
+ */
+export function partnerUrl(profil, campagne) {
+  const p = partnerFor(profil);
+  // Le garde-fou d'audience : pas de lien vers une porte fermée à ce profil.
+  if (!partnerConfigured(profil)) return null;
+  const url = new URL(p.url);
+  url.searchParams.set('utm_source', PARTNER_UTM.source);
+  url.searchParams.set('utm_medium', PARTNER_UTM.medium);
+  if (campagne) url.searchParams.set('utm_campaign', campagne);
+  return url.toString();
+}
+
+/**
+ * Textes de l'orientation, en un seul endroit : le pré-diagnostic les rend à
+ * l'exécution, le générateur les rend dans les pages statiques. Deux copies
+ * finiraient par ne plus dire la même chose.
+ *
+ * Le conditionnel est volontaire et ne doit pas être « simplifié » : ce site
+ * ne prononce pas de remplacement, il envisage une hypothèse.
+ */
+export const ORIENTATION = {
+  titre: 'Si le remplacement se confirme',
+  intro:
+    'Une partie des désordres finit par poser la question d’un nouveau parquet. Ce n’est pas une conclusion : c’est une hypothèse à vérifier lors de l’expertise. Si elle se confirme, voici vers qui nous orientons.',
+  question: 'Vous êtes :',
+  /** Libellé du bouton de choix, par profil. */
+  choix: {
+    particulier: 'Particulier',
+    professionnel: 'Professionnel',
+  },
+  /** Intitulé de la ligne, par profil. */
+  pour: {
+    particulier: 'Pour les particuliers',
+    professionnel: 'Pour les professionnels',
+  },
+  /**
+   * Libellé du lien sortant. `%s` reçoit le nom de l'enseigne : le visiteur
+   * doit savoir où il va AVANT de cliquer, et voir qu'il quitte Expert Parquet.
+   */
+  action: 'Continuer chez %s',
+  /**
+   * La phrase de transparence. Elle dit ce qui est vérifiable — nous orientons
+   * vers des distributeurs partenaires — sans rien affirmer sur la propriété
+   * ni les liens capitalistiques entre les sociétés, que nous ne connaissons
+   * pas et qu'il ne nous appartient pas d'écrire.
+   */
+  mention:
+    'Expert Parquet oriente vers des distributeurs partenaires. Le diagnostic et l’expertise restent indépendants de la vente.',
+  /**
+   * Affiché à la place du lien quand le profil ne peut pas être orienté.
+   * La phrase ne renomme pas l'audience : l'intitulé `pour` le fait déjà.
+   */
+  indisponible:
+    'aucune destination n’est ouverte pour l’instant. Vous pouvez demander une expertise : elle précisera ce qui est réellement nécessaire.',
+  retour: 'Changer de profil',
+};
+
 /** Correspondance `data-form` → clé de point d'envoi dans FORMS. */
 const ENDPOINT_BY_FORM = {
   contact: 'contactEndpoint',

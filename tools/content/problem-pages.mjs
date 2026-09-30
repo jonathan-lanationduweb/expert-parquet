@@ -8,7 +8,7 @@
  */
 
 import { rel, breadcrumb } from '../layout.mjs';
-import { ICONS, ctaBand, faqAccordion, faqJsonLd, pageHero } from '../partials.mjs';
+import { ICONS, ctaBand, faqAccordion, faqJsonLd, pageHero, orientationCommerciale } from '../partials.mjs';
 import { relatedSection } from './graph.mjs';
 
 const D = 2;
@@ -208,6 +208,9 @@ export const PROBLEM_PAGES = [
   },
   {
     slug: 'parquet-abime',
+    /* Le remplacement est ici une suite plausible : la page elle-meme
+       oppose « un raccord de trente minutes » a « une renovation complete ». */
+    remplacement: true,
     tags: ['esthetique', 'renovation', 'entretien'],
     title: 'Parquet abîmé&nbsp;: taches et rayures',
     h1: 'Parquet abîmé&nbsp;: taches, rayures et usure',
@@ -257,6 +260,8 @@ export const PROBLEM_PAGES = [
   },
   {
     slug: 'degat-des-eaux',
+    /* Apres un sinistre, la depose fait partie des issues courantes. */
+    remplacement: true,
     tags: ['sinistre', 'humidite', 'renovation', 'mesure'],
     title: 'Dégât des eaux',
     h1: 'Parquet après un dégât des eaux',
@@ -402,6 +407,8 @@ ${problem.verifications.map((item) => `            <li>${item}</li>`).join('\n')
 
           <h2 id="expertise">Quand demander une expertise</h2>
           <p>${problem.expertise}</p>
+
+${problem.remplacement ? orientationCommerciale({ campagne: `probleme-${problem.slug}` }) : ''}
 
           <div class="callout u-mt-lg">
             <p class="callout__title">${ICONS.alert} Portée de cette page</p>

@@ -7,7 +7,8 @@
  * données qu’il aurait transmises. Voir TODO-INTEGRATIONS.md.
  */
 
-import { FORMS, endpointFor, formMode, uploadEnabled } from '../config/site.js';
+import { FORMS, ORIENTATION, endpointFor, formMode, partnerFor, partnerUrl, uploadEnabled } from '../config/site.js';
+import { REMPLACEMENT_PLAUSIBLE } from '../config/diagnostic-rules.js';
 import * as OPTIONS from '../config/options.js';
 
 const LISTS = {
@@ -515,7 +516,7 @@ async function submit(form) {
     }
 
     setState(form, 'success');
-    renderSuccess(form, output, photos);
+    renderSuccess(form, output, photos, payload);
   } catch (error) {
     setState(form, 'error');
     renderNetworkError(output);
@@ -641,7 +642,7 @@ function serialize(form) {
   return payload;
 }
 
-function renderSuccess(form, output, photos) {
+function renderSuccess(form, output, photos, payload) {
   const panel = form.closest('.form-panel') || form.parentElement;
   form.hidden = true;
   if (!output) return;
@@ -672,7 +673,78 @@ function renderSuccess(form, output, photos) {
     }
     output.append(p);
   }
+
+  const suite = orientationApresEnvoi(payload);
+  if (suite) output.append(suite);
+
   void panel;
+}
+
+/**
+ * Suite commerciale APRÈS l'enregistrement d'une demande d'expertise.
+ *
+ * L'ordre compte et n'est pas négociable : le lead est enregistré d'abord, la
+ * proposition vient ensuite. Inverser reviendrait à monnayer l'accès au
+ * formulaire.
+ *
+ * Trois conditions cumulatives, sinon rien :
+ *   - c'est une demande d'expertise (le contact ne porte pas de projet) ;
+ *   - le profil est connu — il vient du formulaire, pas d'une supposition ;
+ *   - le problème décrit rend un remplacement plausible, au sens de
+ *     `REMPLACEMENT_PLAUSIBLE`, la même liste que le pré-diagnostic.
+ *
+ * Une demande d'expertise pure — un grincement, une tache — n'en déclenche
+ * aucune.
+ */
+function orientationApresEnvoi(payload) {
+  if (!payload || payload._form !== 'devis') return null;
+
+  const profil = payload.profil;
+  if (!profil) return null;
+
+  const problemes = [].concat(payload.probleme || []);
+  if (!problemes.some((p) => REMPLACEMENT_PLAUSIBLE.includes(p))) return null;
+
+  const partenaire = partnerFor(profil);
+  const url = partnerUrl(profil, `devis-${profil}`);
+
+  const bloc = document.createElement('div');
+  bloc.className = 'callout callout--neutral u-mt-lg';
+  bloc.dataset.orientation = '';
+
+  const titre = document.createElement('p');
+  titre.className = 'callout__title';
+  titre.textContent = ORIENTATION.titre;
+  bloc.append(titre);
+
+  const texte = document.createElement('p');
+  texte.textContent = url
+    ? `${ORIENTATION.pour[profil]} — ${partenaire.resume}`
+    : `${ORIENTATION.pour[profil]} — ${ORIENTATION.indisponible}`;
+  bloc.append(texte);
+
+  if (url) {
+    const groupe = document.createElement('div');
+    groupe.className = 'btn-group u-mt-sm';
+    const lien = document.createElement('a');
+    lien.className = 'btn btn--outline btn--sm';
+    lien.href = url;
+    lien.rel = 'sponsored noopener';
+    lien.textContent = ORIENTATION.action.replace('%s', partenaire.nom);
+    lien.dataset.event = 'commercial_orientation';
+    lien.dataset.destination = partenaire.nom.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    lien.dataset.customerType = profil;
+    lien.dataset.context = 'devis-envoye';
+    groupe.append(lien);
+    bloc.append(groupe);
+  }
+
+  const mention = document.createElement('p');
+  mention.className = 'disclaimer u-mt-sm';
+  mention.textContent = ORIENTATION.mention;
+  bloc.append(mention);
+
+  return bloc;
 }
 
 /**

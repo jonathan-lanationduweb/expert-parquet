@@ -15,8 +15,10 @@ import {
   NOTES_TYPE,
   NOTES_SUPPORT,
   NOTES_DEBUT,
+  REMPLACEMENT_PLAUSIBLE,
   DISCLAIMER,
 } from '../config/diagnostic-rules.js';
+import { ORIENTATION, partnerFor, partnerUrl } from '../config/site.js';
 
 const STEPS = [
   {
@@ -200,7 +202,92 @@ function setupDiagnostic(root) {
     actions.append(cta, restart);
 
     wrap.append(head, summary, body, pistes, verifs, notesBlock, disclaimer, actions);
+
+    const commerciale = buildOrientation(answers, cta);
+    if (commerciale) wrap.append(commerciale);
+
     return wrap;
+  }
+
+  /**
+   * Orientation commerciale — trois sorties possibles au bout du pré-diagnostic.
+   *
+   * A. Le besoin reste une analyse  → « Demander une expertise », déjà là.
+   * B. Réparation ou rénovation     → rien de plus : on reste chez nous.
+   * C. Remplacement plausible       → ce bloc, et lui seul.
+   *
+   * Il n'apparaît que pour les symptômes de `REMPLACEMENT_PLAUSIBLE`, il est
+   * placé APRÈS l'appel à l'expertise, et il demande deux clics : choisir son
+   * profil, puis suivre le lien. Aucune redirection, aucune fenêtre qui
+   * s'ouvre toute seule.
+   *
+   * Effet utile au passage : le profil choisi part avec la demande d'expertise
+   * (`profil=`), où il pré-coche « Particulier / Professionnel » et remplit
+   * `customer_type` côté backend. La qualification est donc gratuite pour le
+   * visiteur — il ne répond pas deux fois à la même question.
+   */
+  function buildOrientation(reponses, ctaExpertise) {
+    if (!REMPLACEMENT_PLAUSIBLE.includes(reponses.probleme)) return null;
+
+    const box = el('div', 'callout callout--neutral u-mt-lg');
+    box.dataset.orientation = '';
+    afficherChoix();
+    return box;
+
+    function afficherChoix() {
+      box.innerHTML = '';
+      box.append(
+        el('p', 'callout__title', ORIENTATION.titre),
+        el('p', null, ORIENTATION.intro),
+        el('p', 'u-mt-sm', ORIENTATION.question)
+      );
+      const groupe = el('div', 'btn-group u-mt-sm');
+      PROFILS_ORIENTES.forEach((profil) => {
+        const choix = button(ORIENTATION.choix[profil], 'btn btn--outline btn--sm');
+        choix.addEventListener('click', () => afficherDestination(profil));
+        groupe.append(choix);
+      });
+      box.append(groupe, el('p', 'disclaimer u-mt-sm', ORIENTATION.mention));
+    }
+
+    function afficherDestination(profil) {
+      const partenaire = partnerFor(profil);
+      const url = partnerUrl(profil, `pre-diagnostic-${reponses.probleme}`);
+
+      box.innerHTML = '';
+      box.append(el('p', 'callout__title', ORIENTATION.titre));
+      box.append(
+        el(
+          'p',
+          null,
+          url ? `${ORIENTATION.pour[profil]} — ${partenaire.resume}` : `${ORIENTATION.pour[profil]} — ${ORIENTATION.indisponible}`
+        )
+      );
+
+      const groupe = el('div', 'btn-group u-mt-sm');
+      if (url) {
+        const lien = document.createElement('a');
+        lien.className = 'btn btn--outline btn--sm';
+        lien.href = url;
+        // Parcours commercial : le lien le déclare (voir le partial statique).
+        lien.rel = 'sponsored noopener';
+        lien.textContent = ORIENTATION.action.replace('%s', partenaire.nom);
+        lien.dataset.event = 'commercial_orientation';
+        lien.dataset.destination = destinationSlug(partenaire.nom);
+        lien.dataset.customerType = profil;
+        lien.dataset.context = `pre-diagnostic:${reponses.probleme}`;
+        groupe.append(lien);
+      }
+
+      const retour = button(ORIENTATION.retour, 'btn btn--ghost btn--sm');
+      retour.addEventListener('click', afficherChoix);
+      groupe.append(retour);
+      box.append(groupe, el('p', 'disclaimer u-mt-sm', ORIENTATION.mention));
+
+      /* Le profil part avec la demande d'expertise : le visiteur ne répondra
+         pas une seconde fois à la même question dans le formulaire. */
+      ctaExpertise.href = buildQuoteUrl(quotePath, { ...reponses, profil });
+    }
   }
 
   function summaryRow(parent, key, value) {
@@ -241,12 +328,27 @@ function buildStepper() {
   };
 }
 
+/** Les profils orientables, dans l'ordre du formulaire. */
+const PROFILS_ORIENTES = ['particulier', 'professionnel'];
+
+/** Identifiant stable d'une destination, pour les attributs de suivi. */
+function destinationSlug(nom) {
+  return nom
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 /** Pré-remplit le formulaire de devis avec les réponses du pré-diagnostic. */
 function buildQuoteUrl(base, answers) {
   const params = new URLSearchParams();
   if (answers.probleme) params.set('probleme', answers.probleme);
   if (answers.type) params.set('type', answers.type);
   if (answers.piece) params.set('piece', answers.piece);
+  // Le profil n'est posé que si le visiteur l'a choisi lui-même.
+  if (answers.profil) params.set('profil', answers.profil);
   // Marque l'origine : un lien depuis une page « problème » porte aussi des
   // paramètres, mais n'est pas un pré-diagnostic.
   params.set('via', 'pre-diagnostic');
