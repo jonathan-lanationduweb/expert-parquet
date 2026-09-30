@@ -1,103 +1,113 @@
 /**
- * Moteur d'orientation commerciale.
+ * Orientation commerciale — le besoin d'abord.
  *
  * ---------------------------------------------------------------------------
  * CE QUI A CHANGÉ, ET POURQUOI
  *
- * La première version routait sur le seul profil : professionnel → une
- * enseigne, particulier → l'autre. C'était faux sur le fond — le profil dit
- * QUI parle, pas CE DONT il a besoin — et faux en pratique : la destination
- * prévue pour les particuliers ne les accepte pas.
+ * La version précédente DEVINAIT le besoin : elle lisait la surface, le délai,
+ * le type de local, et en déduisait si la personne approvisionnait un chantier
+ * ou choisissait un parquet. Cela supposait qu'elle ait rempli un formulaire —
+ * onze champs obligatoires — avant de pouvoir être orientée vers une enseigne.
+ * Un formulaire devenait un péage.
  *
- * Ici, c'est le BESOIN qui décide. Le profil reste un critère, décisif sur un
- * seul point : l'accès. Il n'est plus le routeur.
+ * Désormais la personne le DIT, en un clic. Deux questions au plus, et aucune
+ * donnée personnelle n'est demandée pour franchir la porte :
+ *
+ *   1. Votre besoin   → choisir un parquet | approvisionner un chantier
+ *   2. Vous êtes      → particulier | professionnel   (seulement si utile)
+ *
+ * Les données du formulaire — surface, délai, local — restent utiles LORSQU'ELLES
+ * EXISTENT DÉJÀ : elles servent alors à relire une demande enregistrée. Elles
+ * ne sont plus jamais demandées dans le seul but de choisir une destination.
  *
  * ---------------------------------------------------------------------------
  * CE QUE LES DEUX ENSEIGNES PROPOSENT RÉELLEMENT
  *
  * Relevé sur leurs sites le 30/09/2026, pas supposé.
  *
- * PREMIBEL — ouvert aux particuliers ET aux professionnels.
- *   Deux showrooms à Paris et un entrepôt, plus de 700 références, des styles
- *   posés (point de Hongrie, bâton rompu, Versailles), toutes les finitions,
- *   des experts 6 j/7, devis gratuit, conseil sur le type de pose, paiement en
- *   quatre fois. Un espace professionnel avec tarifs dédiés existe aussi.
- *   → l'enseigne où l'on CHOISIT : voir, toucher, être conseillé.
+ * PREMIBEL — ouvert aux particuliers ET aux professionnels. Deux showrooms,
+ *   plus de 700 références, styles posés, toutes finitions, experts 6 j/7,
+ *   devis gratuit, espace professionnel avec tarifs dédiés.
+ *   → l'enseigne où l'on CHOISIT.
  *
  * OVER PARQUET — « 100 % PRO », inscription sur KBIS vérifié, prix visibles
- *   après connexion seulement.
- *   Plus de 500 références en stock immédiat, Click & Collect en trois heures,
- *   remises professionnelles, livraison offerte dès 1000 € HT.
- *   → l'enseigne où l'on S'APPROVISIONNE : disponibilité, délai, volume.
+ *   après connexion. Plus de 500 références en stock immédiat, Click & Collect
+ *   en trois heures, remises professionnelles.
+ *   → l'enseigne où l'on S'APPROVISIONNE.
  *
- * Les deux vendent du massif, du contrecollé, du stratifié, de la terrasse et
- * des accessoires : ce n'est donc PAS le produit qui les distingue, c'est la
- * manière de l'obtenir. D'où une matrice fondée sur le besoin, jamais sur
- * l'essence ou le format du parquet.
+ * Les deux vendent les mêmes familles de produits : ce n'est pas le produit qui
+ * les distingue, c'est la manière de l'obtenir.
  *
  * ---------------------------------------------------------------------------
- * CE QUE CE MODULE NE FAIT PAS
+ * UNE RÈGLE QUI NE SE DISCUTE PAS
  *
- * Il ne redirige rien et n'ouvre aucune fenêtre : il rend une décision, que
- * l'interface présente et que le visiteur suit ou non. Et il préfère rendre
- * « aucune destination » plutôt qu'une destination douteuse — un site d'aide
- * qui pousse à l'achat sans raison perd ce qui fait sa valeur.
+ * Over Parquet n'accepte pas les particuliers. Un particulier n'y est donc
+ * jamais envoyé, quel que soit son besoin — même s'il annonce un chantier.
  */
 
 import { PARTNERS } from './site.js';
 import { REMPLACEMENT_PLAUSIBLE } from './diagnostic-rules.js';
 
-/** Les trois besoins que les données du projet permettent de distinguer. */
+/** Les trois besoins, tels que le visiteur les exprime lui-même. */
 export const BESOINS = {
-  /** Comprendre, mesurer, faire constater. Aucune vente n'y répond. */
+  /** Comprendre, mesurer, faire réparer. Aucune vente n'y répond. */
   EXPERTISE: 'expertise',
-  /** Choisir un nouveau parquet : voir, comparer, être conseillé. */
+  /** Choisir un parquet : voir, comparer, être conseillé. */
   SELECTION: 'selection',
   /** Approvisionner un chantier : disponibilité, délai, volume. */
-  APPROVISIONNEMENT: 'approvisionnement',
+  APPROVISIONNEMENT: 'supply',
 };
 
-/** Libellés affichables des besoins, pour le site et le back-office. */
+/** Libellés affichables. */
 export const LIBELLE_BESOIN = {
   [BESOINS.EXPERTISE]: 'Expertise ou réparation',
   [BESOINS.SELECTION]: 'Choix d’un nouveau parquet',
   [BESOINS.APPROVISIONNEMENT]: 'Approvisionnement de chantier',
 };
 
-/** Surfaces qui relèvent d'un chantier plutôt que d'une pièce. */
-const GRANDES_SURFACES = ['50-100', 'plus-100'];
+/**
+ * Les questions du mini-routeur. Deux au maximum, et la seconde n'est posée
+ * que parce qu'elle change réellement la réponse : elle décide de l'accès
+ * (Over Parquet est fermé aux particuliers) et de la porte d'entrée chez
+ * Premibel (espace professionnel ou entrée générale).
+ */
+export const ROUTEUR = {
+  besoin: {
+    question: 'Votre besoin :',
+    choix: [
+      { valeur: BESOINS.SELECTION, libelle: 'Choisir un parquet' },
+      { valeur: BESOINS.APPROVISIONNEMENT, libelle: 'Approvisionner un chantier' },
+    ],
+  },
+  profil: {
+    question: 'Vous êtes :',
+    choix: [
+      { valeur: 'particulier', libelle: 'Particulier' },
+      { valeur: 'professionnel', libelle: 'Professionnel' },
+    ],
+  },
+};
 
 /**
- * Le besoin, déduit des seules réponses réellement disponibles.
+ * Le besoin d'une demande déjà enregistrée, quand personne ne l'a exprimé.
  *
- * Le remplacement n'est envisagé que pour les symptômes de
+ * Sert au back-office et à l'après-devis : on relit ce qu'on a. Le
+ * remplacement n'est envisagé que pour les symptômes de
  * `REMPLACEMENT_PLAUSIBLE` — la même liste que le pré-diagnostic, pour que le
- * site ne se contredise pas d'un écran à l'autre. Un grincement ou une tache
- * n'ouvrent donc jamais une orientation commerciale.
+ * site ne se contredise pas d'un écran à l'autre.
  */
-export function besoinDuProjet({ probleme, surface, delai, logement, customerType } = {}) {
+export function besoinDeduit({ probleme } = {}) {
   const problemes = [].concat(probleme || []).filter(Boolean);
-  if (!problemes.some((p) => REMPLACEMENT_PLAUSIBLE.includes(p))) {
-    return BESOINS.EXPERTISE;
-  }
-
-  /* Approvisionnement : trois signaux, tous issus du formulaire, et seulement
-     pour un professionnel — un particulier pressé reste quelqu'un qui doit
-     d'abord choisir. */
-  const chantier =
-    customerType === 'professionnel' &&
-    (logement === 'local-pro' || GRANDES_SURFACES.includes(surface) || delai === 'urgent');
-
-  return chantier ? BESOINS.APPROVISIONNEMENT : BESOINS.SELECTION;
+  return problemes.some((p) => REMPLACEMENT_PLAUSIBLE.includes(p))
+    ? BESOINS.SELECTION
+    : BESOINS.EXPERTISE;
 }
 
-/** Une enseigne accepte-t-elle ce profil ? Vide = profil inconnu, on reste prudent. */
+/** Une enseigne accepte-t-elle ce profil ? Profil inconnu : on reste prudent. */
 function accepte(cle, customerType) {
   const p = PARTNERS[cle];
   if (!p || !p.url) return false;
   if (!p.audience) return true;
-  /* Profil inconnu : on n'oriente que vers une enseigne ouverte à tous. Un
-     visiteur qui n'a pas dit qui il est ne doit pas se heurter à un KBIS. */
   if (!customerType) return p.audience.includes('particulier');
   return p.audience.includes(customerType);
 }
@@ -105,15 +115,15 @@ function accepte(cle, customerType) {
 /**
  * La décision.
  *
+ * @param {object} projet
+ * @param {string} [projet.need]          besoin exprimé — prioritaire sur tout
+ * @param {string} [projet.customerType]  'particulier' | 'professionnel'
+ * @param {object} [projet.knownContext]  ce qu'on sait déjà (problème…), pour
+ *                                        déduire le besoin s'il n'est pas dit
  * @returns {{besoin: string, destinations: string[], raison: string}}
- *   `destinations` est vide quand il faut rester chez Expert Parquet, et peut
- *   contenir DEUX enseignes quand les deux répondent réellement au besoin —
- *   dans ce cas la première est la plus proche du besoin exprimé, et
- *   l'interface présente les deux avec leur différence.
  */
-export function orienter(projet = {}) {
-  const customerType = projet.customerType || '';
-  const besoin = besoinDuProjet(projet);
+export function orientation({ need, customerType = '', knownContext = {} } = {}) {
+  const besoin = need || besoinDeduit(knownContext);
 
   if (besoin === BESOINS.EXPERTISE) {
     return {
@@ -123,8 +133,8 @@ export function orienter(projet = {}) {
     };
   }
 
-  /* L'ordre dit la pertinence, pas une préférence commerciale : on met en
-     tête l'enseigne dont le métier répond au besoin exprimé. */
+  /* L'ordre dit la pertinence, pas une préférence commerciale : en tête,
+     l'enseigne dont le métier répond au besoin exprimé. */
   const ordre =
     besoin === BESOINS.APPROVISIONNEMENT
       ? ['overparquet', 'premibel']
@@ -132,34 +142,36 @@ export function orienter(projet = {}) {
 
   const destinations = ordre.filter((cle) => accepte(cle, customerType));
 
-  return {
-    besoin,
-    destinations,
-    raison: raisonner(besoin, customerType, destinations),
-  };
+  return { besoin, destinations, raison: raisonner(besoin, customerType, destinations) };
 }
 
 function raisonner(besoin, customerType, destinations) {
   if (destinations.length === 0) {
-    return 'Aucune enseigne partenaire n’est ouverte à ce profil pour ce besoin.';
+    return 'Aucune enseigne partenaire n’est ouverte à ce profil.';
   }
   if (destinations.length > 1) {
-    return 'Deux solutions peuvent correspondre à ce projet.';
+    return 'Deux solutions peuvent convenir.';
   }
   if (besoin === BESOINS.APPROVISIONNEMENT) {
-    return 'Le projet ressemble à un approvisionnement de chantier.';
+    return 'Over Parquet est réservé aux professionnels : pour ce projet, Premibel fournit aussi bien le volume que le conseil.';
   }
-  return customerType === 'particulier' || !customerType
-    ? 'Le projet suppose de choisir un parquet, avec conseil et showroom.'
-    : 'Le projet suppose de choisir un parquet.';
+  return 'Showroom, références et conseil.';
 }
 
 /**
- * Ce qui distingue chaque enseigne, en une phrase, affichée quand les deux
- * sont proposées. Sans cela, présenter deux boutons reviendrait à déléguer un
- * choix sans donner de quoi le faire.
+ * Ce qui distingue chaque enseigne, en une phrase. Affiché dès qu'on en
+ * propose deux : présenter deux boutons sans dire ce qui les sépare
+ * reviendrait à déléguer un choix sans donner de quoi le faire.
  */
 export const DIFFERENCE = {
-  premibel: 'Showroom, plus de 700 références et conseil : l’enseigne où l’on choisit.',
-  overparquet: 'Stock immédiat, retrait en trois heures et remises professionnelles : l’enseigne où l’on s’approvisionne. Réservée aux professionnels.',
+  premibel: 'Pour le choix, le conseil et le showroom.',
+  overparquet: 'Pour l’approvisionnement professionnel, le stock et la disponibilité.',
 };
+
+/* Compatibilité : l'ancien nom reste appelable le temps que tout converge. */
+export const orienter = (projet = {}) =>
+  orientation({
+    need: projet.need,
+    customerType: projet.customerType,
+    knownContext: { probleme: projet.probleme },
+  });
