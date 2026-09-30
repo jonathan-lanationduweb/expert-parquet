@@ -34,7 +34,7 @@
   <link rel="stylesheet" href="css/reset.css?v=f14d0489">
   <link rel="stylesheet" href="css/base.css?v=c4327834">
   <link rel="stylesheet" href="css/layout.css?v=44456b68">
-  <link rel="stylesheet" href="css/components.css?v=7065f1af">
+  <link rel="stylesheet" href="css/components.css?v=7eab2fdc">
   <link rel="stylesheet" href="css/pages/home.css?v=6c9f2a76">
   <link rel="stylesheet" href="css/pages/diagnostic.css?v=645ddd84">
 
@@ -49,7 +49,7 @@
     "./js/modules/animations.js": "./js/modules/animations.js?v=23735147",
     "./js/modules/carousel.js": "./js/modules/carousel.js?v=34d89c7f",
     "./js/modules/contact-info.js": "./js/modules/contact-info.js?v=a8e4aa07",
-    "./js/modules/diagnostic.js": "./js/modules/diagnostic.js?v=1396598d",
+    "./js/modules/diagnostic.js": "./js/modules/diagnostic.js?v=1c242d8d",
     "./js/modules/forms.js": "./js/modules/forms.js?v=77524f43",
     "./js/modules/index-list.js": "./js/modules/index-list.js?v=b6e6f231",
     "./js/modules/navigation.js": "./js/modules/navigation.js?v=d2d4b4bc",
@@ -170,13 +170,18 @@
       <img src="assets/images/hero.jpg" srcset="assets/images/r/hero-480.jpg 480w, assets/images/r/hero-768.jpg 768w, assets/images/r/hero-1200.jpg 1200w, assets/images/r/hero-1600.jpg 1600w, assets/images/hero.jpg 2000w" sizes="100vw" alt="" width="2000" height="1333" fetchpriority="high" decoding="async">
     </div>
     <div class="container hero__inner">
-      <h1 class="hero-title hero__title">Un problème avec votre parquet&nbsp;?</h1>
-      <p class="hero__sub">Commençons par comprendre ce qui se passe.</p>
+      <h1 class="hero-title hero__title">Un problème ou un projet parquet&nbsp;?</h1>
+      <p class="hero__sub">Comprenez votre situation, puis allez à la bonne solution.</p>
       <div class="hero__foot">
-        <p class="hero__lead">Diagnostic, expertise et conseils techniques pour identifier l’origine d’un désordre avant d’engager des travaux.</p>
+        <p class="hero__lead">Conseils, pré-diagnostic et expertise technique — et l’orientation vers l’enseigne qui correspond à votre projet.</p>
+        <!-- Deux entrées, et deux seulement. Le projet d'abord : la plupart
+             des visiteurs cherchent un parquet, pas une expertise. Celui qui
+             a un désordre trouve sa porte juste à côté, au même niveau de
+             lecture. « Demander une expertise » n'est plus le premier geste
+             proposé à quelqu'un dont on ne sait rien. -->
         <div class="hero__actions btn-group">
-          <a class="btn btn--primary btn--lg" href="pages/devis.html">Demander une expertise</a>
-          <a class="btn btn--on-dark btn--lg" href="#pre-diagnostic">Décrire mon problème</a>
+          <a class="btn btn--primary btn--lg" href="#solutions">Choisir ou remplacer mon parquet</a>
+          <a class="btn btn--on-dark btn--lg" href="#pre-diagnostic">J’ai un problème avec mon parquet</a>
         </div>
       </div>
     </div>
@@ -199,6 +204,42 @@
           <h3>Une observation, pas une promesse</h3>
           <p>Ce site ne vend pas de solution avant d’avoir regardé. Il arrive qu’une observation conclue qu’il n’y a rien à faire — c’est aussi un résultat.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================ SOLUTIONS PARTENAIRES
+       Placé haut, et pour une raison : la plupart des visiteurs arrivent avec
+       un projet, pas avec un litige. Enterrer les enseignes en bas de page
+       obligeait à traverser tout le site pour trouver où acheter du parquet.
+       Le bloc reste sobre — deux noms, deux métiers, deux liens — et ne
+       précède pas le positionnement : on dit d'abord ce qu'on fait. -->
+  <section class="section" id="solutions">
+    <div class="container">
+      <div class="sec-head sec-head--split" data-reveal>
+        <div>
+          <div class="sec-head__rule"></div>
+          <p class="kicker">Où trouver votre parquet</p>
+          <h2 class="sec-head__title ">Trouver le parquet adapté</h2>
+        </div>
+        <div class="sec-head__aside">
+          <p class="lead">Expert Parquet ne vend pas de parquet. Nous vous orientons vers l’enseigne qui correspond à votre projet — sans formulaire, sans inscription.</p>
+          
+        </div>
+      </div>
+      <div class="solutions u-mt-lg" data-reveal>
+          <div class="solution">
+            <p class="solution__nom">Premibel</p>
+            <p class="solution__pour">Particuliers et professionnels</p>
+            <p class="solution__texte">Le choix, le conseil et le showroom&nbsp;: plus de 700 références, toutes finitions, des experts pour comparer avant de décider.</p>
+            <a class="btn btn--primary btn--block" href="https://www.premibel.fr/?utm_source=expert-parquet&amp;utm_medium=referral&amp;utm_campaign=accueil" rel="sponsored noopener" data-event="commercial_orientation" data-destination="premibel" data-besoin="selection" data-context="accueil">Découvrir les parquets</a>
+          </div>
+          <div class="solution">
+            <p class="solution__nom">Over Parquet</p>
+            <p class="solution__pour">Professionnels — chantiers</p>
+            <p class="solution__texte">L’approvisionnement&nbsp;: stock immédiat, retrait rapide et tarifs professionnels. Inscription sur justificatif d’entreprise.</p>
+            <a class="btn btn--outline btn--block" href="https://over-parquet.com/?utm_source=expert-parquet&amp;utm_medium=referral&amp;utm_campaign=accueil" rel="sponsored noopener" data-event="commercial_orientation" data-destination="over-parquet" data-besoin="supply" data-context="accueil">Approvisionner mon chantier</a>
+          </div>
       </div>
     </div>
   </section>
@@ -659,30 +700,24 @@
         <div class="journey__item"><b>05</b>Recommandations</div>
       </div>
 
-      <!-- Orientation commerciale : après le parcours, jamais avant.
-           La page d'accueil a été compactée à dessein ; ce bloc tient en
-           quatre lignes et ne réclame pas de section à lui. -->
-      <div class="u-mt-xl" data-reveal>
-      <div class="callout callout--neutral" data-orientation>
-        <p class="callout__title">Vous avez besoin d’un nouveau parquet ?</p>
-        <div class="orientation" data-orientation-routeur="accueil" data-expertise-url="pages/diagnostic.html#pre-diagnostic">
-        <a class="btn btn--outline btn--sm" href="https://www.premibel.fr/?utm_source=expert-parquet&amp;utm_medium=referral&amp;utm_campaign=accueil" rel="sponsored noopener" data-event="commercial_orientation" data-destination="premibel" data-context="accueil">Continuer chez Premibel</a>
-        </div>
-        <p class="disclaimer u-mt-sm">Expert Parquet oriente vers des distributeurs partenaires. Le diagnostic et l’expertise restent indépendants de la vente.</p>
-      </div>
-      </div>
+      <!-- Le mini-routeur N'EST PLUS ici.
+           Il demandait « que souhaitez-vous faire ? » à un visiteur qui vient
+           de lire le hero et la section Solutions : les deux lui ont déjà posé
+           la question, et la section nomme les enseignes en un clic au lieu de
+           deux. Le routeur garde sa place là où le besoin est réellement
+           inconnu — les pages problème et la sortie du pré-diagnostic. -->
     </div>
   </section>
 
   <section class="cta-band">
     <div class="cta-band__inner">
       <div data-reveal>
-        <h2 class="cta-band__title">Un doute sur l’origine du problème&nbsp;?</h2>
-        <p>Décrivez votre situation en quelques minutes. Vous recevrez les éléments à vérifier en priorité et, si elle se justifie, une proposition d’expertise.</p>
+        <h2 class="cta-band__title">Vous hésitez entre réparer et remplacer&nbsp;?</h2>
+        <p>Le pré-diagnostic pose le contexte en cinq questions et vous oriente : vers une expertise si le parquet peut être sauvé, vers une enseigne s’il vaut mieux le remplacer.</p>
       </div>
       <div class="btn-group" data-reveal data-reveal-delay="90">
-        <a class="btn btn--primary btn--lg" href="pages/devis.html">Demander une expertise</a>
-        <a class="btn btn--on-dark btn--lg" href="pages/diagnostic.html#pre-diagnostic">Lancer le pré-diagnostic</a>
+        <a class="btn btn--primary btn--lg" href="pages/diagnostic.html#pre-diagnostic">Lancer le pré-diagnostic</a>
+        <a class="btn btn--on-dark btn--lg" href="pages/devis.html">Demander une expertise</a>
       </div>
     </div>
   </section>
@@ -716,6 +751,13 @@
             <li><a href="pages/conseils/renovation.html">Rénovation</a></li>
             <li><a href="pages/conseils/pose.html">Pose</a></li>
             <li><a href="pages/faq.html">FAQ</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2 class="footer__title">Solutions parquet</h2>
+          <ul class="footer__list">
+            <li><a href="https://www.premibel.fr/?utm_source=expert-parquet&amp;utm_medium=referral&amp;utm_campaign=pied-de-page" rel="sponsored noopener" data-event="commercial_orientation" data-destination="premibel" data-besoin="selection" data-context="pied-de-page">Choisir son parquet — Premibel</a></li>
+            <li><a href="https://over-parquet.com/?utm_source=expert-parquet&amp;utm_medium=referral&amp;utm_campaign=pied-de-page" rel="sponsored noopener" data-event="commercial_orientation" data-destination="over-parquet" data-besoin="supply" data-customer-type="professionnel" data-context="pied-de-page">Approvisionnement professionnel — Over Parquet</a></li>
           </ul>
         </div>
         <div>
