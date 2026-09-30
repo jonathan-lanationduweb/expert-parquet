@@ -1,86 +1,168 @@
 # Mise en production — liste de contrôle
 
-Rien ici n'est fait. C'est la liste de ce qui **doit** l'être, dans l'ordre, et
-de ce qui revient à un humain.
+Ce document est une **suite d'actions**, pas un récapitulatif. Chaque case non
+cochée est un obstacle réel entre l'état actuel et une mise en ligne.
 
-## 1. Décisions à prendre (personne d'autre ne peut)
+Ce qui est déjà tenu par le code n'y figure pas : le générateur refuse de
+produire une version de production tant que les valeurs juridiques manquent
+(`tools/production-guard.mjs`), l'artefact refuse de partir s'il contient un
+chemin interne, un secret ou une adresse de développement
+(`tools/build-deploy.mjs`), et le back-office annonce lui-même ce qui n'est pas
+configuré.
 
-- [ ] **Durée de conservation** des demandes closes — `RGPD.conservationMois`
-      (front) **=** `EP_CONSERVATION_MOIS` (backend). `bin/verifier-enums.php`
-      échoue en cas d'écart. Aucune valeur n'a été fixée à votre place : le 36
-      de `wp-config.php` local est une valeur de TEST, et sans constante le
-      backend n'efface aucun dossier clos.
-- [ ] **Responsable du traitement** — `CONTACT.legalEntity`, `CONTACT.email`.
-- [ ] **Fournisseur SMTP transactionnel** — ses identifiants vont dans
-      `wp-config.php`, jamais en base.
-- [ ] **Procédure de suppression sur demande** — qui reçoit, sous quel délai,
-      quelle trace. La suppression technique existe (fiche → corbeille →
-      définitif, photographies comprises) ; la procédure humaine, non.
-- [ ] Hébergeur et éventuels sous-traitants — `RGPD.sousTraitants`.
+---
 
-## 2. Serveur
+## 0. Décisions humaines — bloquantes
 
-- [ ] DNS de `api.expert-parquet.com` ; **HTTPS** (Let's Encrypt suffit).
-      Le front refuse un point d'envoi en clair.
-- [ ] `ServerTokens Prod` et `ServerSignature Off` dans Apache (la version
-      d'Apache sort encore dans l'en-tête `Server` en local).
-- [ ] PHP : `upload_max_filesize = 8M`, `post_max_size = 64M`,
-      `memory_limit = 256M`, `expose_php = Off`. Le back-office avertit si
-      insuffisant.
-- [ ] Restreindre `/wp-admin/` et `/wp-login.php` par adresse IP, ou au moins
-      par une authentification HTTP en plus.
-- [ ] Un vrai cron système appelant `wp-cron.php` toutes les heures, et
-      `DISABLE_WP_CRON` à `true` : la purge quotidienne ne doit pas dépendre
-      d'un visiteur.
-- [ ] `EP_PRIVATE_DIR` hors de la racine web, inscriptible par PHP seulement.
+Personne d'autre que l'éditeur ne peut les prendre. **Tant qu'elles manquent, le
+build de production échoue volontairement.**
 
-## 3. `wp-config.php`
+- [ ] **Identité de l'éditeur** — `CONTACT.legalEntity` dans `js/config/site.js`
+- [ ] **Numéro d'immatriculation (SIRET)** — `CONTACT.siret`
+- [ ] **Adresse postale** — `CONTACT.address`
+- [ ] **Adresse e-mail publique** — `CONTACT.email` (elle sert aussi à exercer les droits RGPD)
+- [ ] **Durée de conservation RGPD** — `RGPD.conservationMois`, **et** `EP_CONSERVATION_MOIS`
+      dans `wp-config.php`, avec **la même valeur**. Le site annonce une durée,
+      le backend l'applique : les deux doivent dire la même chose.
+- [ ] Téléphone, horaires, zone d'intervention — non bloquants, mais des phrases
+      resteront incomplètes tant qu'ils sont absents.
 
-- [ ] Nouvelle base, nouvel utilisateur limité à cette base, **nouveaux sels**.
-- [ ] `WP_ENVIRONMENT_TYPE` → `production` ; `WP_DEBUG` → `false`.
-- [ ] Liste blanche d'hôtes réduite à `api.expert-parquet.com` ; retirer
-      `127.0.0.1:8080` et `localhost:8080`.
-- [ ] `EP_CONSERVATION_MOIS`, `EP_SMTP_HOTE/PORT/USER/PASS`, `EP_MAIL_FROM`,
-      `EP_MAIL_DEST`.
-- [ ] SPF, DKIM et DMARC sur le domaine expéditeur — sans eux l'accusé de
-      réception part dans les indésirables.
+> La valeur locale de 36 mois est une **valeur de travail**. Ce n'est pas une
+> décision de production, et le back-office l'affiche comme telle.
 
-## 4. Extension
+---
 
-- [ ] `EP_ORIGINES_AUTORISEES` dans `expert-parquet-leads.php` : les seules
-      origines du site public en production ; retirer `expert-parquet-dev.local`,
-      `localhost:8477`, `127.0.0.1:8477`.
-- [ ] Activer l'extension, vérifier que `ep_schema_version` vaut 3, que les
-      quatre tables `{prefix}expert_parquet_*` existent (InnoDB) et que la tâche
-      `ep_purge_quotidienne` est planifiée.
-- [ ] Un envoi d'essai réel depuis le site, photographies comprises, puis
-      suppression de la demande d'essai.
+## 1. Noms de domaine et certificats
 
-## 5. Comptes
+Rien de tout cela ne peut être fait depuis le dépôt.
 
-- [ ] Nouveau mot de passe `ep-admin` (il a été renouvelé en local, mais il a
-      vécu sur un poste de développement).
-- [ ] Un compte **Gestionnaire de demandes** pour le suivi quotidien.
-      `ep-admin` ne sert qu'à administrer.
+- [ ] **DNS front** — `expert-parquet.com` (et `www` si le domaine final le
+      requiert) vers l'hébergement du site statique
+- [ ] **DNS API** — `api.expert-parquet.com` vers le serveur WordPress
+- [ ] **HTTPS front** — certificat valide, redirection HTTP → HTTPS
+- [ ] **HTTPS API** — certificat valide ; `FORCE_SSL_ADMIN` l'exige côté WordPress
+- [ ] Vérifier qu'aucun enregistrement ne pointe encore vers un environnement de test
 
-## 6. Front (`expert-parquet.com`)
+Les enregistrements exacts dépendent de l'hébergeur retenu : **aucune adresse IP
+n'est écrite ici**, elle serait fausse.
 
-- [ ] `js/config/site.js` : `FORMS.contactEndpoint` et `FORMS.quoteEndpoint`
-      en `https://…/wp-json/expert-parquet/v1/{contact,quote}`.
-- [ ] `CONTACT.legalEntity`, `CONTACT.email`, `RGPD.conservationMois`,
-      `RGPD.sousTraitants`.
-- [ ] `node tools/check.mjs` doit passer — il refuse la construction si l'un
-      de ces éléments manque ou si l'URL est en clair. **Ne contournez pas ce
-      contrôle** : il protège la véracité de la page de confidentialité.
-- [ ] `BUILD_ENV=prod node tools/build.mjs` (indexation ouverte).
-- [ ] Relire la page « Mentions légales et confidentialité » générée : elle
-      nomme désormais le responsable, la finalité, la durée, le moyen
-      d'exercer ses droits.
+---
 
-## 7. Après la bascule
+## 2. Serveur API et WordPress
 
-- [ ] Sauvegarde **base + dossier privé + wp-config.php**, et un essai de
-      restauration.
-- [ ] Supervision de `GET /wp-json/expert-parquet/v1/health`.
-- [ ] Première semaine : regarder le journal des courriels et l'historique des
-      premières demandes ; vérifier qu'aucun `email_failed` n'apparaît.
+- [ ] Serveur provisionné, PHP ≥ 8.0, extensions GD et mysqli
+- [ ] `backend/public` déployé **hors** du dépôt public — jamais sur GitHub Pages
+- [ ] `backend-private/` créé hors de la racine web, accessible en écriture au
+      processus PHP, **jamais** sous `wp-content`
+- [ ] VirtualHost calqué sur `backend/config/httpd-vhosts.apres-regroupement.conf` :
+      `/backend/` et `/backend-private/` refusés, `xmlrpc.php` non exposé,
+      PHP de `wp-content` refusé en appel direct, `install.php` et `uploads/` fermés
+- [ ] `ServerTokens Prod` et `ServerSignature Off`
+- [ ] En-têtes : `X-Content-Type-Options`, `Referrer-Policy`, politique de cadre
+      (l'extension les pose déjà côté PHP, y compris sur la page de connexion)
+
+## 3. Base de données
+
+- [ ] Base créée, `utf8mb4` / `utf8mb4_unicode_ci`
+- [ ] Utilisateur dédié, droits limités à cette base, **mot de passe long et unique**
+- [ ] WordPress installé, puis extension **Expert Parquet — Demandes** activée
+      (l'activation crée les quatre tables et le rôle)
+- [ ] Thème **Expert Parquet Backend** activé
+- [ ] Contrôle : les quatre tables existent, schéma v3 — visible dans
+      **Expert Parquet › Réglages**
+
+## 4. `wp-config.php` de production
+
+Modèle : `backend/config/wp-config.example.php`. **Ce fichier n'entre jamais dans Git.**
+
+- [ ] Clés et sels régénérés (`https://api.wordpress.org/secret-key/1.1/salt/`)
+- [ ] `WP_ENVIRONMENT_TYPE = 'production'`
+- [ ] `WP_DEBUG = false`, `WP_DEBUG_DISPLAY = false`
+- [ ] `DISALLOW_FILE_EDIT = true`, `DISALLOW_FILE_MODS = true`
+- [ ] `FORCE_SSL_ADMIN = true`
+- [ ] `EP_PRIVATE_DIR` pointe hors racine web
+- [ ] `EP_CONSERVATION_MOIS` — la durée décidée au point 0
+- [ ] `DISABLE_WP_CRON = true` **uniquement** si un cron système existe (point 6)
+
+## 5. Envoi des courriels
+
+Aujourd'hui : aucun fournisseur, les messages partent dans un journal privé.
+Le back-office l'affiche comme **« à configurer avant production »**.
+
+- [ ] **Fournisseur retenu** — décision ouverte
+- [ ] `EP_SMTP_HOTE`, `EP_SMTP_PORT`, `EP_SMTP_SECURITE` (`tls` | `ssl` | `none`)
+- [ ] `EP_SMTP_USER`, `EP_SMTP_PASS` — **secrets**, uniquement dans `wp-config.php`
+- [ ] `EP_MAIL_FROM`, `EP_MAIL_FROM_NOM`, `EP_MAIL_DEST`
+- [ ] **SPF** — le relais autorisé à expédier pour le domaine
+- [ ] **DKIM** — clé publiée, signature active
+- [ ] **DMARC** — politique publiée
+- [ ] Essai réel : une demande de test déclenche notification **et** accusé de
+      réception, tous deux reçus hors indésirables
+
+Sans SPF/DKIM/DMARC, les accusés de réception arriveront en indésirables — le
+lead sera enregistré, mais le demandeur croira n'avoir rien reçu.
+
+## 6. Tâches planifiées
+
+- [ ] Cron système appelant `wp-cron.php` (par exemple toutes les 15 minutes)
+- [ ] `DISABLE_WP_CRON = true` seulement **après** que le cron système fonctionne
+- [ ] Contrôle : **Expert Parquet › Réglages** annonce la purge RGPD *programmée*
+      avec sa prochaine date
+
+## 7. Sauvegardes
+
+- [ ] **Base de données** — export quotidien
+- [ ] **`backend-private/photos`** — photographies des demandes, données de tiers
+- [ ] **`backend-private/logs`** — journaux d'envoi et de suppression
+- [ ] **`wp-config.php`** — hors Git, donc irrécupérable autrement
+- [ ] Configuration serveur (VirtualHost, cron)
+- [ ] **Rétention décidée** et cohérente avec la durée de conservation RGPD :
+      garder six mois de sauvegardes d'une base purgée à 36 mois ne pose pas de
+      problème ; l'inverse en poserait un
+- [ ] **Restauration testée au moins une fois** — une sauvegarde jamais restaurée
+      n'est pas une sauvegarde
+- [ ] Destination décidée (hébergeur, stockage distant) — décision ouverte
+
+Vérification de l'état local : `php backend/scripts/verifier-sauvegarde.php`
+(lecture seule, ne sauvegarde rien).
+
+## 8. Front statique
+
+- [ ] Point 0 complet, sinon le build de production s'arrête de lui-même
+- [ ] `FORMS.contactEndpoint` et `FORMS.quoteEndpoint` en **HTTPS**, vers l'API de production
+- [ ] Liste blanche CORS de l'extension réduite aux origines de production :
+      `https://expert-parquet.com` (et `https://www.expert-parquet.com` si ce
+      domaine est servi) ; **retirer les origines locales**
+- [ ] `BUILD_ENV=prod node tools/build.mjs` — pages indexables, `robots.txt` ouvert
+- [ ] `node tools/check.mjs` — aucune erreur
+- [ ] `node tools/build-deploy.mjs` — artefact accepté
+- [ ] GitHub Pages : **Settings → Pages → Source : GitHub Actions**, sans quoi la
+      racine de la branche continue d'être publiée
+
+## 9. Surveillance
+
+- [ ] Sonde sur `https://api.expert-parquet.com/wp-json/expert-parquet/v1/health`
+      — attendu `200` et `{"ok":true}`, toutes les 5 minutes suffisent
+- [ ] Alerte sur trois échecs consécutifs plutôt que sur un seul
+- [ ] Surveillance de l'expiration des certificats
+- [ ] La sonde ne porte **aucun secret** : c'est un simple GET public
+
+## 10. Référencement
+
+- [ ] Domaine vérifié dans la Search Console
+- [ ] `sitemap.xml` soumis
+- [ ] Inspection d'une page, demande d'indexation
+- [ ] Contrôle : plus aucun `noindex` dans le HTML publié
+- [ ] Analytics — **aucun identifiant n'est configuré**, et aucun ne doit être
+      inventé. Si une mesure d'audience est voulue, elle suppose une décision et
+      une mention dans la page de confidentialité.
+
+## 11. Après la bascule
+
+- [ ] Parcours complet depuis le site public : contact, devis, photographies
+- [ ] Demande visible dans **Expert Parquet › Demandes**, profil et orientation corrects
+- [ ] Courriels réellement reçus
+- [ ] `/backend/`, `/backend-private/`, `/wp-config.php`, `/.git/` → **404**
+- [ ] `/wp-json/wp/v2/users` → **401**
+- [ ] Connexion : le verrou après six échecs fonctionne
+- [ ] Une sauvegarde complète prise **avant** l'ouverture au public

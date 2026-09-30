@@ -153,3 +153,39 @@ restriction de `/wp-admin/` par IP ; `ServerTokens Prod` côté Apache ;
 filtrage en amont des attaques distribuées (le verrou de connexion compte
 par origine, il ne couvre pas une attaque répartie) ; authentification à
 deux facteurs ; CAPTCHA seulement si du spam passe réellement.
+
+## Appel direct d'un fichier PHP
+
+Les extensions et les thèmes sont inclus par WordPress depuis le système de
+fichiers : aucun de leurs fichiers n'a de raison d'être demandé par une URL.
+Les vingt-quatre fichiers de l'extension portent la garde
+`defined( 'ABSPATH' ) || exit;` — une requête directe rend donc déjà un corps
+vide — mais le serveur refuse désormais l'appel, ce qui évite en plus de
+confirmer l'existence d'un fichier et couvre une extension tierce qui
+oublierait la garde.
+
+    <Directory ".../backend/public/wp-content">
+      <FilesMatch "\.php$">
+        Require all denied
+      </FilesMatch>
+    </Directory>
+
+Vérifié : `class-ep-mail.php` → **403**, `admin.css` → **200**. Les ressources
+de l'administration restent servies.
+
+## En-têtes de sécurité
+
+`send_headers` ne se déclenche ni sur `wp-login.php` ni dans l'administration :
+ce sont des requêtes qui ne passent pas par le chargement d'un gabarit. Mesuré,
+la page de connexion n'avait donc **aucun** `X-Content-Type-Options`. Les
+en-têtes sont désormais posés aussi sur `login_init` et `admin_init`, sans
+toucher à la politique de cadre — WordPress pose lui-même `SAMEORIGIN` sur la
+connexion, et certains parcours d'authentification en dépendent.
+
+| En-tête | Front / API | Connexion |
+| --- | --- | --- |
+| `X-Content-Type-Options: nosniff` | oui | oui |
+| `Referrer-Policy: strict-origin-when-cross-origin` | oui | oui |
+| `Permissions-Policy` | oui | oui |
+| `X-Frame-Options` | `DENY` | `SAMEORIGIN` (WordPress) |
+| `Content-Security-Policy: frame-ancestors` | `'none'` | `'self'` (WordPress) |

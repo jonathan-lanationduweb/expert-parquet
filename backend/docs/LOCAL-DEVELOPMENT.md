@@ -101,3 +101,19 @@ vérifications sont supprimés après chaque campagne.
 `admin.php?page=expert-parquet-leads` (liste, recherche, filtres, export) et
 `admin.php?page=expert-parquet-lead&ref=<référence>` (fiche). Les anciennes
 adresses `edit.php?post_type=ep_lead` redirigent vers la liste.
+
+## Ce que le build refuse
+
+`node tools/build.mjs` produit la préproduction : pages en `noindex`,
+formulaires en démonstration hors des hôtes locaux connus. C'est le mode de
+travail normal, et il tolère des valeurs manquantes.
+
+`BUILD_ENV=prod node tools/build.mjs` **s'arrête** tant que l'identité de
+l'éditeur, le SIRET, l'adresse, l'e-mail public, la durée de conservation RGPD
+et des points d'envoi HTTPS ne sont pas renseignés. Ce n'est pas une panne : la
+sortie énumère exactement ce qui manque.
+
+`node tools/build-deploy.mjs` prépare `dist/` et refuse de finir si l'artefact
+contient un chemin interne, un secret ou une adresse de développement. Il retire
+au passage la table des hôtes locaux de la copie publiée de `js/config/site.js` —
+le fichier source, lui, n'est jamais modifié.
