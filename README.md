@@ -43,29 +43,33 @@ La branche `release/v1-validated` fige cet état.
 
 ## 1. Objectif et parcours
 
+Deux parcours, et ils ne se ressemblent pas.
+
 ```
-Problème constaté → Comprendre → Pré-diagnostic → Expertise → Demande de devis
+Un désordre à comprendre
+   Problème constaté → Comprendre → Pré-diagnostic → Expertise → Demande de devis
+
+Un parquet à acheter
+   Besoin → Profil → l'enseigne          (deux questions, aucun formulaire)
 ```
 
-Trois portes d'entrée mènent au même point de conversion :
+Trois portes d'entrée mènent au premier :
 
 - les **pages « problème »** (un symptôme = une page) ;
 - le **pré-diagnostic interactif** (5 questions, orientation générale) ;
 - les **articles de conseils** (SEO longue traîne).
 
-Expert Parquet est d'abord un site **d'aide et d'expertise**. Il doit ensuite servir
-de **passerelle commerciale qualifiée** : générer des demandes, distinguer le
-particulier du professionnel, puis orienter chacun vers le bon interlocuteur.
+Expert Parquet est d'abord un site **d'aide et d'expertise**. Il sert ensuite de
+**passerelle commerciale** — mais la passerelle ne passe pas par le formulaire :
+qui veut acheter répond à deux questions et obtient le lien. Le formulaire est
+réservé à ce qu'il sait faire, recueillir une demande d'expertise.
 
-```
-Professionnel  →  Premibel
-Particulier    →  Over Parquet
-```
+Les deux parcours se rejoignent à la sortie du pré-diagnostic : quand un
+remplacement devient plausible, le site propose les deux — faire expertiser, ou
+choisir un nouveau parquet — et laisse choisir.
 
-> **Cette orientation appartient à la V2 et n'est pas intégrée.** Des liens
-> éditoriaux vers Premibel existent dans les conseils et les articles — ce sont des
-> références de contenu, pas une qualification. Over Parquet n'apparaît nulle part
-> dans le site. Voir la section **V2 — Conversion et leads**.
+> Détail de la règle, des enseignes et de ce qui est demandé (ou pas) : section
+> **V2 — Conversion et leads**.
 
 ---
 
@@ -436,19 +440,33 @@ Expert Parquet reste d'abord un site d'aide et d'expertise. Il doit ensuite perm
 - la **distinction particulier / professionnel** ;
 - l'**orientation** vers le bon interlocuteur.
 
-```
-Professionnel  →  Premibel
-Particulier    →  Over Parquet
-```
-
 **STATUT : en validation.**
 
-L'orientation ne dépend plus du profil seul. Une fonction unique —
-`orienter()` dans [js/config/orientation-rules.js](js/config/orientation-rules.js) —
-reçoit le problème, le profil, la surface, le délai et le type de local, puis rend
-un besoin et zéro, une ou deux destinations. Le pré-diagnostic, les pages problème
-et l'après-devis l'appellent tous les trois ; le back-office en tient un miroir en
-PHP pour relire une demande.
+### Le formulaire n'est pas un péage
+
+Trois besoins, et un seul passe par un formulaire :
+
+| Le visiteur veut… | Ce qu'il traverse |
+| --- | --- |
+| comprendre un désordre, le faire expertiser | le pré-diagnostic, puis la demande — c'est le métier du site |
+| **choisir un parquet** | **deux questions, aucun champ** |
+| **approvisionner un chantier** | **deux questions, aucun champ** |
+
+Quelqu'un qui veut simplement acheter du parquet n'a rien à faire dans un
+formulaire d'expertise. Il répond à deux questions — son besoin, son profil — et
+il a le lien. Trois clics depuis la page d'accueil, aucune donnée personnelle,
+aucune adresse e-mail demandée pour franchir la porte.
+
+Le mini-routeur vit dans [js/modules/orientation.js](js/modules/orientation.js).
+Il lit `data-besoin` et `data-profil` : **ce qui est déjà connu n'est jamais
+redemandé**. Après le pré-diagnostic, le besoin est acquis — une seule question
+reste.
+
+### C'est le besoin qui décide, et le visiteur qui le dit
+
+La règle vit dans [js/config/orientation-rules.js](js/config/orientation-rules.js) :
+`orientation({ need, customerType, knownContext })` rend un besoin et zéro, une ou
+deux destinations.
 
 | Besoin | Profil | Destination | Pourquoi |
 | --- | --- | --- | --- |
@@ -456,11 +474,21 @@ PHP pour relire une demande.
 | Choix d'un parquet | particulier ou inconnu | **Premibel** | showroom, 700 références, conseil — et la seule enseigne ouverte aux particuliers |
 | Choix d'un parquet | professionnel | **Premibel** puis Over Parquet | choisir d'abord ; le stock reste utile ensuite |
 | Approvisionnement de chantier | professionnel | **Over Parquet** puis Premibel | stock immédiat, retrait en 3 h, remises pro |
+| Approvisionnement de chantier | particulier | **Premibel** | Over Parquet refuse les particuliers ; on le dit, on ne l'envoie pas dans un mur |
 
-Le besoin vaut « approvisionnement » quand un professionnel décrit un local
-professionnel, une surface d'au moins 50 m² ou un délai urgent. Le remplacement
-n'est envisagé que pour trois symptômes — déformation, dégât des eaux,
-vieillissement : un grincement ou une tache ne déclenchent jamais d'orientation.
+Le besoin n'est plus **déduit** de la surface, du délai ou du type de local : il
+est **demandé**, en un clic. Une supposition de moins, une question de plus —
+elle prend une seconde et ne se trompe pas.
+
+Là où personne ne l'a exprimé — une demande déjà enregistrée qu'on relit —
+`besoinDeduit()` s'en tient au problème : le remplacement n'est envisagé que pour
+trois symptômes (déformation, dégât des eaux, vieillissement). Un grincement ou
+une tache ne déclenchent jamais d'orientation commerciale.
+
+Le back-office en tient un miroir en PHP
+(`backend/.../includes/class-ep-orientation.php`) pour relire une demande. Il ne
+conclut jamais « approvisionnement » : ce besoin se dit sur le site, sans
+formulaire, et n'arrive donc pas jusqu'à la base.
 
 Ce que les deux enseignes proposent réellement, relevé sur leurs sites le
 30/09/2026 : **Premibel** est ouvert aux particuliers et aux professionnels, avec
