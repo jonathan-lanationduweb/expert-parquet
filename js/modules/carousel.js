@@ -49,6 +49,15 @@
  */
 const PIXELS_PAR_LIGNE = 40;
 
+/**
+ * Delai du filet de securite, en millisecondes.
+ *
+ * Assez long pour qu'une animation normale ait visiblement demarre (une
+ * animation de defilement bouge des la premiere image, soit ~16 ms), assez
+ * court pour que la reprise sans animation reste percue comme immediate.
+ */
+const DELAI_FILET = 120;
+
 export function initCarousels() {
   document.querySelectorAll('[data-showcase]').forEach(setupShowcase);
 }
@@ -117,10 +126,43 @@ function setupShowcase(root) {
     }
   };
 
+  /**
+   * Avance d'une diapositive — et s'assure que ça arrive VRAIMENT.
+   *
+   * `behavior: 'smooth'` est une animation : elle est servie image par image
+   * par le navigateur. Là où les images ne viennent pas — onglet en arrière-
+   * plan, économie d'énergie, webview intégrée, surface d'automatisation — le
+   * défilement n'avance jamais d'un pixel. La flèche donne alors exactement
+   * l'impression qu'on cherche à éviter : un bouton qui semble actif et ne
+   * fait rien. Mesuré : trois images en 2,2 secondes suffisent à figer
+   * complètement le carrousel.
+   *
+   * On garde donc l'animation quand elle est possible, et on pose un filet :
+   * si rien n'a bougé au bout d'un court délai ET que l'animation n'a pas
+   * commencé, on écrit la position directement. Une écriture de `scrollLeft`
+   * ne dépend d'aucune image.
+   */
   const scrollByStep = (direction) => {
     const bouton = direction > 0 ? next : prev;
     if (bouton && bouton.getAttribute('aria-disabled') === 'true') return;
-    viewport.scrollBy({ left: direction * step, behavior: motion() });
+
+    const depart = viewport.scrollLeft;
+    const cible = Math.max(0, Math.min(max, depart + direction * step));
+    if (Math.abs(cible - depart) < 1) return;
+
+    viewport.scrollTo({ left: cible, behavior: motion() });
+
+    window.setTimeout(() => {
+      // Immobile : l'animation n'a pas démarré. On termine sans elle.
+      if (Math.abs(viewport.scrollLeft - depart) < 2) {
+        /* `scrollTo` avec `behavior: 'auto'` et non une écriture de
+           `scrollLeft` : une animation de défilement reste ACTIVE tant qu'elle
+           n'a pas été remplacée, et elle écrase une simple écriture dès sa
+           première image. Un `scrollTo` explicite, lui, la supplante. */
+        viewport.scrollTo({ left: cible, behavior: 'auto' });
+        update();
+      }
+    }, DELAI_FILET);
   };
 
   if (prev) prev.addEventListener('click', () => scrollByStep(-1));
@@ -144,8 +186,18 @@ function setupShowcase(root) {
   let frame = null;
 
   /** Une seule écriture, une seule mise à jour, par image. */
+  let secours = null;
+
   const appliquer = () => {
-    frame = null;
+    if (frame) {
+      window.cancelAnimationFrame(frame);
+      frame = null;
+    }
+    if (secours) {
+      window.clearTimeout(secours);
+      secours = null;
+    }
+    if (!deltaEnAttente) return;
     viewport.scrollLeft += deltaEnAttente;
     deltaEnAttente = 0;
     update();
@@ -173,7 +225,11 @@ function setupShowcase(root) {
       -viewport.scrollLeft,
       Math.min(deltaEnAttente + dy, max - viewport.scrollLeft)
     );
+    /* Une image si elle vient, un minuteur sinon : la molette a consomme
+       l'evenement (`preventDefault` ci-dessus), le geste ne doit donc pas
+       pouvoir se perdre. Le premier des deux qui arrive annule l'autre. */
     if (!frame) frame = window.requestAnimationFrame(appliquer);
+    if (!secours) secours = window.setTimeout(appliquer, DELAI_FILET);
   };
 
   viewport.addEventListener('wheel', onWheel, { passive: false });
