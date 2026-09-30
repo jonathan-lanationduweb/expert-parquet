@@ -91,19 +91,61 @@ class EP_Mail {
 	}
 
 	/** Branche PHPMailer sur le relais transactionnel. */
+	/**
+	 * Branche le relais SMTP sur PHPMailer.
+	 *
+	 * Tous les paramètres viennent de `wp-config.php`, jamais du code ni de la
+	 * base : un identifiant de relais est un secret, et un secret ne se
+	 * versionne pas. Chacun a un défaut raisonnable pour qu'une configuration
+	 * minimale — hôte et destinataire — suffise à démarrer.
+	 *
+	 * `EP_SMTP_SECURITE` accepte `tls` (défaut, port 587), `ssl` (port 465) ou
+	 * `none`. Le chiffrement n'est pas déduit du port : certains relais
+	 * écoutent en STARTTLS sur 465 et l'inverse existe aussi. Mieux vaut le
+	 * dire explicitement que le deviner.
+	 */
 	public static function brancher_smtp( $phpmailer ): void {
 		$phpmailer->isSMTP();
-		$phpmailer->Host       = EP_SMTP_HOTE;
-		$phpmailer->Port       = defined( 'EP_SMTP_PORT' ) ? EP_SMTP_PORT : 587;
-		$phpmailer->SMTPAuth   = defined( 'EP_SMTP_USER' );
-		$phpmailer->SMTPSecure = 'tls';
+		$phpmailer->Host     = EP_SMTP_HOTE;
+		$phpmailer->Port     = defined( 'EP_SMTP_PORT' ) ? (int) EP_SMTP_PORT : 587;
+		$phpmailer->SMTPAuth = defined( 'EP_SMTP_USER' );
+
+		$securite = defined( 'EP_SMTP_SECURITE' ) ? strtolower( (string) EP_SMTP_SECURITE ) : 'tls';
+		if ( 'none' === $securite ) {
+			$phpmailer->SMTPSecure  = '';
+			$phpmailer->SMTPAutoTLS = false;
+		} else {
+			$phpmailer->SMTPSecure = in_array( $securite, array( 'tls', 'ssl' ), true ) ? $securite : 'tls';
+		}
+
 		if ( defined( 'EP_SMTP_USER' ) ) {
 			$phpmailer->Username = EP_SMTP_USER;
-			$phpmailer->Password = EP_SMTP_PASS;
+			$phpmailer->Password = defined( 'EP_SMTP_PASS' ) ? EP_SMTP_PASS : '';
 		}
 		if ( defined( 'EP_MAIL_FROM' ) ) {
-			$phpmailer->setFrom( EP_MAIL_FROM, 'Expert Parquet' );
+			$phpmailer->setFrom(
+				EP_MAIL_FROM,
+				defined( 'EP_MAIL_FROM_NOM' ) ? (string) EP_MAIL_FROM_NOM : 'Expert Parquet'
+			);
 		}
+	}
+
+	/**
+	 * État de la configuration d'envoi, pour l'écran Emails et la checklist de
+	 * production. Ne rend que des booléens : aucune valeur de réglage ne sort
+	 * d'ici, jamais.
+	 */
+	public static function configuration(): array {
+		return array(
+			'hote'         => defined( 'EP_SMTP_HOTE' ),
+			'port'         => defined( 'EP_SMTP_PORT' ),
+			'securite'     => defined( 'EP_SMTP_SECURITE' ),
+			'utilisateur'  => defined( 'EP_SMTP_USER' ),
+			'mot_de_passe' => defined( 'EP_SMTP_PASS' ),
+			'expediteur'   => defined( 'EP_MAIL_FROM' ),
+			'nom_expediteur' => defined( 'EP_MAIL_FROM_NOM' ),
+			'destinataire' => defined( 'EP_MAIL_DEST' ),
+		);
 	}
 
 	/** Récapitulatif lisible d'une demande, pour l'exploitant. */
