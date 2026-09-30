@@ -70,11 +70,28 @@ export const PREMIBEL = {
   conseils: 'https://premibel.fr/astuces-conseils/',
 };
 
-/** Lien sortant contextuel. `rel="noopener"` sans `target` : la navigation se
-    fait dans le même onglet, il n'y a donc aucune fenêtre à isoler — l'attribut
-    reste par précaution si un `target` était ajouté un jour. */
-export function premibelLink(url, texte) {
-  return `<a href="${url}" rel="noopener">${texte}</a>`;
+/**
+ * Lien sortant contextuel, dans le corps du texte.
+ *
+ * `sponsored` n'est pas décoratif. Expert Parquet entretient une relation
+ * commerciale avec les enseignes vers lesquelles il oriente : ne pas le
+ * déclarer sur un lien sortant, c'est exactement ce que les moteurs appellent
+ * un lien non divulgué. Les boutons le portaient déjà ; les liens de
+ * paragraphe ne l'avaient pas, alors qu'ils mènent au même endroit pour la
+ * même raison.
+ *
+ * `noopener` reste sans `target` : la navigation se fait dans le même onglet,
+ * il n'y a donc aucune fenêtre à isoler — l'attribut demeure au cas où un
+ * `target` serait ajouté un jour.
+ *
+ * Les attributs de mesure sont présents mais marqués `editorial` : un lien lu
+ * dans une phrase ne vaut pas un bouton de fin de page, et mélanger les deux
+ * rendrait tout comptage faux.
+ */
+export function premibelLink(url, texte, contexte = 'editorial') {
+  return `<a href="${url}" rel="sponsored noopener" data-event="commercial_orientation"`
+    + ` data-destination="premibel" data-besoin="selection" data-lien="editorial"`
+    + ` data-context="${contexte}">${texte}</a>`;
 }
 
 /* ------------------------------------------------- orientation commerciale
@@ -126,6 +143,139 @@ ${lienDeRepli}        </div>
       </div>`;
 }
 
+
+
+/* --------------------------------------------------- solutions partenaires
+   Le bloc qui NOMME les enseignes.
+
+   Le mini-routeur demande au visiteur ce qu'il veut faire ; celui-ci part de
+   l'autre bout et dit ce qui existe. Quand quelqu'un sait déjà qu'il cherche
+   un parquet, lui poser une question de plus est une politesse inutile : deux
+   noms, deux métiers, deux liens.
+
+   Les deux enseignes ne reçoivent PAS le même traitement, parce qu'elles ne
+   couvrent pas le même monde. Premibel accueille les particuliers comme les
+   professionnels et répond au choix : elle est en tête, en bouton plein.
+   Over Parquet est réservé aux professionnels sur justificatif d'entreprise —
+   l'annoncer en gros à un particulier serait l'envoyer contre une porte
+   fermée. Elle est donc présentée pour ce qu'elle est, étiquetée, en second.
+
+   Aucun formulaire, aucune donnée demandée : ces liens partent directement. */
+
+export function solutionsPartenaires(depth, { campagne, titre = null, intro = null, compact = false } = {}) {
+  const cartes = [
+    {
+      cle: 'premibel',
+      pour: 'Particuliers et professionnels',
+      texte: 'Le choix, le conseil et le showroom&nbsp;: plus de 700 références, toutes finitions, des experts pour comparer avant de décider.',
+      action: 'Découvrir les parquets',
+      classe: 'btn btn--primary btn--block',
+      profil: '',
+    },
+    {
+      cle: 'overparquet',
+      pour: 'Professionnels — chantiers',
+      texte: 'L’approvisionnement&nbsp;: stock immédiat, retrait rapide et tarifs professionnels. Inscription sur justificatif d’entreprise.',
+      action: 'Approvisionner mon chantier',
+      classe: 'btn btn--outline btn--block',
+      profil: 'professionnel',
+    },
+  ];
+
+  const rendues = cartes
+    .map((c) => {
+      const partenaire = partnerFor(c.cle);
+      const url = partenaire ? partnerUrl(c.cle, campagne, c.profil) : null;
+      /* Une enseigne non configurée ne laisse pas un bouton mort : elle
+         disparaît, tout simplement. */
+      if (!url) return '';
+      return `          <div class="solution">
+            <p class="solution__nom">${partenaire.nom}</p>
+            <p class="solution__pour">${c.pour}</p>
+            <p class="solution__texte">${c.texte}</p>
+            <a class="${c.classe}" href="${url.replace(/&/g, '&amp;')}" rel="sponsored noopener"`
+        + ` data-event="commercial_orientation" data-destination="${c.cle === 'overparquet' ? 'over-parquet' : c.cle}"`
+        + ` data-besoin="${c.cle === 'overparquet' ? 'supply' : 'selection'}" data-context="${campagne}">${c.action}</a>
+          </div>`;
+    })
+    .filter(Boolean);
+
+  if (rendues.length === 0) return '';
+
+  const entete = compact
+    ? `      <p class="kicker">${titre || 'Trouver le parquet adapté'}</p>
+${intro ? `      <p class="solutions__intro">${intro}</p>` : ''}`
+    : sectionHead({
+      kicker: 'Où trouver votre parquet',
+      title: titre || 'Trouver le parquet adapté',
+      text: intro || 'Expert Parquet ne vend pas de parquet. Nous vous orientons vers l’enseigne qui correspond à votre projet — sans formulaire, sans inscription.',
+    });
+
+  return `${entete}
+      <div class="solutions u-mt-lg" data-reveal>
+${rendues.join('\n')}
+      </div>`;
+}
+
+
+/* ------------------------------------------------------ bloc remplacement
+   La sortie des pages problème quand le remplacement est plausible.
+
+   Ces pages sont les meilleures portes d'entrée du site : quelqu'un qui
+   cherche « parquet gondolé » a un problème réel et immédiat. Jusqu'ici elles
+   ne proposaient qu'une chose — faire expertiser. C'est la bonne réponse
+   lorsqu'on peut réparer ; c'en est une mauvaise quand la page vient
+   d'expliquer que le parquet est probablement perdu.
+
+   Le bloc dit donc l'hypothèse à voix haute, et donne la suite : choisir un
+   parquet chez Premibel. Il ne prétend pas conclure — la page entière répète
+   que seule une observation tranche — mais il cesse de faire semblant que
+   l'expertise est la seule issue.
+
+   Over Parquet n'apparaît QUE si la page concerne réellement un contexte
+   professionnel. Proposer une enseigne fermée aux particuliers sur une page
+   lue par des particuliers reviendrait à pousser un domaine, pas à aider. */
+
+export function blocRemplacement(depth, {
+  campagne,
+  pro = false,
+  titre = 'Votre parquet doit peut-être être remplacé&nbsp;?',
+  texte = 'Si l’état constaté ne laisse plus de matière à travailler, la question n’est plus de réparer mais de choisir. Premibel accueille particuliers et professionnels&nbsp;: showroom, conseil et plus de 700 références, sans formulaire ni inscription.',
+  action = 'Choisir un nouveau parquet chez Premibel',
+  secondaire = 'Faire expertiser avant de décider',
+} = {}) {
+  const premibel = partnerFor('premibel');
+  const url = premibel ? partnerUrl('premibel', campagne) : null;
+  if (!url) return '';
+
+  const lignes = [];
+  lignes.push('          <div class="remplacement" data-reveal>');
+  lignes.push('            <p class="remplacement__titre">' + titre + '</p>');
+  lignes.push('            <p class="remplacement__texte">' + texte + '</p>');
+  lignes.push('            <div class="remplacement__actions">');
+  lignes.push('              <a class="btn btn--primary" href="' + url.replace(/&/g, '&amp;') + '" rel="sponsored noopener"'
+    + ' data-event="commercial_orientation" data-destination="premibel" data-besoin="selection"'
+    + ' data-context="' + campagne + '">' + action + '</a>');
+  if (secondaire) {
+    lignes.push('              <a class="btn btn--outline btn--sm" href="' + rel(depth, 'pages/devis.html') + '">' + secondaire + '</a>');
+  }
+  lignes.push('            </div>');
+
+  if (pro) {
+    const over = partnerFor('overparquet');
+    const urlPro = over ? partnerUrl('overparquet', campagne, 'professionnel') : null;
+    if (urlPro) {
+      lignes.push('            <p class="remplacement__pro">Vous êtes professionnel et devez approvisionner un chantier&nbsp;? '
+        + '<a href="' + urlPro.replace(/&/g, '&amp;') + '" rel="sponsored noopener"'
+        + ' data-event="commercial_orientation" data-destination="over-parquet" data-besoin="supply"'
+        + ' data-customer-type="professionnel" data-context="' + campagne + '">Over Parquet</a>'
+        + ' fournit le stock et les tarifs professionnels.</p>');
+    }
+  }
+
+  lignes.push('          </div>');
+  return lignes.join(String.fromCharCode(10));
+}
 
 
 /* ------------------------------------------------- catalogue des problèmes
@@ -369,6 +519,12 @@ export const ARTICLES = [
       'Certains signaux apparaissent bien avant le désordre visible. Savoir les lire permet d’agir avant la dégradation.',
   },
   {
+    sortie: {
+      titre: 'Trop abîmé pour être sauvé&nbsp;?',
+      texte: 'Quand le ponçage n’a plus de matière à prendre, rénover coûte plus cher que remplacer. Premibel réunit le choix, le conseil et deux showrooms — particuliers comme professionnels.',
+      action: 'Voir les parquets chez Premibel',
+      secondaire: null,
+    },
     slug: 'renover-un-parquet-tres-abime',
     related: ['parquet-abime', 'renovation', 'choisir-parquet'],
     tags: ['renovation', 'esthetique', 'choix', 'entretien'],
@@ -452,6 +608,12 @@ export const ARTICLES = [
       'La plupart des désordres apparaissent des mois après la pose. Ce que la réception peut faire, c’est consigner l’état initial et les conditions de mise en œuvre.',
   },
   {
+    sortie: {
+      titre: 'Vous cherchez un parquet compatible plancher chauffant&nbsp;?',
+      texte: 'La compatibilité se lit sur la fiche technique&nbsp;: épaisseur, essence, résistance thermique. Premibel indique ces caractéristiques et peut les vérifier avec vous.',
+      action: 'Voir les parquets compatibles chez Premibel',
+      secondaire: null,
+    },
     slug: 'parquet-et-plancher-chauffant',
     seoTitle: 'Parquet et plancher chauffant&nbsp;: à vérifier',
     tags: ['choix', 'pose', 'support', 'mesure'],
@@ -466,6 +628,12 @@ export const ARTICLES = [
       'Résistance thermique, température de surface, protocole de mise en chauffe&nbsp;: trois conditions cumulatives qui se vérifient avant la commande, jamais après.',
   },
   {
+    sortie: {
+      titre: 'Vous savez maintenant lequel vous convient&nbsp;?',
+      texte: 'Massif ou contrecollé, le critère est la structure, pas la gamme. Reste à les voir&nbsp;: Premibel propose les deux familles, toutes épaisseurs et toutes finitions.',
+      action: 'Comparer les deux familles chez Premibel',
+      secondaire: null,
+    },
     slug: 'massif-ou-contrecolle',
     seoTitle: 'Massif ou contrecollé&nbsp;: quelles différences',
     tags: ['choix', 'structure', 'renovation'],
@@ -480,6 +648,12 @@ export const ARTICLES = [
       'Deux structures, pas deux gammes. La différence décide de la stabilité, du nombre de rénovations possibles et du type de pose admis.',
   },
   {
+    sortie: {
+      titre: 'Reste à choisir la finition sur pièce',
+      texte: 'Huilé, vitrifié ou brut&nbsp;: la différence se voit et se touche mieux qu’elle ne se lit. Premibel présente les finitions posées, en showroom.',
+      action: 'Voir les finitions chez Premibel',
+      secondaire: null,
+    },
     slug: 'finition-parquet-huile-vitrifie',
     seoTitle: 'Finition&nbsp;: huilé, vitrifié ou brut',
     tags: ['choix', 'entretien', 'esthetique'],
@@ -494,6 +668,12 @@ export const ARTICLES = [
       'La finition est la seule couche qui prend l’usure. Elle décide de l’entretien quotidien et de la façon dont les accidents se réparent.',
   },
   {
+    sortie: {
+      titre: 'Vous cherchez une essence qui tienne l’humidité&nbsp;?',
+      texte: 'Toutes les essences ne valent pas en pièce humide, et la pose compte autant que le bois. Un conseiller Premibel peut confirmer un choix avant commande.',
+      action: 'Trouver une essence adaptée chez Premibel',
+      secondaire: null,
+    },
     slug: 'parquet-salle-de-bain',
     seoTitle: 'Poser du parquet en salle de bain',
     tags: ['choix', 'humidite', 'pose', 'structure'],

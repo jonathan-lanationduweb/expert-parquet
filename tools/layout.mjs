@@ -7,6 +7,7 @@
  */
 
 import { assetStamps, moduleScripts, STAMP_PARAM } from './fingerprint.mjs';
+import { partnerFor, partnerUrl } from '../js/config/site.js';
 
 export const SITE = {
   name: 'Expert Parquet',
@@ -76,6 +77,18 @@ const FOOTER_COLUMNS = [
       { label: 'Rénovation', href: 'pages/conseils/renovation.html' },
       { label: 'Pose', href: 'pages/conseils/pose.html' },
       { label: 'FAQ', href: 'pages/faq.html' },
+    ],
+  },
+  {
+    /* Les enseignes ont leur place ici pour la meme raison que le reste du
+       pied de page : c'est la zone ou l'on cherche « ou est-ce que je vais ? »
+       quand on n'a pas trouve ailleurs. Deux liens, etiquetes par audience :
+       envoyer un particulier vers une enseigne qui le refuse serait une
+       impasse, alors le pied de page le dit avant le clic. */
+    title: 'Solutions parquet',
+    links: [
+      { label: 'Choisir son parquet — Premibel', partenaire: 'premibel', besoin: 'selection' },
+      { label: 'Approvisionnement professionnel — Over Parquet', partenaire: 'overparquet', besoin: 'supply', profil: 'professionnel' },
     ],
   },
   {
@@ -237,6 +250,30 @@ function brand(depth, { over = false } = {}) {
     </a>`;
 }
 
+/**
+ * Un lien de pied de page, interne ou commercial.
+ *
+ * Les liens commerciaux ne passent pas par `rel()` — ils sortent du site — et
+ * portent `rel="sponsored noopener"` avec les memes attributs de mesure que
+ * partout ailleurs. Une enseigne non configuree ne laisse rien : mieux vaut
+ * une colonne plus courte qu'un lien mort.
+ */
+function lienPiedDePage(depth, lien) {
+  if (!lien.partenaire) {
+    return `<a href="${rel(depth, lien.href)}">${lien.label}</a>`;
+  }
+
+  const partenaire = partnerFor(lien.partenaire);
+  const url = partenaire ? partnerUrl(lien.partenaire, 'pied-de-page', lien.profil || '') : null;
+  if (!url) return '';
+
+  const destination = lien.partenaire === 'overparquet' ? 'over-parquet' : lien.partenaire;
+  const profil = lien.profil ? ` data-customer-type="${lien.profil}"` : '';
+  return `<a href="${url.replace(/&/g, '&amp;')}" rel="sponsored noopener"`
+    + ` data-event="commercial_orientation" data-destination="${destination}"`
+    + ` data-besoin="${lien.besoin}"${profil} data-context="pied-de-page">${lien.label}</a>`;
+}
+
 function footerBrand(depth) {
   return `<a class="footer__wordmark" href="${rel(depth, 'index.html')}" aria-label="Expert Parquet, retour à l’accueil">${logoImg(depth, { inverse: true, className: 'footer__logo' })}</a>`;
 }
@@ -303,7 +340,7 @@ function footer(depth) {
     (column) => `        <div>
           <h2 class="footer__title">${column.title}</h2>
           <ul class="footer__list">
-${column.links.map((link) => `            <li><a href="${rel(depth, link.href)}">${link.label}</a></li>`).join('\n')}
+${column.links.map((link) => `            <li>${lienPiedDePage(depth, link)}</li>`).join('\n')}
           </ul>
         </div>`
   ).join('\n');
