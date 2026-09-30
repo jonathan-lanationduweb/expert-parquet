@@ -1066,3 +1066,59 @@
   height: 1px !important;
   overflow: hidden !important;
 }
+
+/* ----------------------------------------------- orientation commerciale
+   Le mini-routeur : une question, une ligne de boutons, puis la destination.
+
+   Sur mobile, UN choix par ligne et des cibles hautes — un visiteur qui
+   cherche simplement où acheter du parquet ne doit pas viser entre deux
+   cartes serrees. */
+.orientation__question {
+  font-size: var(--fs-sm);
+  color: var(--text-body);
+  margin: 0 0 var(--space-xs);
+}
+
+.orientation__choix {
+  display: grid;
+  gap: var(--space-2xs);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-bottom: var(--space-xs);
+}
+
+.orientation__choix .btn { width: 100%; min-height: 48px; }
+
+.orientation__destinations {
+  display: grid;
+  gap: var(--space-sm);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-bottom: var(--space-xs);
+}
+
+.orientation__destination {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.orientation__nom {
+  font-weight: 600;
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.orientation__difference {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin: 0;
+  flex: 1;
+}
+
+.orientation__destination .btn { min-height: 48px; }
+
+@media (max-width: 560px) {
+  /* Un choix par ligne, sans exception : deux boutons cote a cote sous
+     560 px donnent des cibles trop etroites pour un pouce. */
+  .orientation__choix,
+  .orientation__destinations { grid-template-columns: 1fr; }
+}

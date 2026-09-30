@@ -138,7 +138,7 @@ class EP_Admin_Fiche {
 
 		$h  = EP_Admin::table_champs( $lignes );
 		$h .= '<p class="ep-meta" style="margin-top:12px">' . esc_html( $decision['raison'] ) . '</p>';
-		$h .= '<p class="ep-meta">Déduit des réponses de la demande&nbsp;: profil, problème, surface, délai, type de local. C’est une proposition faite sur le site&nbsp;— elle ne préjuge ni d’un clic, ni d’un achat.</p>';
+		$h .= '<p class="ep-meta">Déduit de deux réponses seulement&nbsp;: le profil et le problème. Le besoin réel se demande sur le site, en un clic, sans formulaire&nbsp;— il n’arrive donc pas jusqu’ici. Rien ne préjuge ni d’un clic, ni d’un achat.</p>';
 
 		EP_Admin::carte( 'Orientation', $h );
 	}

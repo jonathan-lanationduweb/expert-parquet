@@ -289,9 +289,8 @@ export function partnerUrl(cle, campagne, customerType) {
  * ne prononce pas de remplacement, il envisage une hypothèse.
  */
 export const ORIENTATION = {
-  titre: 'Si le remplacement se confirme',
-  intro:
-    'Une partie des désordres finit par poser la question d’un nouveau parquet. Ce n’est pas une conclusion : c’est une hypothèse à vérifier lors de l’expertise. Si elle se confirme, voici vers qui nous orientons.',
+  titre: 'Vous avez besoin d’un nouveau parquet ?',
+  intro: 'Nous vous orientons vers la solution adaptée à votre projet. Aucun formulaire.',
   question: 'Vous êtes :',
   /** Libellé du bouton de choix, par profil. */
   choix: {
