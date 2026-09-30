@@ -1,8 +1,16 @@
 # Expert Parquet — expert-parquet.com
 
-Site éditorial et de conversion consacré au **diagnostic et à l'expertise de parquet**.
-Objectif : permettre à un visiteur d'identifier son problème, de comprendre ce qui le
-provoque, puis de demander une expertise ou un devis.
+Site d'**acquisition, de conseil et de qualification** sur le parquet.
+
+Sa fonction majeure est commerciale : amener un visiteur à comprendre son besoin, puis
+l'orienter vers l'enseigne qui y répond — **Premibel** pour choisir ou remplacer un
+parquet, **Over Parquet** pour l'approvisionnement professionnel d'un chantier. Une
+visite qualifiée envoyée à un partenaire **est une conversion**, au même titre qu'une
+demande enregistrée.
+
+L'**expertise Expert Parquet** reste une conversion réelle, mais secondaire : elle sert
+les visiteurs dont le parquet peut encore être sauvé, ou dont la cause du désordre doit
+être établie. Elle n'est plus la seule sortie proposée à tout le monde.
 
 Projet **totalement indépendant** : aucune dépendance à un autre site, aucun contenu
 repris ailleurs, identité graphique et composants propres.
@@ -19,8 +27,14 @@ repris ailleurs, identité graphique et composants propres.
 | **Préproduction** | **en cours** — `release/v2-preproduction` |
 | **Production** | **non ouverte** — voir [la liste de contrôle](backend/docs/PRODUCTION-CHECKLIST.md) |
 
-Orientation commerciale : **c'est le besoin qui décide**, pas le profil. Aide et
-expertise d'abord, commerce ensuite — voir **V2 — Conversion et leads**.
+Orientation commerciale : **c'est le besoin qui décide**, pas le profil — et une seule
+question suffit à l'établir. Hiérarchie des conversions :
+
+1. **Premibel / Over Parquet** — le visiteur a un projet ;
+2. **pré-diagnostic et contenu** — il ne sait pas encore ce qu'il a ;
+3. **demande d'expertise** — son parquet peut être sauvé, ou la cause doit être établie.
+
+Voir **V2 — Conversion et leads**.
 
 Environnement local complet et fonctionnel.
 
@@ -471,6 +485,54 @@ Le mini-routeur vit dans [js/modules/orientation.js](js/modules/orientation.js).
 Il lit `data-besoin` et `data-profil` : **ce qui est déjà connu n'est jamais
 redemandé**. Après le pré-diagnostic, le besoin est acquis — aucune question ne
 reste, l'enseigne s'affiche directement.
+
+### Où les leads partenaires se génèrent
+
+Neuf emplacements, tous contextuels — jamais un formulaire avant la sortie.
+
+| Emplacement | Destination | Poids |
+| --- | --- | --- |
+| Hero de l'accueil | ancre vers `#solutions` | CTA principal |
+| Section `#solutions` de l'accueil | Premibel **et** Over Parquet, nommés | CTA principal |
+| Pages problème où le remplacement est plausible | Premibel | CTA principal |
+| Sortie du pré-diagnostic (remplacement) | Premibel | CTA principal |
+| Conseils « choisir » et « rénovation » | Premibel | CTA de fin de page |
+| 5 articles proches du choix ou de la rénovation | Premibel | CTA de fin de page |
+| Liens dans le corps du texte | Premibel | éditorial, 2 max par page |
+| Pied de page | Premibel et Over Parquet | éditorial |
+| Mini-routeur (pages problème, pré-diagnostic) | selon le besoin exprimé | CTA principal |
+
+**Over Parquet n'est jamais proposé comme destination grand public.** Il apparaît sur
+l'accueil étiqueté « professionnels — chantiers », dans le pied de page avec la même
+étiquette, et via le routeur lorsque le visiteur choisit d'approvisionner un chantier.
+Aucun article grand public ne le propose.
+
+### Mesure des clics sortants — ce qui existe, ce qui manque
+
+Chaque lien commercial porte `rel="sponsored noopener"` et quatre attributs :
+
+```
+data-event="commercial_orientation"
+data-destination="premibel" | "over-parquet"
+data-besoin="selection" | "supply"
+data-context="accueil" | "probleme-degat-des-eaux" | "article-…" | "pied-de-page" | …
+```
+
+Les liens de paragraphe portent en plus `data-lien="editorial"`, pour qu'un clic lu dans
+une phrase ne soit pas compté comme un clic sur un bouton de fin de page.
+
+**Aucun enregistrement persistant n'existe aujourd'hui, et ce lot n'en a pas créé.**
+La table `lead_events` a été examinée : sa colonne `lead_id` est `NOT NULL`, chaque ligne
+y décrit un événement *sur une demande*. Y écrire des clics sans demande, avec
+`lead_id = 0`, fausserait toutes les requêtes du back-office et rendrait définitivement
+inutilisable le contrôle d'orphelins. Ce serait un bricolage, pas une mesure.
+
+> **À prévoir : suivi des leads sortants.** Une table dédiée — destination, contexte,
+> besoin, date, aucune donnée personnelle — et un point d'API non bloquant appelé en
+> `sendBeacon` au clic. Hors périmètre de ce lot. Le site fonctionne parfaitement sans :
+> aucun lien ne dépend de la mesure pour s'ouvrir.
+
+Ni Google Analytics ni pixel publicitaire. Aucun identifiant de mesure n'est configuré.
 
 ### C'est le besoin qui décide, et le visiteur qui le dit
 
