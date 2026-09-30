@@ -333,6 +333,25 @@ class EP_Admin {
 		);
 	}
 
+	/**
+	 * Badge de profil commercial.
+	 *
+	 * Rendu vide — et non « — » — quand le profil est inconnu : un formulaire
+	 * de contact ne le demande pas, et inventer « Particulier » par défaut
+	 * fausserait la lecture commerciale autant que les compteurs.
+	 */
+	public static function badge_profil( ?string $profil ): string {
+		$profil = (string) $profil;
+		if ( '' === EP_Lead::libelle_profil( $profil ) ) {
+			return '';
+		}
+		return sprintf(
+			'<span class="ep-badge ep-badge--profil ep-badge--%s">%s</span>',
+			esc_attr( $profil ),
+			esc_html( EP_Lead::libelle_profil( $profil ) )
+		);
+	}
+
 	/* --------------------------------------------------------------- actions */
 
 	/** Capacité d'abord, nonce ensuite ; la demande est retrouvée par référence. */

@@ -179,6 +179,12 @@
 .ep-badge--archived   { background: #F1EEED; border-color: #BFB5B2; }
 .ep-badge--spam       { background: #F6E6E3; border-color: #C9968D; }
 
+/* Profil commercial. Deux teintes très proches, distinguées d'abord par le
+   MOT : la couleur seule ne doit jamais porter l'information. */
+.ep-badge--profil { font-variant: small-caps; letter-spacing: .02em; }
+.ep-badge--particulier   { background: #F1EFEA; border-color: #C9C1AE; }
+.ep-badge--professionnel { background: #EDEFF1; border-color: #AEBAC4; }
+
 .ep-badge--type {
 	background: transparent;
 	border-color: var(--ep-trait);

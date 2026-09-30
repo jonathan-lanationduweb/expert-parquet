@@ -24,6 +24,7 @@ class EP_Liste_Demandes extends WP_List_Table {
 		'city'       => 'city',
 		'nom'        => 'last_name',
 		'form_type'  => 'form_type',
+		'profil'     => 'customer_type',
 	);
 
 	private array $photos_par_lead = array();
@@ -76,6 +77,7 @@ class EP_Liste_Demandes extends WP_List_Table {
 			'public_id'  => 'Référence',
 			'nom'        => 'Nom',
 			'form_type'  => 'Type',
+			'profil'     => 'Profil',
 			'phone'      => 'Téléphone',
 			'email'      => 'E-mail',
 			'probleme'   => 'Problème',
@@ -92,6 +94,7 @@ class EP_Liste_Demandes extends WP_List_Table {
 			'city'       => array( 'city', false ),
 			'nom'        => array( 'nom', false ),
 			'form_type'  => array( 'form_type', false ),
+			'profil'     => array( 'profil', false ),
 		);
 	}
 
@@ -210,6 +213,11 @@ class EP_Liste_Demandes extends WP_List_Table {
 				);
 			case 'form_type':
 				return esc_html( 'devis' === $item['form_type'] ? 'Expertise' : 'Contact' );
+			case 'profil':
+				/* Vide plutôt que « — » quand le formulaire ne l'a pas demandé :
+				   la colonne se lit alors comme ce qu'elle est, une information
+				   présente ou absente, jamais supposée. */
+				return EP_Admin::badge_profil( $item['customer_type'] ?? '' );
 			case 'phone':
 				return esc_html( $item['phone'] ?: '—' );
 			case 'email':

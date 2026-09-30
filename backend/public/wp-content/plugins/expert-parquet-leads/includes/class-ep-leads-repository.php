@@ -43,7 +43,7 @@ class EP_Leads_Repository {
 	);
 
 	/** Colonnes autorisées pour ORDER BY. */
-	private const TRIS = array( 'created_at', 'updated_at', 'status', 'city', 'last_name', 'form_type', 'postal_code' );
+	private const TRIS = array( 'created_at', 'updated_at', 'status', 'city', 'last_name', 'form_type', 'postal_code', 'customer_type' );
 
 	/** Colonnes fouillées par la recherche libre. */
 	private const RECHERCHE = array( 'first_name', 'last_name', 'email', 'phone', 'public_id', 'city', 'postal_code' );
@@ -314,6 +314,34 @@ class EP_Leads_Repository {
 			}
 		}
 		return compact( 'par_statut', 'par_type', 'total' );
+	}
+
+	/**
+	 * Compteurs par profil commercial, en une requête.
+	 *
+	 * `customer_type` existe depuis le schéma v3 : aucune donnée n'est créée
+	 * pour ce tableau de bord. Les demandes sans profil — un message de
+	 * contact n'en demande pas — sont comptées à part plutôt que rangées
+	 * arbitrairement d'un côté.
+	 */
+	public static function compter_par_profil(): array {
+		global $wpdb;
+		$lignes = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT customer_type, COUNT(*) AS n FROM ' . self::table() . ' WHERE status <> %s GROUP BY customer_type',
+				EP_Lead::STATUT_SPAM
+			),
+			ARRAY_A
+		);
+		$out = array( 'particulier' => 0, 'professionnel' => 0, 'sans_profil' => 0 );
+		foreach ( (array) $lignes as $l ) {
+			$cle = (string) $l['customer_type'];
+			if ( ! isset( EP_Lead::profils()[ $cle ] ) ) {
+				$cle = 'sans_profil';
+			}
+			$out[ $cle ] += (int) $l['n'];
+		}
+		return $out;
 	}
 
 	/** Demandes reçues depuis une date (hors indésirables). */

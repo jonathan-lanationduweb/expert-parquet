@@ -72,6 +72,19 @@ class EP_Admin_Tableau_Bord {
 		self::chiffre( '7 derniers jours', $semaine, EP_Admin::url_liste(), 'Toutes les demandes' );
 		echo '</div>';
 
+		/* --------------------------------------------- qualification commerciale
+
+		   Ces deux nombres sortent de `customer_type`, qui existe depuis le
+		   schéma v3 : ils comptent des demandes réellement reçues. On ne
+		   compte PAS les orientations vers un partenaire — aucun clic n'est
+		   enregistré, et un compteur inventé serait pire qu'une absence. */
+		$profils = EP_Leads_Repository::compter_par_profil();
+		echo '<div class="ep-chiffres">';
+		self::chiffre( 'Leads particuliers', $profils['particulier'], EP_Admin::url_liste( array( 'orderby' => 'profil', 'order' => 'asc' ) ), 'Voir' );
+		self::chiffre( 'Leads professionnels', $profils['professionnel'], EP_Admin::url_liste( array( 'orderby' => 'profil', 'order' => 'desc' ) ), 'Voir' );
+		self::chiffre( 'Profil non renseigné', $profils['sans_profil'], EP_Admin::url_page( EP_Admin::PAGE_CONTACTS ), 'Surtout des contacts' );
+		echo '</div>';
+
 		/* ---------------------------------------------------------- deux colonnes */
 
 		echo '<div class="ep-grille"><div>';
