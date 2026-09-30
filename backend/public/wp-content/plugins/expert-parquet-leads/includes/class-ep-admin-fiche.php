@@ -47,6 +47,7 @@ class EP_Admin_Fiche {
 		EP_Admin::afficher_message();
 
 		echo '<div class="ep-grille ep-grille--fiche"><div>';
+		self::bloc_orientation( $lead );
 		self::bloc_coordonnees( $lead );
 		self::bloc_demande( $lead );
 		self::bloc_texte( $lead );
@@ -90,6 +91,39 @@ class EP_Admin_Fiche {
 	}
 
 	/* ------------------------------------------------------------------ blocs */
+
+	/**
+	 * Orientation commerciale.
+	 *
+	 * Ce bloc ne décide rien : il RAPPELLE le profil déclaré par la personne
+	 * et vers qui le site l'oriente, pour qu'un gestionnaire qui rappelle sache
+	 * à qui il parle. Il n'apparaît pas quand le profil est inconnu — un
+	 * message de contact ne le demande pas, et le supposer fausserait le
+	 * suivi.
+	 *
+	 * Le mot « possible » est là pour de bon : le site propose une orientation,
+	 * il ne constate pas un achat. Rien ici n'indique qu'un clic a eu lieu —
+	 * aucun clic n'est enregistré, et afficher un chiffre qui n'existe pas
+	 * serait pire que de n'en afficher aucun.
+	 */
+	private static function bloc_orientation( array $lead ): void {
+		$profil = (string) ( $lead['customer_type'] ?? '' );
+		if ( '' === EP_Lead::libelle_profil( $profil ) ) {
+			return;
+		}
+
+		$lignes = array( array( 'Profil déclaré', EP_Admin::badge_profil( $profil ) ) );
+
+		$enseigne = EP_Lead::orientation_commerciale( $profil );
+		if ( '' !== $enseigne ) {
+			$lignes[] = array( 'Orientation possible', esc_html( $enseigne ) );
+		}
+
+		$h  = EP_Admin::table_champs( $lignes );
+		$h .= '<p class="ep-meta" style="margin-top:12px">Le profil vient du formulaire, ou du pré-diagnostic quand la personne l’y a choisi. L’orientation est une proposition faite sur le site&nbsp;: elle ne préjuge ni d’un clic, ni d’un achat.</p>';
+
+		EP_Admin::carte( 'Orientation', $h );
+	}
 
 	private static function bloc_coordonnees( array $lead ): void {
 		$lignes = array();

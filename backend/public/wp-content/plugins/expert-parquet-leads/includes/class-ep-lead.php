@@ -56,6 +56,40 @@ class EP_Lead {
 		);
 	}
 
+	/**
+	 * Profils commerciaux — les valeurs réelles de `customer_type`.
+	 *
+	 * Mêmes clés que `PROFILS` côté site (js/config/options.js) et que
+	 * l'énumération `profils` du schéma. Rien n'est traduit en route : une
+	 * seconde nomenclature divergerait au premier oubli.
+	 */
+	public static function profils(): array {
+		return array(
+			'particulier'  => 'Particulier',
+			'professionnel' => 'Professionnel',
+		);
+	}
+
+	public static function libelle_profil( string $profil ): string {
+		return self::profils()[ $profil ] ?? '';
+	}
+
+	/**
+	 * Vers qui le site oriente ce profil, pour information dans le back-office.
+	 *
+	 * La décision et les URL vivent dans `js/config/site.js` (`PARCOURS`,
+	 * `PARTNERS`) : c'est le site qui oriente, pas l'administration. On ne
+	 * recopie ici que le NOM de l'enseigne, pour que le gestionnaire sache de
+	 * quoi on parle en lisant une demande.
+	 */
+	public static function orientation_commerciale( string $profil ): string {
+		$table = array(
+			'particulier'  => 'Over Parquet',
+			'professionnel' => 'Premibel',
+		);
+		return $table[ $profil ] ?? '';
+	}
+
 	public static function libelle_statut( string $statut ): string {
 		return self::statuts()[ $statut ] ?? $statut;
 	}
