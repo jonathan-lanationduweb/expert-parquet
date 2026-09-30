@@ -9,7 +9,7 @@ import { rel } from './layout.mjs';
 import { photo, photoData, estClaire } from './images.mjs';
 /* Même configuration que celle servie au navigateur : un seul interrupteur. */
 import { formMode, CONTACT, SITE, RGPD, ORIENTATION, partnerFor, partnerUrl } from '../js/config/site.js';
-import { orienter } from '../js/config/orientation-rules.js';
+import { orientation, BESOINS } from '../js/config/orientation-rules.js';
 
 /* --------------------------------------------------------------- icônes
    Jeu réduit au strict nécessaire : flèches, validation, alerte, question.
@@ -90,34 +90,36 @@ export function premibelLink(url, texte) {
    Quand le moteur n'en retient aucune, une phrase le dit — jamais un bouton
    mort. */
 
-export function orientationCommerciale({ campagne, probleme, compact = false, titre, intro } = {}) {
-  const decision = orienter({ probleme });
+export function orientationCommerciale({ campagne, compact = false, titre, intro, besoin, profil } = {}) {
+  /* Le HTML servi porte le repli SANS JavaScript : un lien vers l'enseigne
+     ouverte à tous. Le mini-routeur le remplace dès qu'il s'installe. Personne
+     ne tombe donc sur un bloc muet, et personne n'a de formulaire à remplir
+     pour franchir la porte. */
+  const repli = orientation({ need: besoin || BESOINS.SELECTION });
+  const cle = repli.destinations[0];
+  const partenaire = cle ? partnerFor(cle) : null;
+  const url = cle ? partnerUrl(cle, campagne) : null;
 
-  const liens = decision.destinations
-    .map((cle) => {
-      const partenaire = partnerFor(cle);
-      const url = partnerUrl(cle, campagne);
-      if (!url) return '';
-      /* `rel="sponsored"` : ce lien fait partie d'un parcours commercial, et le
-         dire est une obligation vis-à-vis des moteurs autant qu'une question
-         d'honnêteté. `noopener` par précaution si un `target` était ajouté. */
-      return `        <a class="btn btn--outline btn--sm" href="${url.replace(/&/g, '&amp;')}" rel="sponsored noopener"`
-        + ` data-event="commercial_orientation"`
-        + ` data-destination="${cle === 'overparquet' ? 'over-parquet' : cle}"`
-        + ` data-context="${campagne}">`
-        + `${ORIENTATION.action.replace('%s', partenaire.nom)}</a>`;
-    })
-    .filter(Boolean)
-    .join('\n');
+  const lienDeRepli = url
+    ? `        <a class="btn btn--outline btn--sm" href="${url.replace(/&/g, '&amp;')}" rel="sponsored noopener"`
+      + ` data-event="commercial_orientation"`
+      + ` data-destination="${cle === 'overparquet' ? 'over-parquet' : cle}"`
+      + ` data-context="${campagne}">${ORIENTATION.action.replace('%s', partenaire.nom)}</a>
+`
+    : '';
+
+  const attributs = [
+    `data-orientation-routeur="${campagne}"`,
+    besoin ? `data-besoin="${besoin}"` : '',
+    profil ? `data-profil="${profil}"` : '',
+  ].filter(Boolean).join(' ');
 
   return `      <div class="callout callout--neutral${compact ? '' : ' u-mt-lg'}" data-orientation>
         <p class="callout__title">${titre || ORIENTATION.titre}</p>
 ${compact ? '' : `        <p>${intro || ORIENTATION.intro}</p>
-`}${liens ? `        <div class="btn-group u-mt-sm">
-${liens}
-        </div>
-` : `        <p class="disclaimer u-mt-sm">${ORIENTATION.indisponible}</p>
-`}        <p class="disclaimer u-mt-sm">${ORIENTATION.mention}</p>
+`}        <div class="orientation" ${attributs}>
+${lienDeRepli}        </div>
+        <p class="disclaimer u-mt-sm">${ORIENTATION.mention}</p>
       </div>`;
 }
 

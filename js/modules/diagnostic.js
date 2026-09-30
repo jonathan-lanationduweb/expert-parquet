@@ -18,8 +18,9 @@ import {
   REMPLACEMENT_PLAUSIBLE,
   DISCLAIMER,
 } from '../config/diagnostic-rules.js';
-import { ORIENTATION, partnerFor, partnerUrl } from '../config/site.js';
-import { orienter, DIFFERENCE } from '../config/orientation-rules.js';
+import { ORIENTATION } from '../config/site.js';
+import { BESOINS } from '../config/orientation-rules.js';
+import { initOrientation } from './orientation.js';
 
 const STEPS = [
   {
@@ -227,6 +228,16 @@ function setupDiagnostic(root) {
    * `customer_type` côté backend. La qualification est donc gratuite pour le
    * visiteur — il ne répond pas deux fois à la même question.
    */
+  /**
+   * La sortie du pré-diagnostic.
+   *
+   * Deux chemins, pas davantage : faire expertiser, ou choisir un parquet. La
+   * question du profil n'est posée qu'APRÈS le second choix, par le
+   * mini-routeur — et seulement parce qu'elle change la destination.
+   *
+   * Elle n'apparaît que pour les symptômes de `REMPLACEMENT_PLAUSIBLE` : un
+   * grincement ou une tache ne deviennent jamais une proposition d'achat.
+   */
   function buildOrientation(reponses, ctaExpertise) {
     if (!REMPLACEMENT_PLAUSIBLE.includes(reponses.probleme)) return null;
 
@@ -238,65 +249,42 @@ function setupDiagnostic(root) {
     function afficherChoix() {
       box.innerHTML = '';
       box.append(
-        el('p', 'callout__title', ORIENTATION.titre),
-        el('p', null, ORIENTATION.intro),
-        el('p', 'u-mt-sm', ORIENTATION.question)
+        el('p', 'callout__title', 'Vous souhaitez maintenant :'),
+        el('p', 'orientation__question', 'Un remplacement est parfois la suite de ce type de désordre. C’est une hypothèse, pas une conclusion.')
       );
-      const groupe = el('div', 'btn-group u-mt-sm');
-      PROFILS_ORIENTES.forEach((profil) => {
-        const choix = button(ORIENTATION.choix[profil], 'btn btn--outline btn--sm');
-        choix.addEventListener('click', () => afficherDestination(profil));
-        groupe.append(choix);
-      });
-      box.append(groupe, el('p', 'disclaimer u-mt-sm', ORIENTATION.mention));
+
+      const groupe = el('div', 'orientation__choix');
+
+      /* Rester chez Expert Parquet est le PREMIER choix, et c'est un lien :
+         il mène au formulaire, déjà prérempli de ce qui vient d'être répondu. */
+      const expertise = document.createElement('a');
+      expertise.className = 'btn btn--primary';
+      expertise.href = ctaExpertise.href;
+      expertise.textContent = 'Faire expertiser mon parquet';
+      groupe.append(expertise);
+
+      const acheter = button('Choisir un nouveau parquet', 'btn btn--outline');
+      acheter.addEventListener('click', afficherRouteur);
+      groupe.append(acheter);
+
+      box.append(groupe);
     }
 
-    function afficherDestination(profil) {
-      const decision = orienter({ customerType: profil, probleme: [reponses.probleme] });
-
+    function afficherRouteur() {
       box.innerHTML = '';
       box.append(el('p', 'callout__title', ORIENTATION.titre));
-      box.append(el('p', null, `${ORIENTATION.pour[profil]} — ${decision.raison}`));
 
-      /* Une destination, deux, ou aucune : c'est le moteur qui tranche, à
-         partir du besoin. L'interface ne fait que présenter — et quand elle en
-         présente deux, elle dit ce qui les distingue, faute de quoi elle
-         déléguerait un choix sans donner de quoi le faire. */
-      const groupe = el('div', 'btn-group u-mt-sm');
-      decision.destinations.forEach((cle) => {
-        const partenaire = partnerFor(cle);
-        const url = partnerUrl(cle, `pre-diagnostic-${reponses.probleme}`, profil);
-        if (!url) return;
-        const lien = document.createElement('a');
-        lien.className = 'btn btn--outline btn--sm';
-        lien.href = url;
-        lien.rel = 'sponsored noopener';
-        lien.textContent = ORIENTATION.action.replace('%s', partenaire.nom);
-        lien.dataset.event = 'commercial_orientation';
-        lien.dataset.destination = destinationSlug(cle);
-        lien.dataset.customerType = profil;
-        lien.dataset.context = `pre-diagnostic:${reponses.probleme}`;
-        groupe.append(lien);
-      });
+      /* Le besoin est déjà connu — choisir un parquet : le routeur ne pose donc
+         qu'UNE question, celle du profil. On ne redemande jamais ce qu'on sait. */
+      const zone = el('div', 'orientation');
+      zone.dataset.orientationRouteur = `pre-diagnostic-${reponses.probleme}`;
+      zone.dataset.besoin = BESOINS.SELECTION;
+      box.append(zone, el('p', 'disclaimer u-mt-sm', ORIENTATION.mention));
+      initOrientation();
 
-      if (decision.destinations.length > 1) {
-        const liste = el('ul', 'rich-list u-mt-sm');
-        decision.destinations.forEach((cle) => {
-          liste.append(el('li', null, `${partnerFor(cle).nom} — ${DIFFERENCE[cle]}`));
-        });
-        box.append(liste);
-      } else if (decision.destinations.length === 0) {
-        box.append(el('p', 'disclaimer u-mt-sm', ORIENTATION.indisponible));
-      }
-
-      const retour = button(ORIENTATION.retour, 'btn btn--ghost btn--sm');
+      const retour = button('Revenir', 'btn btn--ghost btn--sm');
       retour.addEventListener('click', afficherChoix);
-      groupe.append(retour);
-      box.append(groupe, el('p', 'disclaimer u-mt-sm', ORIENTATION.mention));
-
-      /* Le profil part avec la demande d'expertise : le visiteur ne répondra
-         pas une seconde fois à la même question dans le formulaire. */
-      ctaExpertise.href = buildQuoteUrl(quotePath, { ...reponses, profil });
+      box.append(retour);
     }
   }
 
@@ -336,14 +324,6 @@ function buildStepper() {
       }
     },
   };
-}
-
-/** Les profils orientables, dans l'ordre du formulaire. */
-const PROFILS_ORIENTES = ['particulier', 'professionnel'];
-
-/** Identifiant stable d'une destination, pour les attributs de suivi. */
-function destinationSlug(cle) {
-  return cle === 'overparquet' ? 'over-parquet' : cle;
 }
 
 /** Pré-remplit le formulaire de devis avec les réponses du pré-diagnostic. */
