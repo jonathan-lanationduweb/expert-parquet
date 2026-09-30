@@ -116,6 +116,11 @@ async function main() {
   const sitemap = await readFile(join(DIST, 'sitemap.xml'), 'utf8');
   const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].length;
 
+  /* La table des hôtes de développement ne part pas en ligne. Elle est
+     délimitée dans la source par deux marques ; ici on remplace ce qu'elles
+     encadrent, sans jamais toucher au fichier d'origine. */
+  await neutraliserBlocsDeDeveloppement(join(DIST, 'js', 'config', 'site.js'));
+
   console.log(`\n  dist/ : ${copies} fichiers, ${(octets / 1048576).toFixed(1)} Mo`);
   console.log(`  pages HTML : ${pages.length}   URL au sitemap : ${urls}`);
 
@@ -129,7 +134,77 @@ async function main() {
     process.exit(1);
   }
 
-  console.log('  Aucun fichier interdit. Arborescence publiable.\n');
+  /* --- Ce que le CONTENU ne doit pas contenir -----------------------------
+
+     Le contrôle des chemins ne suffit pas : un secret ou une adresse de
+     développement peut vivre à l'intérieur d'un fichier parfaitement légitime.
+     On relit donc le texte publié. Deux familles seulement, celles qui font
+     réellement des dégâts : ce qui ne devrait jamais sortir, et ce qui trahit
+     un build fait depuis un poste de développement. */
+  const suspects = [];
+  const adressesDev = [];
+  for (const f of relatifs) {
+    if (!/\.(html|css|js|json|xml|txt)$/i.test(f)) continue;
+    const texte = await readFile(join(DIST, f), 'utf8');
+
+    for (const [nom, motif] of Object.entries(SECRETS)) {
+      if (motif.test(texte)) suspects.push(`${f} — ${nom}`);
+    }
+    const dev = texte.match(/https?:\/\/[^"'\s)]*(\.local|\.test|localhost|127\.0\.0\.1|192\.168\.)[^"'\s)]*/gi);
+    if (dev) adressesDev.push(`${f} — ${[...new Set(dev)].slice(0, 2).join(', ')}`);
+  }
+
+  if (suspects.length) {
+    console.error(`\n  REFUSÉ — ${suspects.length} fichier(s) portant une valeur qui ne doit pas être publiée :`);
+    for (const x of suspects.slice(0, 20)) console.error(`    - ${x}`);
+    process.exit(1);
+  }
+  if (adressesDev.length) {
+    console.error(`\n  REFUSÉ — ${adressesDev.length} fichier(s) citant une adresse de développement :`);
+    for (const x of adressesDev.slice(0, 20)) console.error(`    - ${x}`);
+    process.exit(1);
+  }
+
+  console.log('  Aucun fichier interdit, aucun secret, aucune adresse de développement.\n');
+}
+
+/**
+ * Motifs de secrets. Volontairement peu nombreux et précis : une liste large
+ * produirait des faux positifs sur du texte éditorial, et une alerte qui crie
+ * trop souvent finit par ne plus être lue.
+ */
+const SECRETS = {
+  'clé ou sel WordPress': /\b(AUTH|SECURE_AUTH|LOGGED_IN|NONCE)_(KEY|SALT)\b/,
+  'identifiants de base': /\bDB_(PASSWORD|USER|NAME)\b/,
+  'réglage SMTP': /\bEP_SMTP_(PASS|USER|HOTE)\b/,
+  'mot de passe en clair': /(?:mot de passe|password|passwd)\s*[:=]\s*['"]?\S{6,}/i,
+  'clé privée': /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
+  'jeton d’API': /\b(?:api[_-]?key|access[_-]?token|bearer)\s*[:=]\s*['"]?[A-Za-z0-9_-]{16,}/i,
+};
+
+/**
+ * Vide les régions marquées `DEV-ONLY` d'un fichier de l'artefact.
+ *
+ * On ne supprime pas la déclaration : le reste du module s'en sert. On la
+ * laisse VIDE, ce qui donne exactement le comportement voulu en production —
+ * aucun hôte local connu, donc aucun point d'envoi local, et ce sont les
+ * `FORMS.*Endpoint` qui décident.
+ */
+async function neutraliserBlocsDeDeveloppement(fichier) {
+  let texte;
+  try {
+    texte = await readFile(fichier, 'utf8');
+  } catch {
+    return;
+  }
+  const regions = /\/\* DEV-ONLY:START[\s\S]*?DEV-ONLY:END \*\//g;
+  if (!regions.test(texte)) return;
+  const nettoye = texte.replace(
+    regions,
+    '/* Table des hôtes de développement retirée à la publication. */\nconst LOCAL_API = {};'
+  );
+  await writeFile(fichier, nettoye, 'utf8');
+  console.log('  Bloc de développement retiré de js/config/site.js');
 }
 
 main();
