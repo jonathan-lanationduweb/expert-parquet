@@ -274,8 +274,10 @@ function setupDiagnostic(root) {
       box.innerHTML = '';
       box.append(el('p', 'callout__title', ORIENTATION.titre));
 
-      /* Le besoin est déjà connu — choisir un parquet : le routeur ne pose donc
-         qu'UNE question, celle du profil. On ne redemande jamais ce qu'on sait. */
+      /* Le besoin est déjà connu — choisir un parquet — et le profil ne change
+         rien à la réponse : le routeur ne pose donc AUCUNE question ici et
+         affiche directement l'enseigne. Un clic depuis cet écran, le lien, et
+         c'est tout. */
       const zone = el('div', 'orientation');
       zone.dataset.orientationRouteur = `pre-diagnostic-${reponses.probleme}`;
       zone.dataset.besoin = BESOINS.SELECTION;

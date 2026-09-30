@@ -66,24 +66,25 @@ export const LIBELLE_BESOIN = {
 };
 
 /**
- * Les questions du mini-routeur. Deux au maximum, et la seconde n'est posée
- * que parce qu'elle change réellement la réponse : elle décide de l'accès
- * (Over Parquet est fermé aux particuliers) et de la porte d'entrée chez
- * Premibel (espace professionnel ou entrée générale).
+ * LA question du mini-routeur. Une seule, et elle suffit.
+ *
+ * Il y en avait deux : le besoin, puis « particulier ou professionnel ? ». La
+ * seconde ne changeait la réponse dans aucun des trois cas — Premibel accueille
+ * les deux profils, et « chantier professionnel » dit déjà le profil dans son
+ * libellé. Une question dont on connaît la réponse n'est pas une question,
+ * c'est un clic de plus.
+ *
+ * Les libellés sont ceux du visiteur, pas les nôtres : il lit « choisir ou
+ * remplacer mon parquet », pas « sélection ». Les termes techniques restent
+ * dans le code, où ils servent.
  */
 export const ROUTEUR = {
   besoin: {
-    question: 'Votre besoin :',
+    question: 'Que souhaitez-vous faire ?',
     choix: [
-      { valeur: BESOINS.SELECTION, libelle: 'Choisir un parquet' },
-      { valeur: BESOINS.APPROVISIONNEMENT, libelle: 'Approvisionner un chantier' },
-    ],
-  },
-  profil: {
-    question: 'Vous êtes :',
-    choix: [
-      { valeur: 'particulier', libelle: 'Particulier' },
-      { valeur: 'professionnel', libelle: 'Professionnel' },
+      { valeur: BESOINS.EXPERTISE, libelle: 'J’ai un problème avec mon parquet' },
+      { valeur: BESOINS.SELECTION, libelle: 'Choisir ou remplacer mon parquet' },
+      { valeur: BESOINS.APPROVISIONNEMENT, libelle: 'Approvisionner un chantier professionnel' },
     ],
   },
 };
@@ -120,7 +121,7 @@ function accepte(cle, customerType) {
  * @param {string} [projet.customerType]  'particulier' | 'professionnel'
  * @param {object} [projet.knownContext]  ce qu'on sait déjà (problème…), pour
  *                                        déduire le besoin s'il n'est pas dit
- * @returns {{besoin: string, destinations: string[], raison: string}}
+ * @returns {{besoin: string, profil: string, destinations: string[], raison: string}}
  */
 export function orientation({ need, customerType = '', knownContext = {} } = {}) {
   const besoin = need || besoinDeduit(knownContext);
@@ -128,10 +129,19 @@ export function orientation({ need, customerType = '', knownContext = {} } = {})
   if (besoin === BESOINS.EXPERTISE) {
     return {
       besoin,
+      profil: customerType,
       destinations: [],
-      raison: 'Le besoin porte sur la cause du désordre, pas sur l’achat d’un parquet.',
+      raison: 'Un désordre se comprend avant de se remplacer : le pré-diagnostic vous oriente en cinq questions, sans engagement.',
     };
   }
+
+  /* Approvisionner un chantier professionnel EST une réponse sur le profil :
+     le visiteur qui choisit ce libellé vient de dire qu'il est professionnel.
+     Le lui redemander à l'écran suivant serait lui faire répéter ce qu'il
+     vient d'écrire. Un profil reçu d'ailleurs — formulaire, demande
+     enregistrée — reste prioritaire : lui, il est déclaré. */
+  const profil =
+    customerType || (besoin === BESOINS.APPROVISIONNEMENT ? 'professionnel' : '');
 
   /* L'ordre dit la pertinence, pas une préférence commerciale : en tête,
      l'enseigne dont le métier répond au besoin exprimé. */
@@ -140,12 +150,12 @@ export function orientation({ need, customerType = '', knownContext = {} } = {})
       ? ['overparquet', 'premibel']
       : ['premibel', 'overparquet'];
 
-  const destinations = ordre.filter((cle) => accepte(cle, customerType));
+  const destinations = ordre.filter((cle) => accepte(cle, profil));
 
-  return { besoin, destinations, raison: raisonner(besoin, customerType, destinations) };
+  return { besoin, profil, destinations, raison: raisonner(besoin, profil, destinations) };
 }
 
-function raisonner(besoin, customerType, destinations) {
+function raisonner(besoin, profil, destinations) {
   if (destinations.length === 0) {
     return 'Aucune enseigne partenaire n’est ouverte à ce profil.';
   }

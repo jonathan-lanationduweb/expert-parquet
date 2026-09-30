@@ -50,7 +50,7 @@ Un désordre à comprendre
    Problème constaté → Comprendre → Pré-diagnostic → Expertise → Demande de devis
 
 Un parquet à acheter
-   Besoin → Profil → l'enseigne          (deux questions, aucun formulaire)
+   Une intention → l'enseigne            (une question, aucun formulaire)
 ```
 
 Trois portes d'entrée mènent au premier :
@@ -61,7 +61,7 @@ Trois portes d'entrée mènent au premier :
 
 Expert Parquet est d'abord un site **d'aide et d'expertise**. Il sert ensuite de
 **passerelle commerciale** — mais la passerelle ne passe pas par le formulaire :
-qui veut acheter répond à deux questions et obtient le lien. Le formulaire est
+qui veut acheter dit ce qu'il veut faire et obtient le lien. Le formulaire est
 réservé à ce qu'il sait faire, recueillir une demande d'expertise.
 
 Les deux parcours se rejoignent à la sortie du pré-diagnostic : quand un
@@ -444,23 +444,33 @@ Expert Parquet reste d'abord un site d'aide et d'expertise. Il doit ensuite perm
 
 ### Le formulaire n'est pas un péage
 
-Trois besoins, et un seul passe par un formulaire :
+Le routeur pose **une seule question — « Que souhaitez-vous faire ? »** — et
+trois réponses y suffisent :
 
-| Le visiteur veut… | Ce qu'il traverse |
-| --- | --- |
-| comprendre un désordre, le faire expertiser | le pré-diagnostic, puis la demande — c'est le métier du site |
-| **choisir un parquet** | **deux questions, aucun champ** |
-| **approvisionner un chantier** | **deux questions, aucun champ** |
+| Le visiteur dit… | Il obtient | Clics |
+| --- | --- | --- |
+| J'ai un problème avec mon parquet | **Expert Parquet** — le pré-diagnostic | 2 |
+| Choisir ou remplacer mon parquet | **Premibel** | 2 |
+| Approvisionner un chantier professionnel | **Over Parquet**, Premibel en alternative | 2 |
 
 Quelqu'un qui veut simplement acheter du parquet n'a rien à faire dans un
-formulaire d'expertise. Il répond à deux questions — son besoin, son profil — et
-il a le lien. Trois clics depuis la page d'accueil, aucune donnée personnelle,
-aucune adresse e-mail demandée pour franchir la porte.
+formulaire d'expertise. Aucune donnée personnelle, aucune adresse e-mail pour
+franchir la porte — et le clic sur le lien est compté dans les deux.
+
+Il y avait une seconde question, « particulier ou professionnel ? ». Elle est
+partie parce qu'elle ne changeait la réponse dans aucun des trois cas : Premibel
+accueille les deux profils, et « chantier professionnel » énonce déjà le profil
+dans son libellé. Une question dont on connaît la réponse n'est pas une
+qualification, c'est un clic de plus.
+
+`customer_type` n'a pas disparu du système pour autant : le formulaire
+d'expertise le demande, le lead le porte, le back-office s'en sert. Il a
+seulement quitté le parcours commercial, où il ne servait à rien.
 
 Le mini-routeur vit dans [js/modules/orientation.js](js/modules/orientation.js).
 Il lit `data-besoin` et `data-profil` : **ce qui est déjà connu n'est jamais
-redemandé**. Après le pré-diagnostic, le besoin est acquis — une seule question
-reste.
+redemandé**. Après le pré-diagnostic, le besoin est acquis — aucune question ne
+reste, l'enseigne s'affiche directement.
 
 ### C'est le besoin qui décide, et le visiteur qui le dit
 
@@ -468,17 +478,21 @@ La règle vit dans [js/config/orientation-rules.js](js/config/orientation-rules.
 `orientation({ need, customerType, knownContext })` rend un besoin et zéro, une ou
 deux destinations.
 
+Le profil n'est **jamais demandé ici**. Quand il est connu — un formulaire l'a
+recueilli, une demande enregistrée le porte — il est respecté ; sinon il se
+déduit du besoin, et « approvisionner un chantier professionnel » se déduit tout
+seul.
+
 | Besoin | Profil | Destination | Pourquoi |
 | --- | --- | --- | --- |
 | Expertise ou réparation | tous | **Expert Parquet** | rien à vendre : le besoin porte sur la cause |
-| Choix d'un parquet | particulier ou inconnu | **Premibel** | showroom, 700 références, conseil — et la seule enseigne ouverte aux particuliers |
-| Choix d'un parquet | professionnel | **Premibel** puis Over Parquet | choisir d'abord ; le stock reste utile ensuite |
-| Approvisionnement de chantier | professionnel | **Over Parquet** puis Premibel | stock immédiat, retrait en 3 h, remises pro |
-| Approvisionnement de chantier | particulier | **Premibel** | Over Parquet refuse les particuliers ; on le dit, on ne l'envoie pas dans un mur |
+| Choix d'un parquet | inconnu ou particulier | **Premibel** | showroom, 700 références, conseil — et la seule enseigne ouverte aux particuliers |
+| Choix d'un parquet | professionnel *(connu d'ailleurs)* | **Premibel** puis Over Parquet | choisir d'abord ; le stock reste utile ensuite |
+| Approvisionnement de chantier | inconnu ou professionnel | **Over Parquet** puis Premibel | le libellé dit « professionnel » : inutile de le redemander |
+| Approvisionnement de chantier | particulier *(déclaré)* | **Premibel** | Over Parquet refuse les particuliers ; on le dit, on ne l'envoie pas dans un mur |
 
 Le besoin n'est plus **déduit** de la surface, du délai ou du type de local : il
-est **demandé**, en un clic. Une supposition de moins, une question de plus —
-elle prend une seconde et ne se trompe pas.
+est **demandé**, en un clic — le seul qui reste.
 
 Là où personne ne l'a exprimé — une demande déjà enregistrée qu'on relit —
 `besoinDeduit()` s'en tient au problème : le remplacement n'est envisagé que pour

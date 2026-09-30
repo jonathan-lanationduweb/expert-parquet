@@ -413,7 +413,7 @@ ${problem.verifications.map((item) => `            <li>${item}</li>`).join('\n')
           <h2 id="expertise">Quand demander une expertise</h2>
           <p>${problem.expertise}</p>
 
-${problem.remplacement ? orientationCommerciale({ campagne: `probleme-${problem.slug}`, probleme: problem.orientationProbleme }) : ''}
+${problem.remplacement ? orientationCommerciale(D, { campagne: `probleme-${problem.slug}` }) : ''}
 
           <div class="callout u-mt-lg">
             <p class="callout__title">${ICONS.alert} Portée de cette page</p>
