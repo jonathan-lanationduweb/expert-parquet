@@ -80,7 +80,13 @@ for (const file of pages) {
   if (/<style[\s>]/.test(html)) fail('bloc <style> détecté');
   const inlineScripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)];
   for (const [, body, ] of inlineScripts) {
-    const type = /type="application\/ld\+json"/;
+    /* Deux types de blocs inline sont admis, et aucun n'est du JavaScript :
+       les données structurées, et la table d'importation des modules. Cette
+       dernière est du JSON lu par le chargeur de modules — elle ne peut rien
+       exécuter, et elle DOIT être inline : une table externe arriverait après
+       le premier import. L'interdiction porte sur le script inline exécutable,
+       qui reste refusée. */
+    const type = /type="(application\/ld\+json|importmap)"/;
     const tag = html.slice(html.indexOf(body) - 200, html.indexOf(body));
     if (!type.test(tag)) fail('script inline non JSON-LD détecté');
   }
@@ -200,6 +206,55 @@ for (const file of pages) {
     const href = match[1];
     if (/^https?:/.test(href)) continue;
     if (!href.includes(`?${STAMP_PARAM}=`)) fail(`feuille de style sans empreinte : ${href}`);
+  }
+
+  /* --- Table d’importation ---------------------------------------------------
+     Les modules ne sont cités nulle part ailleurs dans le HTML : c’est ici, et
+     seulement ici, qu’on peut constater qu’un module a changé sans que les
+     pages aient été régénérées. Sans ce contrôle, la table entière pourrait
+     pourrir en silence. */
+  const bloc = html.match(/<script type="importmap">([\s\S]*?)<\/script>/);
+  if (bloc) {
+    let table;
+    try {
+      table = JSON.parse(bloc[1]);
+    } catch (e) {
+      fail(`table d’importation illisible : ${e.message}`);
+      table = null;
+    }
+    const entrees = table && table.imports ? Object.entries(table.imports) : [];
+    if (table && entrees.length === 0) fail('table d’importation vide');
+
+    for (const [cle, valeur] of entrees) {
+      /* Une clé qui n’est ni `/…`, ni `./…`, ni `../…` est un spécificateur
+         NU : le navigateur ne la rapprochera jamais d’un `import` relatif, et
+         la table serait sans effet — en silence. */
+      if (!/^\.{0,2}\//.test(cle)) {
+        fail(`clé de table d’importation non relative : ${cle}`);
+      }
+      const [chemin, query] = valeur.split('?');
+      const cible = resolve(dirname(file), chemin);
+      if (!existsSync(cible)) {
+        fail(`module introuvable dans la table d’importation : ${valeur}`);
+        continue;
+      }
+      if (resolve(dirname(file), cle) !== cible) {
+        fail(`table d’importation : la clé ${cle} ne désigne pas ${chemin}`);
+      }
+      const projectPath = relative(ROOT, cible).split(sep).join('/');
+      const stamp = query ? new URLSearchParams(query).get(STAMP_PARAM) : null;
+      if (!stamp) {
+        fail(`module sans empreinte dans la table d’importation : ${valeur}`);
+        continue;
+      }
+      if (verifyStamp(projectPath, stamp) === false) {
+        fail(`empreinte périmée sur ${chemin} — relancer node tools/build.mjs`);
+        continue;
+      }
+      stamped.add(projectPath);
+    }
+  } else if (html.includes('type="module"')) {
+    fail('page avec un module JavaScript mais sans table d’importation');
   }
 
   // --- Champs de formulaire ------------------------------------------------

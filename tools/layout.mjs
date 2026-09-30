@@ -6,7 +6,7 @@
  * HTML statiques livrés à la racine du projet. Voir tools/build.mjs.
  */
 
-import { assetStamps, STAMP_PARAM } from './fingerprint.mjs';
+import { assetStamps, moduleScripts, STAMP_PARAM } from './fingerprint.mjs';
 
 export const SITE = {
   name: 'Expert Parquet',
@@ -120,6 +120,70 @@ export function relAsset(depth, path) {
   const stamp = STAMPS.get(path);
   const href = rel(depth, path);
   return stamp ? `${href}?${STAMP_PARAM}=${stamp}` : href;
+}
+
+/**
+ * Table d’importation : chaque module reçoit son URL estampillée.
+ *
+ * ---------------------------------------------------------------------------
+ * LE PROBLÈME
+ *
+ * `main.js` est cité par le HTML avec son empreinte, donc jamais servi périmé.
+ * Ses `import` statiques, eux, désignent des URL nues — `./modules/carousel.js`.
+ * Un correctif publié pouvait donc s’exécuter avec un module encore en cache :
+ * du HTML neuf, un point d’entrée neuf, et une vieille version de
+ * `carousel.js`. C’est arrivé pendant les essais du carrousel.
+ *
+ * ---------------------------------------------------------------------------
+ * POURQUOI UNE TABLE D’IMPORTATION
+ *
+ * Elle réécrit les spécificateurs à l’exécution, dans le navigateur. Les
+ * sources gardent donc des imports lisibles (`./modules/carousel.js`), aucun
+ * fichier n’est copié ni réécrit, aucun empaqueteur n’entre dans le projet —
+ * trois choses auxquelles ce site tient.
+ *
+ * Les clés sont écrites RELATIVEMENT à la page, comme toutes les autres URL
+ * du site : une clé absolue (`/js/…`) casserait la promesse de fonctionner
+ * dans un sous-dossier. Le navigateur résout clé et spécificateur en URL
+ * absolues avant de les comparer, les deux formes se rejoignent donc.
+ *
+ * Un navigateur sans table d’importation ignore le bloc et charge les modules
+ * à leur URL nue : exactement le comportement d’avant, jamais une erreur.
+ *
+ * La table doit précéder le premier script de type `module` — c’est une règle
+ * du format, et c’est le cas ici : elle est émise juste au-dessus.
+ */
+export function importMap(depth) {
+  /*
+   * `./` explicite à la racine du site.
+   *
+   * Une clé qui ne commence ni par `/`, ni par `./`, ni par `../` n’est PAS
+   * une URL pour le navigateur : c’est un spécificateur NU, du genre `lodash`,
+   * et il ne sera jamais rapproché d’un `import './modules/carousel.js'`. À la
+   * profondeur 0, `rel()` produit `js/modules/carousel.js` — la table aurait
+   * donc été silencieusement sans effet sur la page d’accueil, et efficace
+   * partout ailleurs. Le préfixe la rend URL-like à toutes les profondeurs.
+   */
+  const relatif = (path) => {
+    const href = rel(depth, path);
+    return href.startsWith('.') || href.startsWith('/') ? href : `./${href}`;
+  };
+  const relatifEstampille = (path) => {
+    const href = relAsset(depth, path);
+    return href.startsWith('.') || href.startsWith('/') ? href : `./${href}`;
+  };
+
+  const entrees = moduleScripts()
+    .map((path) => `    "${relatif(path)}": "${relatifEstampille(path)}"`)
+    .join(',\n');
+
+  return `  <script type="importmap">
+{
+  "imports": {
+${entrees}
+  }
+}
+  </script>`;
 }
 
 /**
@@ -381,6 +445,7 @@ export function renderPage(page) {
 
 ${styles}
 
+${importMap(depth)}
   <script type="module" src="${relAsset(depth, 'js/main.js')}"></script>
 ${structured}
 </head>
