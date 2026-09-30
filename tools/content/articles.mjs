@@ -9,7 +9,7 @@
  */
 
 import { rel, breadcrumb, SITE, plainText } from '../layout.mjs';
-import { ICONS, ARTICLES, faqAccordion, faqJsonLd, ctaBand } from '../partials.mjs';
+import { ICONS, ARTICLES, faqAccordion, faqJsonLd, ctaBand, blocRemplacement } from '../partials.mjs';
 import { relatedSection } from './graph.mjs';
 import { photo } from '../images.mjs';
 import { BODIES } from './article-bodies.mjs';
@@ -80,6 +80,8 @@ ${content.html}
 ${faqAccordion(content.faq, `${article.slug}-faq`)}
             </div>
           </div>
+
+${article.sortie ? blocRemplacement(D, { campagne: `article-${article.slug}`, ...article.sortie }) : ''}
 
           <div class="article-foot">
             <div class="callout callout--neutral">

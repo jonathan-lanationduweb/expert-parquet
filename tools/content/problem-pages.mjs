@@ -8,7 +8,7 @@
  */
 
 import { rel, breadcrumb } from '../layout.mjs';
-import { ICONS, ctaBand, faqAccordion, faqJsonLd, pageHero, orientationCommerciale } from '../partials.mjs';
+import { ICONS, ctaBand, faqAccordion, faqJsonLd, pageHero, blocRemplacement } from '../partials.mjs';
 import { relatedSection } from './graph.mjs';
 
 const D = 2;
@@ -67,6 +67,13 @@ export const PROBLEM_PAGES = [
   {
     slug: 'parquet-gondole',
     tags: ['deformation', 'humidite', 'pose', 'sinistre'],
+    /* Le moteur range 'deformation' parmi les symptomes ou le remplacement est
+       plausible, et la FAQ de cette page le dit deja : le sechage laisse des
+       deformations residuelles, la depose se decide ensuite. La sortie doit
+       proposer la meme chose que le pre-diagnostic, sinon le site se contredit
+       d'un ecran a l'autre. */
+    remplacement: true,
+    orientationProbleme: ['deformation'],
     title: 'Parquet qui gondole',
     h1: 'Parquet qui gondole ou se soulève',
     lead: 'Quand un parquet bombe, forme des vagues ou tuile, le bois a gonflé sans avoir où s’étendre. Deux familles de causes se combinent presque toujours&nbsp;: un apport d’humidité et un manque de jeu.',
@@ -413,7 +420,7 @@ ${problem.verifications.map((item) => `            <li>${item}</li>`).join('\n')
           <h2 id="expertise">Quand demander une expertise</h2>
           <p>${problem.expertise}</p>
 
-${problem.remplacement ? orientationCommerciale(D, { campagne: `probleme-${problem.slug}` }) : ''}
+${problem.remplacement ? blocRemplacement(D, { campagne: `probleme-${problem.slug}`, pro: !!problem.contextePro }) : ''}
 
           <div class="callout u-mt-lg">
             <p class="callout__title">${ICONS.alert} Portée de cette page</p>
