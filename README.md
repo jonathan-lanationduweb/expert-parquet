@@ -421,10 +421,23 @@ Professionnel  →  Premibel
 Particulier    →  Over Parquet
 ```
 
-**STATUT : à développer.** Rien de cette logique n'existe aujourd'hui — ni
-qualification, ni routage, ni suivi d'orientation. Les liens vers Premibel présents
-dans les conseils et les articles sont éditoriaux ; Over Parquet n'est mentionné nulle
-part dans le site.
+**STATUT : en validation — destination particulier à confirmer.**
+
+Ce qui fonctionne : la qualification (le profil choisi au pré-diagnostic remplit
+`customer_type` sans nouvelle donnée), l'orientation en fin de pré-diagnostic pour les
+trois symptômes où un remplacement est plausible, un bloc compact sur l'accueil et sur
+deux pages problème, et une suite commerciale après un devis enregistré.
+
+Ce qui bloque, et n'est pas une question technique : **Over Parquet s'annonce « 100 % PRO
+— Site réservé aux professionnels » et demande un KBIS à l'inscription.** La règle validée
+envoie pourtant les particuliers chez lui. Tant qu'elle n'est pas tranchée, le code refuse
+de produire ce lien et affiche un état informatif : aucun particulier n'est envoyé vers une
+porte fermée. La table `PARCOURS` de `js/config/site.js` tient la décision en deux lignes.
+
+| Profil | Destination validée | Ce que le site accepte |
+| --- | --- | --- |
+| Professionnel | Premibel — [guide d'inscription pro](https://www.premibel.fr/guide-inscription-pro/) | particuliers **et** professionnels |
+| Particulier | Over Parquet — `over-parquet.com` | professionnels **uniquement** |
 
 Chantier : `feature/v2-conversion-leads`.
 
