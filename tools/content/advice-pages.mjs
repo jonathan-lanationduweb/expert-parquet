@@ -4,7 +4,7 @@
  */
 
 import { rel, breadcrumb } from '../layout.mjs';
-import { ICONS, PROBLEMS, ctaBand, pageHero, PREMIBEL, premibelLink } from '../partials.mjs';
+import { ICONS, PROBLEMS, ctaBand, pageHero, PREMIBEL, premibelLink, orientationCommerciale } from '../partials.mjs';
 import { relatedSection } from './graph.mjs';
 
 const D = 2;
@@ -76,6 +76,13 @@ export const ADVICE_CATEGORIES = [
     problems: ['parquet-abime'],
   },
   {
+    /* Orientation commerciale DESACTIVEE ici, a dessein.
+       Ces deux pages portent deja DEUX liens editoriaux vers Premibel, et la
+       regle que le projet s'est donnee (voir PREMIBEL dans tools/partials.mjs)
+       plafonne a deux liens par page. Un troisieme ferait basculer une page de
+       conseil en page d'apport d'affaires. Le mecanisme reste en place : passer
+       cette ligne a `true` suffit si la regle change.
+       remplacement: true, */
     slug: 'renovation',
     tags: ['renovation', 'esthetique', 'choix'],
     title: 'Rénovation de parquet',
@@ -191,6 +198,13 @@ export const ADVICE_CATEGORIES = [
     problems: ['defaut-de-pose', 'parquet-gondole'],
   },
   {
+    /* Orientation commerciale DESACTIVEE ici, a dessein.
+       Ces deux pages portent deja DEUX liens editoriaux vers Premibel, et la
+       regle que le projet s'est donnee (voir PREMIBEL dans tools/partials.mjs)
+       plafonne a deux liens par page. Un troisieme ferait basculer une page de
+       conseil en page d'apport d'affaires. Le mecanisme reste en place : passer
+       cette ligne a `true` suffit si la regle change.
+       remplacement: true, */
     slug: 'choisir-parquet',
     tags: ['choix', 'structure', 'pose'],
     title: 'Choisir un parquet',
@@ -277,6 +291,8 @@ function renderCategory(category) {
           <p class="lead">${category.intro}</p>
 
 ${sections}
+
+${category.remplacement ? orientationCommerciale({ campagne: `conseils-${category.slug}` }) : ''}
         </div>
 
         <aside class="article-aside">

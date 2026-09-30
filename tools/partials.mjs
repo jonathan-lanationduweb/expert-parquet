@@ -8,7 +8,7 @@
 import { rel } from './layout.mjs';
 import { photo, photoData, estClaire } from './images.mjs';
 /* Même configuration que celle servie au navigateur : un seul interrupteur. */
-import { formMode, CONTACT, SITE, RGPD } from '../js/config/site.js';
+import { formMode, CONTACT, SITE, RGPD, ORIENTATION, partnerFor, partnerUrl } from '../js/config/site.js';
 
 /* --------------------------------------------------------------- icônes
    Jeu réduit au strict nécessaire : flèches, validation, alerte, question.
@@ -74,6 +74,59 @@ export const PREMIBEL = {
     reste par précaution si un `target` était ajouté un jour. */
 export function premibelLink(url, texte) {
   return `<a href="${url}" rel="noopener">${texte}</a>`;
+}
+
+/* ------------------------------------------------- orientation commerciale
+   Le pendant statique de ce que le pré-diagnostic construit à l'exécution.
+   Les destinations, les textes et les paramètres de campagne viennent du même
+   endroit — `PARTNERS` / `ORIENTATION` dans js/config/site.js — pour que la
+   page servie et l'écran interactif ne finissent pas par dire deux choses
+   différentes.
+
+   Aucun JavaScript n'est nécessaire ici : chaque profil est un lien ordinaire.
+   Un profil dont la destination n'est pas connue rend une phrase, jamais un
+   lien mort. */
+
+export function orientationCommerciale({ campagne, compact = false, titre, intro } = {}) {
+  const lignes = PROFILS_ORIENTES.map((profil) => {
+    const partenaire = partnerFor(profil);
+    const url = partnerUrl(profil, campagne);
+    if (!url) {
+      /* Profil sans destination ouverte : une phrase, jamais un bouton mort.
+         Un contrôle qui a l'air actif et ne fait rien est pire qu'une absence. */
+      return `        <p class="disclaimer u-mt-sm">${ORIENTATION.pour[profil]}&nbsp;: ${ORIENTATION.indisponible}</p>`;
+    }
+    /* `rel="sponsored"` : ce lien fait partie d'un parcours commercial, et le
+       dire est une obligation vis-à-vis des moteurs autant qu'une question
+       d'honnêteté. `noopener` par précaution si un `target` était ajouté. */
+    return `        <a class="btn btn--outline btn--sm" href="${url.replace(/&/g, '&amp;')}" rel="sponsored noopener"`
+      + ` data-event="commercial_orientation"`
+      + ` data-destination="${destinationSlug(partenaire.nom)}"`
+      + ` data-customer-type="${profil}"`
+      + ` data-context="${campagne}">`
+      + `${ORIENTATION.pour[profil]}&nbsp;: ${ORIENTATION.action.replace('%s', partenaire.nom)}</a>`;
+  });
+
+  const liens = lignes.filter((l) => l.includes('<a ')).join('\n');
+  const phrases = lignes.filter((l) => !l.includes('<a ')).join('\n');
+
+  return `      <div class="callout callout--neutral${compact ? '' : ' u-mt-lg'}" data-orientation>
+        <p class="callout__title">${titre || ORIENTATION.titre}</p>
+${compact ? '' : `        <p>${intro || ORIENTATION.intro}</p>\n`}${liens ? `        <div class="btn-group u-mt-sm">\n${liens}\n        </div>\n` : ''}${phrases ? phrases + '\n' : ''}        <p class="disclaimer u-mt-sm">${ORIENTATION.mention}</p>
+      </div>`;
+}
+
+/** Les profils orientables, dans l'ordre du formulaire. */
+const PROFILS_ORIENTES = ['particulier', 'professionnel'];
+
+/** Identifiant stable d'une destination, pour les attributs de suivi. */
+function destinationSlug(nom) {
+  return nom
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 /* ------------------------------------------------- catalogue des problèmes

@@ -227,5 +227,27 @@ export const NOTES_DEBUT = {
 };
 
 /** Avertissement obligatoire affiché avec tout résultat. */
+/**
+ * Symptômes pour lesquels un remplacement est une SUITE PLAUSIBLE — jamais une
+ * conclusion.
+ *
+ * La liste est courte, et volontairement. Un grincement, une tache ou une
+ * rayure se traitent ; les proposer comme motif de remplacement serait une
+ * erreur technique autant qu'une faute commerciale. Les trois retenus sont
+ * ceux dont le texte d'orientation évoque déjà, de lui-même, une reprise
+ * lourde ou la question de ce qui reste exploitable :
+ *
+ *   deformation     la cause est sous le revêtement — une reprise du support
+ *                   suppose souvent une dépose ;
+ *   degat-des-eaux  « un gonflement irréversible des lames » ;
+ *   vieillissement  « ce qui reste exploitable : épaisseur utile, tenue du
+ *                   support » — la question est posée, pas tranchée.
+ *
+ * Même pour ceux-là, rien n'est affirmé : l'interface écrit « si le
+ * remplacement se confirme », et le pré-diagnostic continue de renvoyer vers
+ * une expertise sur place.
+ */
+export const REMPLACEMENT_PLAUSIBLE = ['deformation', 'degat-des-eaux', 'vieillissement'];
+
 export const DISCLAIMER =
   'Ce pré-diagnostic constitue une première orientation et ne remplace pas une expertise sur place. Les pistes évoquées sont générales : seule une observation directe du parquet et de son support permet d’identifier une cause.';

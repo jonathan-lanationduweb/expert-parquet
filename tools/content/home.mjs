@@ -13,6 +13,7 @@ import {
   faqJsonLd,
   sectionHead,
   formulaireEnDemo,
+  orientationCommerciale,
 } from '../partials.mjs';
 
 const D = 0;
@@ -292,6 +293,13 @@ ${faqAccordion(FAQ, 'home-faq', { single: true })}
         <div class="journey__item"><b>03</b>Pré-diagnostic</div>
         <div class="journey__item"><b>04</b>Expertise</div>
         <div class="journey__item"><b>05</b>Recommandations</div>
+      </div>
+
+      <!-- Orientation commerciale : après le parcours, jamais avant.
+           La page d'accueil a été compactée à dessein ; ce bloc tient en
+           quatre lignes et ne réclame pas de section à lui. -->
+      <div class="u-mt-xl" data-reveal>
+${orientationCommerciale({ campagne: 'accueil', compact: true })}
       </div>
     </div>
   </section>
