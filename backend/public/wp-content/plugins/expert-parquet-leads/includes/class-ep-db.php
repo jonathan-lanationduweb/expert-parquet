@@ -202,8 +202,19 @@ class EP_DB {
 		update_option( 'ep_schema_version', self::VERSION, true );
 	}
 
-	/** Les quatre tables existent-elles réellement ? (pour l'avis d'admin et les tests) */
+	/**
+	 * Les quatre tables existent-elles réellement ? (pour l'avis d'admin et les tests)
+	 *
+	 * Mémorisé pour la durée de la requête HTTP : l'état du système et l'avis
+	 * d'administration posent la même question sur le même écran, et quatre
+	 * `SHOW TABLES` de plus par affichage ne diraient rien de nouveau — une
+	 * table ne disparaît pas entre deux appels du même rendu.
+	 */
 	public static function tables_presentes(): array {
+		static $etat = null;
+		if ( null !== $etat ) {
+			return $etat;
+		}
 		global $wpdb;
 		$etat = array();
 		foreach ( array( self::leads(), self::photos(), self::notes(), self::events() ) as $t ) {
