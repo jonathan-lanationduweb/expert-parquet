@@ -11,8 +11,18 @@ repris ailleurs, identité graphique et composants propres.
 
 ## Statut
 
-**V1 validée et acceptée.** Environnement local complet et fonctionnel.
-**Pas encore en production.**
+| Chantier | État |
+| --- | --- |
+| **V1** | **validée et acceptée**, figée sur `release/v1-validated` |
+| **V2 — Conversion et leads** | **en validation** — destination particulier à confirmer |
+| **V2 — Back-office** | **en validation** |
+| **Production** | **pas encore ouverte** |
+
+Orientation commerciale validée : **professionnel → Premibel**, **particulier →
+Over Parquet**. Aide et expertise d'abord, commerce ensuite — voir la section
+**V2 — Conversion et leads** pour la réserve qui reste à lever.
+
+Environnement local complet et fonctionnel.
 
 La V1 acceptée comprend :
 
@@ -391,6 +401,7 @@ Toutes les branches de travail sont **locales** : rien n'est publié sur `origin
 | `release/v1-validated` | **photographie locale de la V1 officiellement acceptée** |
 | `feature/admin-backoffice-v2` | évolution de l'administration WordPress |
 | `feature/v2-conversion-leads` | conversion, qualification et orientation commerciale |
+| `feature/v2-integration` | **les deux chantiers V2 réunis** — c'est la branche de travail courante |
 
 ```
 main
@@ -398,8 +409,8 @@ main
         └── feature/front-v1
               └── feature/backend-v1
                     └── release/v1-validated
-                          ├── feature/admin-backoffice-v2
-                          └── feature/v2-conversion-leads
+                          ├── feature/admin-backoffice-v2 ─┐
+                          └── feature/v2-conversion-leads ─┴─► feature/v2-integration
 ```
 
 Les deux chantiers V2 partent **du même point** et restent séparés : l'administration
