@@ -27,19 +27,23 @@
  *   `@import` dans ce projet), donc modifier `home.css` ne doit pas invalider
  *   `base.css`.
  *
- * - **Une seule empreinte pour tout `js/`, portée par `main.js`.** Les modules
- *   s’importent entre eux (`main.js` → `modules/*.js` → `config/*.js`) : une
- *   empreinte par fichier laisserait `main.js` inchangé quand seul
- *   `navigation.js` bouge, et l’URL citée par le HTML ne bougerait pas. En
- *   couvrant l’arbre entier, toute modification d’un module quelconque change
- *   l’URL du point d’entrée.
+ * - **Une empreinte par module JavaScript**, `main.js` compris. Les modules
+ *   s’importent entre eux (`main.js` → `modules/*.js` → `config/*.js`) et sont
+ *   chargés par des `import` statiques, à des URL que le HTML ne cite pas.
+ *   C’est la table d’importation émise dans chaque page (voir
+ *   `importMap()` dans tools/layout.mjs) qui associe chaque module à son URL
+ *   estampillée : le HTML cite donc bien, indirectement, TOUTES les URL du
+ *   graphe.
  *
- * Limite connue et assumée : les sous-modules sont chargés par des `import`
- * statiques, à des URL sans empreinte. Ils restent donc soumis au `max-age=600`
- * de GitHub Pages, comme le HTML lui-même. Fermer complètement cette fenêtre
- * imposerait de réécrire les spécificateurs d’import, donc de servir des copies
- * générées des sources — un dossier de build que ce projet n’a pas et ne veut
- * pas. Le gain réel visé ici, la désynchronisation HTML / CSS, est acquis.
+ * Pourquoi une empreinte par fichier plutôt qu’une seule pour tout l’arbre :
+ * corriger `carousel.js` ne doit pas forcer le retéléchargement de
+ * `forms.js`, de `site.js` et du point d’entrée. Chaque module garde son cache
+ * tant que son propre contenu ne bouge pas.
+ *
+ * Ce qui reste vrai — il faut REGÉNÉRER les pages après avoir modifié un
+ * module : c’est le HTML qui porte la table. `tools/check.mjs` refuse un HTML
+ * dont une empreinte ne correspond plus au fichier sur le disque, et signale
+ * donc un build oublié.
  */
 
 import { createHash } from 'node:crypto';
@@ -114,10 +118,26 @@ export function assetStamps() {
     stamps.set(posix(relative(ROOT, file)), hashTree([file]));
   }
 
-  const scripts = walk(join(ROOT, 'js')).filter((file) => file.endsWith('.js'));
-  stamps.set('js/main.js', hashTree(scripts));
+  for (const file of walk(join(ROOT, 'js'))) {
+    if (!file.endsWith('.js')) continue;
+    stamps.set(posix(relative(ROOT, file)), hashTree([file]));
+  }
 
   return stamps;
+}
+
+/**
+ * Les modules chargés par `import`, c’est-à-dire tout `js/` sauf le point
+ * d’entrée — lui est cité directement par le HTML, avec son `src`.
+ *
+ * Sert à construire la table d’importation. L’ordre est stable : deux builds
+ * du même arbre produisent le même HTML, octet pour octet.
+ */
+export function moduleScripts() {
+  return walk(join(ROOT, 'js'))
+    .filter((file) => file.endsWith('.js'))
+    .map((file) => posix(relative(ROOT, file)))
+    .filter((path) => path !== 'js/main.js');
 }
 
 /**

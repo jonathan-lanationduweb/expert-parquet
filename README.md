@@ -350,11 +350,18 @@ son entrée de sitemap sont produits automatiquement.
 | --- | --- | --- |
 | Frontend | racine (`index.html`, `pages/`, `articles/`, `css/`, `js/`) | HTML, CSS et JavaScript natifs, sans dépendance |
 | Génération | `node tools/build.mjs` | produit les 34 pages, `sitemap.xml`, `robots.txt` |
-| Contrôle qualité | `node tools/check.mjs` | liens, ancres, images, métadonnées, JSON-LD, cohérence du sitemap |
+| Contrôle qualité | `node tools/check.mjs` | liens, ancres, images, métadonnées, JSON-LD, empreintes, cohérence du sitemap |
 | Backend | `backend/public/` | WordPress comme **infrastructure** : API, stockage, administration — aucune page publiée |
 | Extension métier | `backend/public/wp-content/plugins/expert-parquet-leads/` | API REST, 4 tables dédiées, back-office, courriels, purge RGPD |
 | Données privées | `backend-private/` | photographies, journaux, identifiants — hors Git, hors racine web |
 | Déploiement statique | `node tools/build-deploy.mjs` | prépare `dist/` par liste blanche, refuse tout chemin interne |
+
+Chaque feuille de style et **chaque module JavaScript** porte une empreinte de son
+contenu (`?v=…`). Les modules étant chargés par `import`, c'est une table
+d'importation émise dans chaque page qui associe leur nom à l'URL estampillée : un
+module corrigé change d'URL et ne peut donc pas être servi depuis le cache, tandis
+que les autres gardent le leur. Il faut régénérer les pages après avoir modifié un
+module — `tools/check.mjs` refuse un HTML dont une empreinte ne correspond plus.
 
 Détails : [backend/docs/ARCHITECTURE.md](backend/docs/ARCHITECTURE.md),
 [backend/docs/DATABASE.md](backend/docs/DATABASE.md),
