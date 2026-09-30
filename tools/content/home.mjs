@@ -13,7 +13,7 @@ import {
   faqJsonLd,
   sectionHead,
   formulaireEnDemo,
-  orientationCommerciale,
+  solutionsPartenaires,
 } from '../partials.mjs';
 
 const D = 0;
@@ -113,13 +113,18 @@ ${domain.points.map((point) => `              <li>${point}</li>`).join('\n')}
       ${photo(D, 'hero.jpg', { sizes: '100vw', priority: true })}
     </div>
     <div class="container hero__inner">
-      <h1 class="hero-title hero__title">Un problème avec votre parquet&nbsp;?</h1>
-      <p class="hero__sub">Commençons par comprendre ce qui se passe.</p>
+      <h1 class="hero-title hero__title">Un problème ou un projet parquet&nbsp;?</h1>
+      <p class="hero__sub">Comprenez votre situation, puis allez à la bonne solution.</p>
       <div class="hero__foot">
-        <p class="hero__lead">Diagnostic, expertise et conseils techniques pour identifier l’origine d’un désordre avant d’engager des travaux.</p>
+        <p class="hero__lead">Conseils, pré-diagnostic et expertise technique — et l’orientation vers l’enseigne qui correspond à votre projet.</p>
+        <!-- Deux entrées, et deux seulement. Le projet d'abord : la plupart
+             des visiteurs cherchent un parquet, pas une expertise. Celui qui
+             a un désordre trouve sa porte juste à côté, au même niveau de
+             lecture. « Demander une expertise » n'est plus le premier geste
+             proposé à quelqu'un dont on ne sait rien. -->
         <div class="hero__actions btn-group">
-          <a class="btn btn--primary btn--lg" href="${rel(D, 'pages/devis.html')}">Demander une expertise</a>
-          <a class="btn btn--on-dark btn--lg" href="#pre-diagnostic">Décrire mon problème</a>
+          <a class="btn btn--primary btn--lg" href="#solutions">Choisir ou remplacer mon parquet</a>
+          <a class="btn btn--on-dark btn--lg" href="#pre-diagnostic">J’ai un problème avec mon parquet</a>
         </div>
       </div>
     </div>
@@ -143,6 +148,18 @@ ${domain.points.map((point) => `              <li>${point}</li>`).join('\n')}
           <p>Ce site ne vend pas de solution avant d’avoir regardé. Il arrive qu’une observation conclue qu’il n’y a rien à faire — c’est aussi un résultat.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ================================================ SOLUTIONS PARTENAIRES
+       Placé haut, et pour une raison : la plupart des visiteurs arrivent avec
+       un projet, pas avec un litige. Enterrer les enseignes en bas de page
+       obligeait à traverser tout le site pour trouver où acheter du parquet.
+       Le bloc reste sobre — deux noms, deux métiers, deux liens — et ne
+       précède pas le positionnement : on dit d'abord ce qu'on fait. -->
+  <section class="section" id="solutions">
+    <div class="container">
+${solutionsPartenaires(D, { campagne: 'accueil' })}
     </div>
   </section>
 
@@ -295,16 +312,28 @@ ${faqAccordion(FAQ, 'home-faq', { single: true })}
         <div class="journey__item"><b>05</b>Recommandations</div>
       </div>
 
-      <!-- Orientation commerciale : après le parcours, jamais avant.
-           La page d'accueil a été compactée à dessein ; ce bloc tient en
-           quatre lignes et ne réclame pas de section à lui. -->
-      <div class="u-mt-xl" data-reveal>
-${orientationCommerciale(D, { campagne: 'accueil', compact: true })}
-      </div>
+      <!-- Le mini-routeur N'EST PLUS ici.
+           Il demandait « que souhaitez-vous faire ? » à un visiteur qui vient
+           de lire le hero et la section Solutions : les deux lui ont déjà posé
+           la question, et la section nomme les enseignes en un clic au lieu de
+           deux. Le routeur garde sa place là où le besoin est réellement
+           inconnu — les pages problème et la sortie du pré-diagnostic. -->
     </div>
   </section>
 
-${ctaBand(D)}
+${ctaBand(D, {
+  /* La bande de fin fermait la page sur « un doute sur l'origine du
+     probleme ? », alors que le hero l'ouvre desormais sur deux entrees. Elle
+     disait donc au dernier ecran l'inverse de ce que dit le premier. Elle
+     ferme maintenant sur le pre-diagnostic — l'outil qui TRIE entre les deux
+     — et laisse le formulaire en second, la ou il sert reellement. */
+  title: 'Vous hésitez entre réparer et remplacer&nbsp;?',
+  text: 'Le pré-diagnostic pose le contexte en cinq questions et vous oriente : vers une expertise si le parquet peut être sauvé, vers une enseigne s’il vaut mieux le remplacer.',
+  primaryLabel: 'Lancer le pré-diagnostic',
+  primaryHref: 'pages/diagnostic.html#pre-diagnostic',
+  secondaryLabel: 'Demander une expertise',
+  secondaryHref: 'pages/devis.html',
+})}
 `;
 
   return {

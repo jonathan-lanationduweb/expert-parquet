@@ -250,22 +250,28 @@ function setupDiagnostic(root) {
       box.innerHTML = '';
       box.append(
         el('p', 'callout__title', 'Vous souhaitez maintenant :'),
-        el('p', 'orientation__question', 'Un remplacement est parfois la suite de ce type de désordre. C’est une hypothèse, pas une conclusion.')
+        el('p', 'orientation__question', 'Un remplacement est souvent la suite de ce type de désordre. C’est une hypothèse, pas une conclusion — à vous de voir si vous préférez chercher un parquet ou faire vérifier d’abord.')
       );
 
       const groupe = el('div', 'orientation__choix');
 
-      /* Rester chez Expert Parquet est le PREMIER choix, et c'est un lien :
-         il mène au formulaire, déjà prérempli de ce qui vient d'être répondu. */
-      const expertise = document.createElement('a');
-      expertise.className = 'btn btn--primary';
-      expertise.href = ctaExpertise.href;
-      expertise.textContent = 'Faire expertiser mon parquet';
-      groupe.append(expertise);
-
-      const acheter = button('Choisir un nouveau parquet', 'btn btn--outline');
+      /* L'ORDRE A CHANGÉ, et ce n'est pas cosmétique.
+         « Faire expertiser » était le bouton principal dans tous les cas, y
+         compris après un pré-diagnostic qui vient de conclure que le parquet
+         est probablement perdu. On proposait une expertise pour confirmer une
+         perte : coûteux pour le visiteur, inutile pour tout le monde.
+         Choisir un nouveau parquet passe donc en premier quand le
+         remplacement est plausible ; l'expertise reste offerte juste à côté,
+         pour qui veut une certitude avant de dépenser. */
+      const acheter = button('Choisir un nouveau parquet', 'btn btn--primary');
       acheter.addEventListener('click', afficherRouteur);
       groupe.append(acheter);
+
+      const expertise = document.createElement('a');
+      expertise.className = 'btn btn--outline';
+      expertise.href = ctaExpertise.href;
+      expertise.textContent = 'Faire expertiser avant de décider';
+      groupe.append(expertise);
 
       box.append(groupe);
     }

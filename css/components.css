@@ -1122,3 +1122,124 @@
   .orientation__choix,
   .orientation__destinations { grid-template-columns: 1fr; }
 }
+
+/* --------------------------------------------------- solutions partenaires
+   Deux cartes, pas une bannière. Le bloc emprunte la grille et les tokens du
+   reste du site : même trait de séparation, même hiérarchie typographique,
+   aucune couleur d'accroche. Une publicité crierait ; celui-ci se contente
+   d'indiquer deux adresses.
+
+   `min-width: 0` n'est pas décoratif : sans lui, la largeur mini-contenu des
+   cartes gonfle la page entière sur mobile. */
+
+.solutions {
+  display: grid;
+  gap: var(--space-lg);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.solutions > * { min-width: 0; }
+
+.solutions__intro {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin: var(--space-2xs) 0 0;
+}
+
+.solution {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-default);
+  min-width: 0;
+}
+
+.solution__nom {
+  font-size: var(--fs-d2);
+  font-weight: 600;
+  color: var(--text-strong);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+/* L'étiquette d'audience. Elle dit à qui l'enseigne s'adresse AVANT le clic :
+   envoyer un particulier vers une enseigne qui le refuse serait le promener. */
+.solution__pour {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.solution__texte {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: var(--space-2xs) 0 var(--space-xs);
+  flex: 1;
+}
+
+.solution .btn { min-height: 48px; }
+
+@media (max-width: 560px) {
+  /* Une carte par ligne, et des cibles qu'un pouce atteint sans viser. */
+  .solutions { grid-template-columns: 1fr; gap: var(--space-md); }
+}
+
+/* ------------------------------------------------------- bloc remplacement
+   La sortie commerciale des pages problème. Plus visible qu'un encart
+   ordinaire — c'est le but — mais toujours dans la grammaire du site : un
+   filet à gauche comme les callouts, aucun aplat de couleur, aucune ombre.
+   Ce qui le rend visible est sa place et son titre, pas son tapage. */
+
+.remplacement {
+  margin-top: var(--space-xl);
+  padding: var(--space-lg);
+  border: 1px solid var(--border-default);
+  border-left: 3px solid var(--text-accent);
+  background: var(--bg-fill);
+}
+
+.remplacement__titre {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  color: var(--text-strong);
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-xs);
+}
+
+.remplacement__texte {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 0 0 var(--space-md);
+}
+
+.remplacement__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.remplacement__actions .btn { min-height: 48px; }
+
+/* La ligne professionnelle : une phrase, pas une carte. Over Parquet est une
+   destination spécifique, elle ne réclame pas le même espace que Premibel. */
+.remplacement__pro {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin: var(--space-md) 0 0;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-default);
+}
+
+@media (max-width: 560px) {
+  .remplacement { padding: var(--space-md); }
+  /* Un bouton par ligne : deux CTA côte à côte sous 560 px donnent des cibles
+     trop étroites, et celui de droite passe inaperçu. */
+  .remplacement__actions { flex-direction: column; align-items: stretch; }
+  .remplacement__actions .btn { width: 100%; }
+}
