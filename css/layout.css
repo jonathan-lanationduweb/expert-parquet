@@ -393,18 +393,23 @@ body.nav-lock {
 /* --- Footer -----------------------------------------------------------------------
    Bloc sombre pleine largeur, grande signature typographique, grille de liens.
    Volontairement pas de bloc orange : l'accent reste rare sur ce site. */
+/* Pied compact (01/10/2026) : la hauteur venait des marges, pas des liens.
+   Le bloc perd son bouton « Nous écrire » (doublon du lien Contact), ses
+   respirations sont ramenées à l'échelle d'un sommaire, et la signature passe
+   dans une colonne plus étroite. Aucun lien retiré. */
 .site-footer {
   background: var(--bg-inverse);
   color: var(--text-inverse);
-  padding-block: var(--section-y-tight) var(--space-xl);
+  padding-block: var(--space-2xl) var(--space-lg);
 }
 .site-footer a { color: var(--text-inverse); }
 
 .footer__top {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
-  gap: clamp(var(--space-xl), 5vw, var(--space-3xl));
-  padding-bottom: var(--space-2xl);
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr);
+  gap: clamp(var(--space-lg), 4vw, var(--space-2xl));
+  padding-bottom: var(--space-xl);
+  align-items: start;
 }
 .footer__wordmark {
   display: inline-block;
@@ -416,17 +421,16 @@ body.nav-lock {
   height: var(--brand-logo-h);
 }
 .footer__pitch {
-  margin-top: var(--space-md);
+  margin-top: var(--space-sm);
   color: var(--text-inverse-muted);
   font-size: var(--fs-sm);
-  max-width: 34ch;
+  max-width: 30ch;
 }
-.footer__cta { margin-top: var(--space-lg); }
 
 .footer__cols {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-lg);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-md);
 }
 .footer__title {
   font-size: var(--fs-2xs);
@@ -434,11 +438,11 @@ body.nav-lock {
   text-transform: uppercase;
   color: var(--text-inverse-muted);
   font-weight: var(--fw-medium);
-  padding-bottom: var(--space-xs);
-  margin-bottom: var(--space-sm);
+  padding-bottom: var(--space-2xs);
+  margin-bottom: var(--space-xs);
   border-bottom: 1px solid var(--border-inverse);
 }
-.footer__list { display: grid; gap: 0.6rem; font-size: var(--fs-sm); list-style: none; }
+.footer__list { display: grid; gap: 0.4rem; font-size: var(--fs-sm); list-style: none; }
 .footer__list a { color: #C9C6C1; text-decoration: none; transition: color var(--dur-fast) var(--ease-out); }
 .footer__list a:hover { color: var(--color-white); }
 
@@ -476,7 +480,6 @@ body.nav-lock {
      lignes alors que la colonne mobile en tient deux. */
   .footer__pitch { margin-top: var(--space-sm); max-width: none; }
   .footer__title { margin-bottom: var(--space-2xs); }
-  .footer__cta { margin-top: var(--space-md); }
   .footer__bottom { padding-top: var(--space-sm); gap: var(--space-2xs) var(--space-md); }
 }
 

@@ -117,8 +117,8 @@ Trois règles structurent le reste :
    une grande image, une grande typographie ou une ligne pleine largeur.
 2. **Pas de micro-label capitale coloré au-dessus de chaque titre.** L'intitulé de
    section (`.kicker`) est en casse normale, sobre, et n'apparaît que là où il informe.
-3. **Chaque grande section a sa propre composition** — hero immersif, manifeste,
-   lignes alternées, liste numérotée, panneau sombre, carrousel, grille magazine.
+3. **Chaque grande section a sa propre composition** — hero immersif, colonnes
+   numérotées, liste à survol, panneau sombre, grille magazine, FAQ en deux colonnes.
 
 ---
 
@@ -493,7 +493,7 @@ Neuf emplacements, tous contextuels — jamais un formulaire avant la sortie.
 | Emplacement | Destination | Poids |
 | --- | --- | --- |
 | Hero de l'accueil | ancre vers `#solutions` | CTA principal |
-| Section `#solutions` de l'accueil | Premibel **et** Over Parquet, nommés | CTA principal |
+| Section `#solutions` de l'accueil, **juste sous le hero** | Premibel **et** Over Parquet, nommés | CTA principal |
 | Pages problème où le remplacement est plausible | Premibel | CTA principal |
 | Sortie du pré-diagnostic (remplacement) | Premibel | CTA principal |
 | Conseils « choisir » et « rénovation » | Premibel | CTA de fin de page |
