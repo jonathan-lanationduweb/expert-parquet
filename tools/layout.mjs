@@ -351,7 +351,8 @@ ${column.links.map((link) => `            <li>${lienPiedDePage(depth, link)}</li
       <div>
         ${footerBrand(depth)}
         <p class="footer__pitch">Comprendre l’origine d’un problème de parquet avant de décider comment intervenir.</p>
-        <p class="footer__cta"><a class="btn btn--on-dark" href="${rel(depth, 'pages/contact.html')}">Nous écrire</a></p>
+        <!-- Plus de bouton « Nous écrire » ici : la colonne Informations porte
+             déjà le lien Contact, et le pied gagne une rangée. -->
       </div>
       <div class="footer__cols">
 ${columns}

@@ -162,7 +162,15 @@ ${lienDeRepli}        </div>
 
    Aucun formulaire, aucune donnée demandée : ces liens partent directement. */
 
-export function solutionsPartenaires(depth, { campagne, titre = null, intro = null, compact = false } = {}) {
+export function solutionsPartenaires(
+  depth,
+  { campagne, titre = null, kicker = null, intro = null, compact = false, textes = {} } = {}
+) {
+  /* `textes` permet à une page de reformuler une carte — l'accueil, par
+     exemple, dit la même chose en moins de mots — sans toucher aux libellés
+     de référence ci-dessous, relevés sur les sites des enseignes. Seuls
+     `pour`, `texte` et `action` sont remplaçables : l'enseigne, son audience
+     et la mesure ne se reformulent pas. */
   const cartes = [
     {
       cle: 'premibel',
@@ -180,7 +188,10 @@ export function solutionsPartenaires(depth, { campagne, titre = null, intro = nu
       classe: 'btn btn--outline btn--block',
       profil: 'professionnel',
     },
-  ];
+  ].map((c) => {
+    const t = textes[c.cle] || {};
+    return { ...c, pour: t.pour || c.pour, texte: t.texte || c.texte, action: t.action || c.action };
+  });
 
   const rendues = cartes
     .map((c) => {
@@ -206,7 +217,7 @@ export function solutionsPartenaires(depth, { campagne, titre = null, intro = nu
     ? `      <p class="kicker">${titre || 'Trouver le parquet adapté'}</p>
 ${intro ? `      <p class="solutions__intro">${intro}</p>` : ''}`
     : sectionHead({
-      kicker: 'Où trouver votre parquet',
+      kicker: kicker || 'Où trouver votre parquet',
       title: titre || 'Trouver le parquet adapté',
       text: intro || 'Expert Parquet ne vend pas de parquet. Nous vous orientons vers l’enseigne qui correspond à votre projet — sans formulaire, sans inscription.',
     });

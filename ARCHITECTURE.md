@@ -111,7 +111,7 @@ variables.css → reset.css → base.css → layout.css → components.css → p
 | `base.css` | Titres, texte, liens, listes riches, `.visually-hidden`, `.skip-link`, utilitaires |
 | `layout.css` | `.container`, `.section`, grilles, `.split`, header, drawer mobile, fil d'Ariane, footer |
 | `components.css` | Boutons, badges, media, cartes d'article, encadrés, colonnes d'étapes, liste éditoriale, carrousel, formulaires, bandeau CTA, accordéon, `[data-reveal]` |
-| `pages/home.css` | Hero immersif, en-têtes de page, manifeste, domaines alternés, bloc observation, pré-diagnostic, magazine, FAQ, parcours |
+| `pages/home.css` | Hero immersif, en-têtes de page, liste « par symptôme », bloc observation (critères d'expertise), pré-diagnostic, magazine, FAQ |
 | `pages/article.css` | Gabarit éditorial : `.prose`, sommaire, colonne latérale, panneaux symptômes |
 | `pages/diagnostic.css` | Pré-diagnostic, formulaire devis multi-étapes, récapitulatif, page contact |
 
@@ -223,11 +223,24 @@ de valeur à renseigner (voir §14).
 
 ### Compositions de page d'accueil (`css/pages/home.css`)
 
-`hero` (immersif, prêt pour la vidéo) · `statement` (manifeste + trois colonnes) ·
-`domain` (lignes alternées image/texte, image débordant vers l'extérieur) ·
-`observation` (demi-écran image / demi-écran panneau sombre) · `prediag` (section
-sombre, panneau clair) · `showcase` · `magazine` (un article vedette + deux compacts) ·
-`faq-split` · `journey` · `cta-band`.
+L'accueil suit l'ordre des conversions (README, « Hiérarchie des conversions ») :
+
+1. `hero` (immersif, prêt pour la vidéo) — deux CTA : « Choisir ou remplacer mon
+   parquet » (`#solutions`) et « J'ai un problème avec mon parquet » (`#comprendre`) ;
+2. `#solutions` — **Trouver la bonne solution** : Premibel et Over Parquet, via
+   `solutionsPartenaires()` (`tools/partials.mjs`) ; placé tout de suite sous le hero ;
+3. `#comprendre` — **Comprendre mon problème** : trois entrées (`.stages--3` :
+   pré-diagnostic, problèmes, conseils) puis la liste « par symptôme » (`.index-list`) ;
+4. `prediag` (section sombre, panneau clair) ;
+5. `observation` (`#expertise`) — **Quand faire appel à une expertise ?** : demi-écran
+   image / demi-écran panneau sombre, quatre critères (`.observation__factors--rows`),
+   CTA devis + lien vers le déroulement ;
+6. `magazine` (un article vedette + deux compacts) ;
+7. `faq-split`, puis le pied de page compact.
+
+Les compositions `statement`, `domain`, `showcase`, `journey` et `cta-band` ont été
+retirées de l'accueil (et de `home.css`) lors de cette réorganisation ; le carrousel
+(`carousel.js`) reste disponible pour une autre page.
 
 ---
 
@@ -621,9 +634,10 @@ fait 11 748, soit 14,5 (−26 %). L'essentiel du gain vient du rythme — des vi
 calibrés pour des colonnes larges, empilés sur une seule colonne — et non du
 contenu.
 
-Trois listes seulement sont repliées, et uniquement sous 640 px
-(`js/modules/reveal-more.js`) : les huit désordres réduits à quatre, les trois
-domaines réduits à un, les trois articles réduits à deux.
+Deux listes seulement sont repliées, et uniquement sous 640 px
+(`js/modules/reveal-more.js`) : les huit désordres réduits à quatre et les trois
+articles réduits à deux. (La liste des domaines, elle aussi repliée, a quitté
+l'accueil avec la réorganisation « projet d'abord, problème ensuite ».)
 
 Les règles qui encadrent ce repli :
 
@@ -635,8 +649,9 @@ Les règles qui encadrent ce repli :
   focus retombe sur `<body>` ;
 - sans JavaScript, la liste est déjà entière et le bouton reste masqué.
 
-Ce qui n'est **jamais** replié : le hero, le pré-diagnostic, la méthode
-d'expertise, la FAQ et le CTA final. Ce sont les étapes du parcours.
+Ce qui n'est **jamais** replié : le hero, la section Premibel / Over Parquet, les
+trois entrées « Comprendre mon problème », le pré-diagnostic, les critères
+d'expertise et la FAQ. Ce sont les étapes du parcours.
 
 ## 19. Les contenus associés sont un graphe, pas un `slice(0, 3)`
 

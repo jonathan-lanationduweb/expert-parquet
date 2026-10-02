@@ -229,6 +229,12 @@
 }
 .section--inverse .stage__title { color: var(--color-white); }
 .stage__text { margin-top: var(--space-xs); font-size: var(--fs-sm); color: var(--text-muted); }
+/* Une colonne peut se terminer par un lien : « Comprendre mon problème » sur
+   l'accueil présente ainsi ses trois entrées. Même composant, un lien de plus. */
+.stage__cta { margin-top: var(--space-md); }
+
+/* Trois colonnes au lieu de quatre, même rythme, mêmes filets. */
+.stages--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 @media (max-width: 900px) {
   .stages { grid-template-columns: repeat(2, minmax(0, 1fr)); }

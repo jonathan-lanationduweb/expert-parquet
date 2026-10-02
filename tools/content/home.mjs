@@ -1,12 +1,7 @@
 import { rel } from '../layout.mjs';
 import { photo } from '../images.mjs';
 import {
-  ICONS,
   indexList,
-  revealMore,
-  ctaBand,
-  processSection,
-  showcase,
   ARTICLES,
   articleCard,
   faqAccordion,
@@ -14,39 +9,71 @@ import {
   sectionHead,
   formulaireEnDemo,
   solutionsPartenaires,
+  revealMore,
 } from '../partials.mjs';
 
 const D = 0;
 
-/* Trois grands domaines, présentés en lignes alternées pleine largeur. */
-const DOMAINS = [
+/*
+ * ORDRE DE LA PAGE (01/10/2026)
+ *
+ * C'est la hiérarchie des conversions du README, lue de haut en bas :
+ *
+ *   hero          « Un problème ou un projet parquet ? » — deux entrées
+ *   ↓ tout de suite
+ *   solutions     Trouver la bonne solution — Premibel, Over Parquet
+ *   ↓ ensuite seulement
+ *   comprendre    Comprendre mon problème — pré-diagnostic, désordres, conseils
+ *   pré-diagnostic
+ *   ↓ puis
+ *   expertise     Quand faire appel à une expertise ? — Expert Parquet
+ *   ↓
+ *   éditorial     articles, FAQ
+ *   ↓
+ *   pied compact
+ *
+ * Ce qui a quitté l'accueil, et pourquoi : le manifeste et les trois domaines
+ * disaient le positionnement AVANT de donner la réponse que la plupart des
+ * visiteurs viennent chercher ; le bloc « observation », le déroulement, le
+ * carrousel et le bandeau de parcours racontaient tous l'expertise, c'est-à-
+ * dire la troisième conversion, sur quatre écrans. Ces contenus restent sur
+ * les pages Expertise et Diagnostic, où ils sont à leur place.
+ */
+
+/* Les trois façons de comprendre, dans l'ordre où elles se présentent à
+   quelqu'un qui constate un désordre : l'outil, puis la liste, puis la lecture. */
+const ENTREES_COMPRENDRE = [
   {
     num: '01',
-    title: 'Diagnostic du parquet',
-    text: 'Identifier ce que l’on observe réellement, puis remonter aux causes possibles. Un grincement, une lame qui bouge ou une tache sont des signaux&nbsp;: leur origine se trouve presque toujours ailleurs que là où on les voit.',
-    points: ['Lecture des symptômes', 'Mesures d’humidité', 'Contrôle des jeux et de la planéité'],
-    image: 'domaine-diagnostic.jpg',
-    href: 'pages/diagnostic.html',
-    cta: 'La méthode de diagnostic',
+    title: 'Pré-diagnostic',
+    text: 'Cinq questions pour poser le contexte et recevoir une première orientation — pas un diagnostic.',
+    href: '#pre-diagnostic',
+    cta: 'Décrire mon problème',
   },
   {
     num: '02',
-    title: 'Désordres et défauts',
-    text: 'Humidité, soulèvement, grincement, lames mobiles, défauts de pose. Chaque désordre a sa grille de lecture&nbsp;: étendue, chronologie, réversibilité. Ce sont ces trois questions qui réduisent le champ des hypothèses.',
-    points: ['Sept familles de désordres documentées', 'Erreurs fréquentes à éviter', 'Vérifications réalisables sans outillage'],
-    image: 'domaine-desordres.jpg',
+    title: 'Problèmes de parquet',
+    text: 'Huit désordres courants, chacun avec ses causes possibles, ses erreurs fréquentes et ses premières vérifications.',
     href: 'pages/problemes.html',
     cta: 'Voir les désordres',
   },
   {
     num: '03',
-    title: 'Expertise avant intervention',
-    text: 'Évaluer la situation avant de rénover, réparer ou remplacer. Reposer un revêtement sans avoir traité la cause revient à programmer le même désordre, souvent plus vite que la première fois.',
-    points: ['Avant rénovation', 'Après sinistre', 'Suspicion de défaut de mise en œuvre'],
-    image: 'architectural.jpg',
-    href: 'pages/expertise.html',
-    cta: 'En quoi consiste l’expertise',
+    title: 'Conseils',
+    text: 'Entretien, rénovation, pose, choix du parquet&nbsp;: un média technique écrit pour être utile avant l’intervention.',
+    href: 'pages/conseils.html',
+    cta: 'Lire les conseils',
   },
+];
+
+/* Les situations où l'expertise se justifie. Des critères, jamais une
+   invitation : règle éditoriale §2.7. Le quatrième dit ce que l'expertise peut
+   conclure et qu'aucune vente ne dira — qu'il n'y a rien à remplacer. */
+const CRITERES_EXPERTISE = [
+  'La cause reste incertaine après les premières vérifications.',
+  'Des travaux importants dépendent de la réponse&nbsp;: rénover, réparer ou remplacer.',
+  'Un tiers est concerné — poseur, assurance, bailleur, copropriété.',
+  'Le parquet peut encore être sauvé, et un remplacement serait prématuré.',
 ];
 
 const FAQ = [
@@ -74,21 +101,17 @@ const FAQ = [
 ];
 
 export function homePage() {
-  const domains = DOMAINS.map(
-    (domain) => `        <article class="domain" data-reveal>
-          <div class="domain__media">
-            ${photo(D, domain.image, { sizes: '(min-width: 901px) 50vw, 100vw' })}
-          </div>
-          <div class="domain__body">
-            <span class="domain__num">${domain.num}</span>
-            <h3 class="domain__title">${domain.title}</h3>
-            <p class="domain__text">${domain.text}</p>
-            <ul class="rich-list domain__list">
-${domain.points.map((point) => `              <li>${point}</li>`).join('\n')}
-            </ul>
-            <p class="domain__cta"><a class="link-arrow" href="${rel(D, domain.href)}">${domain.cta}</a></p>
-          </div>
-        </article>`
+  const entrees = ENTREES_COMPRENDRE.map(
+    (e, index) => `        <li class="stage" data-reveal data-reveal-delay="${index * 80}">
+          <span class="stage__num">${e.num}</span>
+          <h3 class="stage__title">${e.title}</h3>
+          <p class="stage__text">${e.text}</p>
+          <p class="stage__cta"><a class="link-arrow" href="${e.href.startsWith('#') ? e.href : rel(D, e.href)}">${e.cta}</a></p>
+        </li>`
+  ).join('\n');
+
+  const criteres = CRITERES_EXPERTISE.map(
+    (c, index) => `          <li><span>${String(index + 1).padStart(2, '0')}</span> ${c}</li>`
   ).join('\n');
 
   const body = `  <!-- ============================================== HERO IMMERSIF -->
@@ -120,98 +143,58 @@ ${domain.points.map((point) => `              <li>${point}</li>`).join('\n')}
         <!-- Deux entrées, et deux seulement. Le projet d'abord : la plupart
              des visiteurs cherchent un parquet, pas une expertise. Celui qui
              a un désordre trouve sa porte juste à côté, au même niveau de
-             lecture. « Demander une expertise » n'est plus le premier geste
-             proposé à quelqu'un dont on ne sait rien. -->
+             lecture, et elle mène à la section qui lui est consacrée — pas
+             directement à un formulaire. -->
         <div class="hero__actions btn-group">
           <a class="btn btn--primary btn--lg" href="#solutions">Choisir ou remplacer mon parquet</a>
-          <a class="btn btn--on-dark btn--lg" href="#pre-diagnostic">J’ai un problème avec mon parquet</a>
+          <a class="btn btn--on-dark btn--lg" href="#comprendre">J’ai un problème avec mon parquet</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============================================== POSITIONNEMENT -->
-  <section class="statement">
+  <!-- ====================================== TROUVER LA BONNE SOLUTION
+       Tout de suite après le hero, et c'est voulu : la plupart des visiteurs
+       arrivent avec un projet, pas avec un litige. Deux noms, deux métiers,
+       deux liens — aucun formulaire, aucune inscription. -->
+  <section class="section section--tight" id="solutions">
     <div class="container">
-      <h2 class="statement__text" data-reveal>Comprendre l’origine d’un problème <em>avant</em> de décider comment intervenir.</h2>
-      <div class="statement__grid">
-        <div class="statement__item" data-reveal>
-          <h3>Le symptôme n’est pas la cause</h3>
-          <p>Un même bruit, une même déformation peuvent avoir quatre origines différentes. Traiter ce que l’on voit sans chercher pourquoi, c’est refaire deux fois.</p>
-        </div>
-        <div class="statement__item" data-reveal data-reveal-delay="80">
-          <h3>Presque tout se joue sous le parquet</h3>
-          <p>Planéité, siccité, nature du support, hygrométrie de la pièce. Le revêtement n’est souvent que le révélateur d’un problème situé ailleurs.</p>
-        </div>
-        <div class="statement__item" data-reveal data-reveal-delay="160">
-          <h3>Une observation, pas une promesse</h3>
-          <p>Ce site ne vend pas de solution avant d’avoir regardé. Il arrive qu’une observation conclue qu’il n’y a rien à faire — c’est aussi un résultat.</p>
-        </div>
-      </div>
+${solutionsPartenaires(D, {
+    campagne: 'accueil',
+    kicker: 'Choisir ou remplacer un parquet',
+    titre: 'Trouver la bonne solution',
+    intro: 'Expert Parquet ne vend pas de parquet. Nous vous orientons vers l’enseigne qui correspond à votre projet — sans formulaire, sans inscription.',
+    textes: {
+      premibel: {
+        texte: 'Choisir, comparer, être conseillé — pour un projet particulier ou professionnel.',
+        action: 'Voir les parquets',
+      },
+      overparquet: {
+        texte: 'Approvisionnement professionnel&nbsp;: chantier, stock et disponibilité. Inscription sur justificatif d’entreprise.',
+        action: 'Approvisionner mon chantier',
+      },
+    },
+  })}
     </div>
   </section>
 
-  <!-- ================================================ SOLUTIONS PARTENAIRES
-       Placé haut, et pour une raison : la plupart des visiteurs arrivent avec
-       un projet, pas avec un litige. Enterrer les enseignes en bas de page
-       obligeait à traverser tout le site pour trouver où acheter du parquet.
-       Le bloc reste sobre — deux noms, deux métiers, deux liens — et ne
-       précède pas le positionnement : on dit d'abord ce qu'on fait. -->
-  <section class="section" id="solutions">
-    <div class="container">
-${solutionsPartenaires(D, { campagne: 'accueil' })}
-    </div>
-  </section>
-
-  <!-- ============================================ DOMAINES D’EXPERTISE -->
-  <section class="section section--alt" id="domaines">
+  <!-- ======================================== COMPRENDRE MON PROBLÈME
+       Ensuite seulement. Trois entrées — l'outil, la liste, la lecture — puis
+       la liste des désordres elle-même, qui est la vraie porte d'entrée SEO
+       du site et reste donc dans le HTML de l'accueil. -->
+  <section class="section section--alt" id="comprendre">
     <div class="container">
 ${sectionHead({
-    kicker: 'Nos domaines',
-    title: 'Trois manières d’aborder un parquet',
-    text: 'Selon l’avancement de votre réflexion, l’entrée n’est pas la même&nbsp;: identifier un symptôme, comprendre un désordre installé, ou évaluer une situation avant travaux.',
+    kicker: 'J’ai un problème avec mon parquet',
+    title: 'Comprendre mon problème',
+    text: 'Un désordre se comprend avant de se réparer — et avant de se remplacer. Trois façons d’y arriver, selon ce que vous savez déjà.',
   })}
-      <div class="u-mt-2xl" id="domaines-liste">
-${domains}
-      </div>
-${revealMore({ target: 'domaines-liste', count: 1, label: 'Voir les deux autres approches', itemSelector: '.domain' })}
-    </div>
-  </section>
-
-  <!-- ================================================ LISTE PROBLÈMES -->
-  <section class="section" id="problemes">
-    <div class="container">
-${sectionHead({
-    kicker: 'Par symptôme',
-    title: 'Quel problème rencontrez-vous&nbsp;?',
-    text: 'Huit désordres courants, chacun traité de la même façon&nbsp;: symptômes, causes possibles, erreurs fréquentes, premières vérifications.',
-    link: `<a class="link-arrow" href="${rel(D, 'pages/problemes.html')}">Voir tous les problèmes</a>`,
-  })}
-      <div class="u-mt-2xl" data-reveal>
+      <ol class="stages stages--3 u-mt-2xl">
+${entrees}
+      </ol>
+      <div class="comprendre__liste" id="problemes" data-reveal>
+        <p class="kicker">Par symptôme</p>
 ${indexList(D, { collapse: 4, moreLabel: 'Voir les 4 autres désordres' })}
-      </div>
-    </div>
-  </section>
-
-  <!-- ================================================== OBSERVATION -->
-  <section class="observation">
-    <div class="observation__media">
-      ${photo(D, 'hero-wide.jpg', { sizes: '(min-width: 901px) 50vw, 100vw' })}
-    </div>
-    <div class="observation__body">
-      <div data-reveal>
-        <p class="kicker">Notre approche</p>
-        <h2 class="u-mt-md">L’expertise commence par l’observation</h2>
-        <p>Six facteurs suffisent, dans la plupart des cas, à expliquer ce qui arrive à un parquet. Les relever dans l’ordre évite de s’arrêter au premier qui semble coupable.</p>
-        <ul class="observation__factors">
-          <li><span>01</span> Le support</li>
-          <li><span>02</span> L’humidité</li>
-          <li><span>03</span> Les conditions de pose</li>
-          <li><span>04</span> L’environnement</li>
-          <li><span>05</span> Le vieillissement</li>
-          <li><span>06</span> L’usage de la pièce</li>
-        </ul>
-        <p class="observation__cta"><a class="link-arrow link-arrow--inverse" href="${rel(D, 'pages/expertise.html')}">Découvrir notre approche</a></p>
       </div>
     </div>
   </section>
@@ -246,24 +229,33 @@ ${indexList(D, { collapse: 4, moreLabel: 'Voir les 4 autres désordres' })}
     </div>
   </section>
 
-${processSection(D)}
-
-  <!-- ============================================ SITUATIONS / CARROUSEL -->
-  <section class="section section--inverse" id="situations">
-    <div class="container">
-${sectionHead({
-    kicker: 'Cas de figure',
-    title: 'Situations à analyser',
-    text: 'Les configurations qui reviennent le plus souvent. Ce ne sont pas des réalisations&nbsp;: ce sont les situations types sur lesquelles porte une expertise.',
-  })}
-      <div class="u-mt-2xl" data-reveal>
-${showcase(D)}
+  <!-- ============================ QUAND FAIRE APPEL À UNE EXPERTISE ?
+       La troisième conversion, à sa place : après les enseignes et après la
+       compréhension. Des critères, pas une invitation — et le rappel que la
+       première chose qu'une expertise peut conclure, c'est qu'il n'y a rien à
+       faire. -->
+  <section class="observation" id="expertise">
+    <div class="observation__media">
+      ${photo(D, 'architectural.jpg', { sizes: '(min-width: 901px) 50vw, 100vw' })}
+    </div>
+    <div class="observation__body">
+      <div data-reveal>
+        <p class="kicker">Expert Parquet</p>
+        <h2 class="u-mt-md">Quand faire appel à une expertise&nbsp;?</h2>
+        <p>L’expertise n’est pas la réponse à tout. Elle se justifie dans quatre situations — et la première chose qu’elle peut conclure, c’est qu’il n’y a rien à remplacer.</p>
+        <ol class="observation__factors observation__factors--rows">
+${criteres}
+        </ol>
+        <div class="observation__actions btn-group">
+          <a class="btn btn--primary" href="${rel(D, 'pages/devis.html')}">Demander une expertise</a>
+          <a class="link-arrow link-arrow--inverse" href="${rel(D, 'pages/expertise.html')}#deroulement">Comment se déroule une expertise</a>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ======================================================= CONSEILS -->
-  <section class="section section--alt" id="conseils">
+  <!-- ============================================ CONTENU ÉDITORIAL -->
+  <section class="section" id="conseils">
     <div class="container">
 ${sectionHead({
     kicker: 'Conseils',
@@ -285,7 +277,7 @@ ${revealMore({ target: 'conseils-mis-en-avant', count: 2, label: 'Voir un autre 
   </section>
 
   <!-- ============================================================ FAQ -->
-  <section class="section">
+  <section class="section section--alt section--tight">
     <div class="container">
       <div class="faq-split">
         <div data-reveal>
@@ -300,40 +292,6 @@ ${faqAccordion(FAQ, 'home-faq', { single: true })}
       </div>
     </div>
   </section>
-
-  <!-- ======================================================= PARCOURS -->
-  <section class="section section--tight">
-    <div class="container">
-      <div class="journey" data-reveal>
-        <div class="journey__item"><b>01</b>Problème constaté</div>
-        <div class="journey__item"><b>02</b>Comprendre</div>
-        <div class="journey__item"><b>03</b>Pré-diagnostic</div>
-        <div class="journey__item"><b>04</b>Expertise</div>
-        <div class="journey__item"><b>05</b>Recommandations</div>
-      </div>
-
-      <!-- Le mini-routeur N'EST PLUS ici.
-           Il demandait « que souhaitez-vous faire ? » à un visiteur qui vient
-           de lire le hero et la section Solutions : les deux lui ont déjà posé
-           la question, et la section nomme les enseignes en un clic au lieu de
-           deux. Le routeur garde sa place là où le besoin est réellement
-           inconnu — les pages problème et la sortie du pré-diagnostic. -->
-    </div>
-  </section>
-
-${ctaBand(D, {
-  /* La bande de fin fermait la page sur « un doute sur l'origine du
-     probleme ? », alors que le hero l'ouvre desormais sur deux entrees. Elle
-     disait donc au dernier ecran l'inverse de ce que dit le premier. Elle
-     ferme maintenant sur le pre-diagnostic — l'outil qui TRIE entre les deux
-     — et laisse le formulaire en second, la ou il sert reellement. */
-  title: 'Vous hésitez entre réparer et remplacer&nbsp;?',
-  text: 'Le pré-diagnostic pose le contexte en cinq questions et vous oriente : vers une expertise si le parquet peut être sauvé, vers une enseigne s’il vaut mieux le remplacer.',
-  primaryLabel: 'Lancer le pré-diagnostic',
-  primaryHref: 'pages/diagnostic.html#pre-diagnostic',
-  secondaryLabel: 'Demander une expertise',
-  secondaryHref: 'pages/devis.html',
-})}
 `;
 
   return {
@@ -342,7 +300,7 @@ ${ctaBand(D, {
     fullTitle: 'Expert Parquet — Diagnostic et expertise de parquet',
     title: 'Diagnostic et expertise de parquet',
     description:
-      'Parquet qui grince, gonfle ou s’abîme : identifiez l’origine du problème avant d’engager des travaux. Pré-diagnostic en ligne, expertise et conseils techniques.',
+      'Un problème ou un projet parquet ? Trouvez l’enseigne adaptée, comprenez l’origine d’un désordre avec le pré-diagnostic, et sachez quand une expertise se justifie.',
     css: ['pages/home.css', 'pages/diagnostic.css'],
     navCurrent: null,
     headerOver: true,
@@ -361,5 +319,3 @@ ${ctaBand(D, {
     ],
   };
 }
-
-void ICONS;
