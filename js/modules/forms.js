@@ -502,7 +502,19 @@ async function submit(form) {
       renderServerErrors(form, output, corps);
       return;
     }
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    /* Un refus EXPLIQUÉ par le serveur — débit dépassé (429), charge
+       refusée (400, 403, 413) — s'affiche tel quel : dire « vérifiez votre
+       connexion » à quelqu'un qui vient d'envoyer trois demandes serait faux.
+       Le message vient de notre propre backend, en texte, jamais en HTML. */
+    if (!response.ok) {
+      const corps = await response.json().catch(() => null);
+      if ([400, 403, 413, 429].includes(response.status) && corps && typeof corps.message === 'string' && corps.message.trim()) {
+        setState(form, 'error');
+        renderServerMessage(output, corps.message.trim());
+        return;
+      }
+      throw new Error(`HTTP ${response.status}`);
+    }
 
     const recu = await response.json().catch(() => null);
 
@@ -563,6 +575,16 @@ function renderPending(output) {
   p.className = 'form-message';
   p.setAttribute('role', 'status');
   p.textContent = 'Envoi en cours…';
+  output.append(p);
+}
+
+function renderServerMessage(output, message) {
+  if (!output) return;
+  output.innerHTML = '';
+  const p = document.createElement('p');
+  p.className = 'form-message form-message--error';
+  p.setAttribute('role', 'alert');
+  p.textContent = message;
   output.append(p);
 }
 

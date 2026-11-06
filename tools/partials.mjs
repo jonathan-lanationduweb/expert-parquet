@@ -6,10 +6,10 @@
  */
 
 import { rel } from './layout.mjs';
-import { photo, photoData, estClaire } from './images.mjs';
+import { photo, estClaire } from './images.mjs';
 /* Même configuration que celle servie au navigateur : un seul interrupteur. */
-import { formMode, CONTACT, SITE, RGPD, ORIENTATION, partnerFor, partnerUrl } from '../js/config/site.js';
-import { orientation, BESOINS } from '../js/config/orientation-rules.js';
+import { formMode, CONTACT, SITE, RGPD } from '../js/config/site.js';
+import { problemes, theme, imageDe } from './cms/snapshot.mjs';
 
 /* --------------------------------------------------------------- icônes
    Jeu réduit au strict nécessaire : flèches, validation, alerte, question.
@@ -44,191 +44,6 @@ export const ICONS = {
     '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" aria-hidden="true"><circle cx="7.2" cy="7.2" r="5"/><path d="m13.5 13.5-2.7-2.7"/></svg>',
 };
 
-/* ------------------------------------------------------------------ Premibel
-   Destinations éditoriales vers le distributeur partenaire.
-
-   Règles tenues, dans cet ordre :
-   - le lien n'arrive QU'APRÈS que la cause du désordre a été traitée dans le
-     texte, c'est-à-dire au moment où le lecteur choisit réellement un produit ;
-   - zéro à deux liens par page, jamais un par paragraphe ;
-   - l'ancre décrit la destination, elle n'est pas optimisée pour un mot-clé ;
-   - aucune catégorie n'est inventée : les URL ci-dessous ont été relevées dans
-     la navigation du site et vérifiées une à une (HTTP 200, le 11/09/2026).
-
-   `parquet-flottant` est bien la catégorie des contrecollés : c'est le nom
-   qu'emploie Premibel, dont le titre de page est « Parquet flottant et
-   contrecollé ». Ne pas le remplacer par une URL devinée.
-*/
-export const PREMIBEL = {
-  accueil: 'https://premibel.fr/',
-  massif: 'https://premibel.fr/parquet-massif/',
-  contrecolle: 'https://premibel.fr/parquet-flottant/',
-  stratifie: 'https://premibel.fr/parquet-sol-stratifie/',
-  chene: 'https://premibel.fr/chene/',
-  finitionHuile: 'https://premibel.fr/huile/',
-  finitionVernie: 'https://premibel.fr/verni/',
-  conseils: 'https://premibel.fr/astuces-conseils/',
-};
-
-/**
- * Lien sortant contextuel, dans le corps du texte.
- *
- * `sponsored` n'est pas décoratif. Expert Parquet entretient une relation
- * commerciale avec les enseignes vers lesquelles il oriente : ne pas le
- * déclarer sur un lien sortant, c'est exactement ce que les moteurs appellent
- * un lien non divulgué. Les boutons le portaient déjà ; les liens de
- * paragraphe ne l'avaient pas, alors qu'ils mènent au même endroit pour la
- * même raison.
- *
- * `noopener` reste sans `target` : la navigation se fait dans le même onglet,
- * il n'y a donc aucune fenêtre à isoler — l'attribut demeure au cas où un
- * `target` serait ajouté un jour.
- *
- * Les attributs de mesure sont présents mais marqués `editorial` : un lien lu
- * dans une phrase ne vaut pas un bouton de fin de page, et mélanger les deux
- * rendrait tout comptage faux.
- */
-export function premibelLink(url, texte, contexte = 'editorial') {
-  return `<a href="${url}" rel="sponsored noopener" data-event="commercial_orientation"`
-    + ` data-destination="premibel" data-besoin="selection" data-lien="editorial"`
-    + ` data-context="${contexte}">${texte}</a>`;
-}
-
-/* ------------------------------------------------- orientation commerciale
-   Le pendant statique de ce que le pré-diagnostic construit à l'exécution.
-
-   Une page servie ne sait pas QUI la lit : elle n'a ni profil, ni surface, ni
-   délai. Le moteur (js/config/orientation-rules.js) reçoit donc le seul
-   critère disponible — le problème traité par la page — et rend la destination
-   ouverte à tous. Le cas à deux enseignes, lui, n'apparaît que là où le
-   visiteur a dit qui il est : le pré-diagnostic et l'après-devis.
-
-   Aucun JavaScript n'est nécessaire ici : la destination est un lien ordinaire.
-   Quand le moteur n'en retient aucune, une phrase le dit — jamais un bouton
-   mort. */
-
-export function orientationCommerciale(depth, { campagne, compact = false, titre, intro, besoin, profil } = {}) {
-  /* Le HTML servi porte le repli SANS JavaScript : un lien vers l'enseigne
-     ouverte à tous. Le mini-routeur le remplace dès qu'il s'installe. Personne
-     ne tombe donc sur un bloc muet, et personne n'a de formulaire à remplir
-     pour franchir la porte. */
-  const repli = orientation({ need: besoin || BESOINS.SELECTION });
-  const cle = repli.destinations[0];
-  const partenaire = cle ? partnerFor(cle) : null;
-  const url = cle ? partnerUrl(cle, campagne) : null;
-
-  const lienDeRepli = url
-    ? `        <a class="btn btn--outline btn--sm" href="${url.replace(/&/g, '&amp;')}" rel="sponsored noopener"`
-      + ` data-event="commercial_orientation"`
-      + ` data-destination="${cle === 'overparquet' ? 'over-parquet' : cle}"`
-      + ` data-context="${campagne}">${ORIENTATION.action.replace('%s', partenaire.nom)}</a>
-`
-    : '';
-
-  const attributs = [
-    `data-orientation-routeur="${campagne}"`,
-    /* Le routeur est en JavaScript et ne sait pas où il est servi : la
-       profondeur de la page se résout ici, une bonne fois. */
-    `data-expertise-url="${rel(depth, 'pages/diagnostic.html')}#pre-diagnostic"`,
-    besoin ? `data-besoin="${besoin}"` : '',
-    profil ? `data-profil="${profil}"` : '',
-  ].filter(Boolean).join(' ');
-
-  return `      <div class="callout callout--neutral${compact ? '' : ' u-mt-lg'}" data-orientation>
-        <p class="callout__title">${titre || ORIENTATION.titre}</p>
-${compact ? '' : `        <p>${intro || ORIENTATION.intro}</p>
-`}        <div class="orientation" ${attributs}>
-${lienDeRepli}        </div>
-        <p class="disclaimer u-mt-sm">${ORIENTATION.mention}</p>
-      </div>`;
-}
-
-
-
-/* --------------------------------------------------- solutions partenaires
-   Le bloc qui NOMME les enseignes.
-
-   Le mini-routeur demande au visiteur ce qu'il veut faire ; celui-ci part de
-   l'autre bout et dit ce qui existe. Quand quelqu'un sait déjà qu'il cherche
-   un parquet, lui poser une question de plus est une politesse inutile : deux
-   noms, deux métiers, deux liens.
-
-   Les deux enseignes ne reçoivent PAS le même traitement, parce qu'elles ne
-   couvrent pas le même monde. Premibel accueille les particuliers comme les
-   professionnels et répond au choix : elle est en tête, en bouton plein.
-   Over Parquet est réservé aux professionnels sur justificatif d'entreprise —
-   l'annoncer en gros à un particulier serait l'envoyer contre une porte
-   fermée. Elle est donc présentée pour ce qu'elle est, étiquetée, en second.
-
-   Aucun formulaire, aucune donnée demandée : ces liens partent directement. */
-
-export function solutionsPartenaires(
-  depth,
-  { campagne, titre = null, kicker = null, intro = null, compact = false, textes = {} } = {}
-) {
-  /* `textes` permet à une page de reformuler une carte — l'accueil, par
-     exemple, dit la même chose en moins de mots — sans toucher aux libellés
-     de référence ci-dessous, relevés sur les sites des enseignes. Seuls
-     `pour`, `texte` et `action` sont remplaçables : l'enseigne, son audience
-     et la mesure ne se reformulent pas. */
-  const cartes = [
-    {
-      cle: 'premibel',
-      pour: 'Particuliers et professionnels',
-      texte: 'Le choix, le conseil et le showroom&nbsp;: plus de 700 références, toutes finitions, des experts pour comparer avant de décider.',
-      action: 'Découvrir les parquets',
-      classe: 'btn btn--primary btn--block',
-      profil: '',
-    },
-    {
-      cle: 'overparquet',
-      pour: 'Professionnels — chantiers',
-      texte: 'L’approvisionnement&nbsp;: stock immédiat, retrait rapide et tarifs professionnels. Inscription sur justificatif d’entreprise.',
-      action: 'Approvisionner mon chantier',
-      classe: 'btn btn--outline btn--block',
-      profil: 'professionnel',
-    },
-  ].map((c) => {
-    const t = textes[c.cle] || {};
-    return { ...c, pour: t.pour || c.pour, texte: t.texte || c.texte, action: t.action || c.action };
-  });
-
-  const rendues = cartes
-    .map((c) => {
-      const partenaire = partnerFor(c.cle);
-      const url = partenaire ? partnerUrl(c.cle, campagne, c.profil) : null;
-      /* Une enseigne non configurée ne laisse pas un bouton mort : elle
-         disparaît, tout simplement. */
-      if (!url) return '';
-      return `          <div class="solution">
-            <p class="solution__nom">${partenaire.nom}</p>
-            <p class="solution__pour">${c.pour}</p>
-            <p class="solution__texte">${c.texte}</p>
-            <a class="${c.classe}" href="${url.replace(/&/g, '&amp;')}" rel="sponsored noopener"`
-        + ` data-event="commercial_orientation" data-destination="${c.cle === 'overparquet' ? 'over-parquet' : c.cle}"`
-        + ` data-besoin="${c.cle === 'overparquet' ? 'supply' : 'selection'}" data-context="${campagne}">${c.action}</a>
-          </div>`;
-    })
-    .filter(Boolean);
-
-  if (rendues.length === 0) return '';
-
-  const entete = compact
-    ? `      <p class="kicker">${titre || 'Trouver le parquet adapté'}</p>
-${intro ? `      <p class="solutions__intro">${intro}</p>` : ''}`
-    : sectionHead({
-      kicker: kicker || 'Où trouver votre parquet',
-      title: titre || 'Trouver le parquet adapté',
-      text: intro || 'Expert Parquet ne vend pas de parquet. Nous vous orientons vers l’enseigne qui correspond à votre projet — sans formulaire, sans inscription.',
-    });
-
-  return `${entete}
-      <div class="solutions u-mt-lg" data-reveal>
-${rendues.join('\n')}
-      </div>`;
-}
-
-
 /* ------------------------------------------------------ bloc remplacement
    La sortie des pages problème quand le remplacement est plausible.
 
@@ -247,103 +62,47 @@ ${rendues.join('\n')}
    professionnel. Proposer une enseigne fermée aux particuliers sur une page
    lue par des particuliers reviendrait à pousser un domaine, pas à aider. */
 
+/* Depuis le 05/10/2026, la sortie n'est plus l'enseigne mais le MOTEUR
+   « Trouver mon parquet » : c'est lui qui propose un vrai produit, une vraie
+   catégorie, puis l'enseigne adaptée — et jamais une page d'accueil générique
+   quand une référence précise correspond. `prefill` transmet ce que la page
+   sait déjà (pièce humide, chauffage au sol…), que le moteur ne redemande pas. */
 export function blocRemplacement(depth, {
   campagne,
   pro = false,
+  prefill = {},
   titre = 'Votre parquet doit peut-être être remplacé&nbsp;?',
-  texte = 'Si l’état constaté ne laisse plus de matière à travailler, la question n’est plus de réparer mais de choisir. Premibel accueille particuliers et professionnels&nbsp;: showroom, conseil et plus de 700 références, sans formulaire ni inscription.',
-  action = 'Choisir un nouveau parquet chez Premibel',
+  texte = 'Si l’état constaté ne laisse plus de matière à travailler, la question n’est plus de réparer mais de choisir. Quelques critères suffisent pour identifier les parquets qui correspondent à votre projet — de vraies références, chez l’enseigne adaptée.',
+  action = 'Trouver un parquet adapté',
   secondaire = 'Faire expertiser avant de décider',
 } = {}) {
-  const premibel = partnerFor('premibel');
-  const url = premibel ? partnerUrl('premibel', campagne) : null;
-  if (!url) return '';
+  const base = rel(depth, 'pages/trouver-mon-parquet.html');
+  const params = new URLSearchParams({ ...prefill, via: campagne });
+  const url = base + '?' + params.toString();
 
   const lignes = [];
   lignes.push('          <div class="remplacement" data-reveal>');
   lignes.push('            <p class="remplacement__titre">' + titre + '</p>');
   lignes.push('            <p class="remplacement__texte">' + texte + '</p>');
   lignes.push('            <div class="remplacement__actions">');
-  lignes.push('              <a class="btn btn--primary" href="' + url.replace(/&/g, '&amp;') + '" rel="sponsored noopener"'
-    + ' data-event="commercial_orientation" data-destination="premibel" data-besoin="selection"'
-    + ' data-context="' + campagne + '">' + action + '</a>');
+  lignes.push('              <a class="btn btn--primary" href="' + url.replace(/&/g, '&amp;') + '"'
+    + ' data-event="finder_open" data-besoin="selection" data-context="' + campagne + '">' + action + '</a>');
   if (secondaire) {
     lignes.push('              <a class="btn btn--outline btn--sm" href="' + rel(depth, 'pages/devis.html') + '">' + secondaire + '</a>');
   }
   lignes.push('            </div>');
 
   if (pro) {
-    const over = partnerFor('overparquet');
-    const urlPro = over ? partnerUrl('overparquet', campagne, 'professionnel') : null;
-    if (urlPro) {
-      lignes.push('            <p class="remplacement__pro">Vous êtes professionnel et devez approvisionner un chantier&nbsp;? '
-        + '<a href="' + urlPro.replace(/&/g, '&amp;') + '" rel="sponsored noopener"'
-        + ' data-event="commercial_orientation" data-destination="over-parquet" data-besoin="supply"'
-        + ' data-customer-type="professionnel" data-context="' + campagne + '">Over Parquet</a>'
-        + ' fournit le stock et les tarifs professionnels.</p>');
-    }
+    const urlPro = base + '?' + new URLSearchParams({ ...prefill, profil: 'professionnel', besoin: 'supply', via: campagne }).toString();
+    lignes.push('            <p class="remplacement__pro">Vous êtes professionnel et devez approvisionner un chantier&nbsp;? '
+      + '<a href="' + urlPro.replace(/&/g, '&amp;') + '" data-event="finder_open" data-besoin="supply" data-context="' + campagne + '">Le même parcours en mode professionnel</a>'
+      + ' propose la solution d’approvisionnement adaptée.</p>');
   }
 
   lignes.push('          </div>');
   return lignes.join(String.fromCharCode(10));
 }
 
-
-/* ------------------------------------------------- catalogue des problèmes
-   Sert à la fois à la liste éditoriale de la page d'accueil, au hub
-   « Problèmes » et aux liens contextuels. */
-
-export const PROBLEMS = [
-  {
-    slug: 'parquet-qui-grince',
-    label: 'Parquet qui grince',
-    teaser: 'Un frottement, rarement le bois lui-même.',
-    image: 'grincement.jpg',
-  },
-  {
-    slug: 'parquet-gondole',
-    label: 'Parquet qui se soulève',
-    teaser: 'Le bois a gonflé sans avoir où s’étendre.',
-    image: 'soulevement.jpg',
-  },
-  {
-    slug: 'lames-qui-bougent',
-    label: 'Lames qui bougent',
-    teaser: 'Le revêtement n’est plus solidaire de son support.',
-    image: 'lames-bougent.jpg',
-  },
-  {
-    slug: 'humidite',
-    label: 'Humidité',
-    teaser: 'Remontée, condensation ou infiltration&nbsp;: trois réponses différentes.',
-    image: 'parquet-chevrons.jpg',
-  },
-  {
-    slug: 'degat-des-eaux',
-    label: 'Dégât des eaux',
-    teaser: 'L’état visible ne dit rien de l’état du support.',
-    image: 'rayures.jpg',
-  },
-  {
-    slug: 'defaut-de-pose',
-    label: 'Défaut de pose',
-    teaser: 'Des symptômes réguliers sur toute la surface.',
-    image: 'pose-support.jpg',
-  },
-  {
-    slug: 'parquet-abime',
-    label: 'Taches et rayures',
-    teaser: 'La profondeur de l’atteinte détermine la solution.',
-    image: 'taches.jpg',
-  },
-  {
-    slug: 'parquet-abime',
-    label: 'Parquet ancien',
-    teaser: 'Patine ou dégradation&nbsp;: tout se joue sur l’épaisseur utile.',
-    image: 'parquet-ancien.jpg',
-    key: 'parquet-ancien',
-  },
-];
 
 /**
  * Liste éditoriale numérotée, avec vignette révélée au survol.
@@ -354,23 +113,26 @@ export const PROBLEMS = [
  * document — il est donc lu par les moteurs, qui rendent le HTML — et
  * l'intégralité de la liste réapparaît au-delà du point de rupture.
  */
-/** Largeur d'affichage de la vignette de survol, partagée par toutes ses données. */
-const APERCU_SIZES = '300px';
+
+/** Les problèmes de l'instantané, sous la forme attendue par la liste. */
+export function problemesListe() {
+  return problemes().map((p) => ({
+    slug: p.slug,
+    label: p.labelCourt || p.titreCourt || p.title,
+    teaser: p.accroche,
+    /* Sans vignette : l'image du hero du site, jamais une balise cassée. */
+    image: imageDe(p.imageVignette || p.image) || 'hero.jpg',
+  }));
+}
 
 export function indexList(
   depth,
-  { items = PROBLEMS, id = 'problemes-index', collapse = null, moreLabel = null } = {}
+  { items = problemesListe(), id = 'problemes-index', collapse = null, moreLabel = null } = {}
 ) {
   const rows = items
     .map((item, index) => {
       const num = String(index + 1).padStart(2, '0');
-      /* La vignette de survol est remplacée par le script : il lui faut TOUTES
-         les données de l'image, pas seulement son `src`. Un `srcset` présent
-         l'emporte sur `src` — changer le seul `src` ne changeait rien à
-         l'écran. Les attributs sont produits par tools/images.mjs, jamais
-         écrits à la main dans le JavaScript. */
-      const vignette = photoData(depth, item.image, { sizes: APERCU_SIZES, alt: '' });
-      return `        <a class="index-row" href="${rel(depth, `pages/problemes/${item.slug}.html`)}" data-index-item data-preview-src="${vignette.src}" data-preview-srcset="${vignette.srcset || ''}" data-preview-w="${vignette.width}" data-preview-h="${vignette.height}">
+      return `        <a class="index-row" href="${rel(depth, `pages/problemes/${item.slug}.html`)}" data-index-item>
           <span class="index-row__num">${num}</span>
           <span class="index-row__title">${item.label}</span>
           <span class="index-row__text">${item.teaser}</span>
@@ -379,9 +141,8 @@ export function indexList(
     })
     .join('\n');
 
-  const list = `      <div class="index-list" data-index-list id="${id}">
+  const list = `      <div class="index-list" id="${id}">
 ${rows}
-        <div class="index-list__preview" data-index-preview aria-hidden="true">${photo(depth, items[0].image, { sizes: APERCU_SIZES, alt: '' })}</div>
       </div>`;
 
   if (!collapse || collapse >= items.length) return list;
@@ -417,6 +178,10 @@ export function ctaBand(depth, options = {}) {
     primaryHref = 'pages/devis.html',
     secondaryLabel = 'Lancer le pré-diagnostic',
     secondaryHref = 'pages/diagnostic.html#pre-diagnostic',
+    /* Troisième sortie, en lien texte : pour les pages qui servent les trois
+       parcours à la fois (FAQ, diagnostic). Jamais un troisième bouton. */
+    lienLabel = null,
+    lienHref = null,
   } = options;
 
   return `  <section class="cta-band">
@@ -428,10 +193,66 @@ export function ctaBand(depth, options = {}) {
       <div class="btn-group" data-reveal data-reveal-delay="90">
         <a class="btn btn--primary btn--lg" href="${rel(depth, primaryHref)}">${primaryLabel}</a>
         ${secondaryLabel ? `<a class="btn btn--on-dark btn--lg" href="${rel(depth, secondaryHref)}">${secondaryLabel}</a>` : ''}
+        ${lienLabel ? `<a class="link-arrow link-arrow--inverse" href="${rel(depth, lienHref)}">${lienLabel}</a>` : ''}
       </div>
     </div>
   </section>`;
 }
+
+/* Le bandeau final n'est plus le même partout : il prolonge le parcours de la
+   page. Une page « problème » renvoie d'abord au pré-diagnostic, une page
+   « choisir » au moteur, une page d'expertise à la demande d'expertise. */
+export const BANDES = {
+  probleme: {
+    title: 'Un doute sur l’origine du problème&nbsp;?',
+    text: 'Décrivez votre situation en cinq questions&nbsp;: vous recevrez les vérifications à faire en priorité et la suite logique — réparer, remplacer, ou faire expertiser.',
+    primaryLabel: 'Analyser mon problème',
+    primaryHref: 'pages/diagnostic.html#pre-diagnostic',
+    secondaryLabel: 'Demander une expertise',
+    secondaryHref: 'pages/devis.html',
+  },
+  choisir: {
+    title: 'Vous savez ce que vous cherchez&nbsp;?',
+    text: 'Quelques critères suffisent pour identifier les parquets qui correspondent à votre projet — de vraies références, chez l’enseigne adaptée.',
+    primaryLabel: 'Trouver mon parquet',
+    primaryHref: 'pages/trouver-mon-parquet.html',
+    secondaryLabel: 'Analyser mon problème',
+    secondaryHref: 'pages/diagnostic.html#pre-diagnostic',
+  },
+  orientation: {
+    title: 'Par où commencer&nbsp;?',
+    text: 'Un parquet à choisir, un désordre à comprendre, ou une situation qui demande une analyse&nbsp;: chaque besoin a sa suite.',
+    primaryLabel: 'Trouver mon parquet',
+    primaryHref: 'pages/trouver-mon-parquet.html',
+    secondaryLabel: 'Analyser mon problème',
+    secondaryHref: 'pages/diagnostic.html#pre-diagnostic',
+  },
+  /* La FAQ sert les trois parcours : deux boutons et un lien, pas trois boutons. */
+  faq: {
+    title: 'Vous n’avez pas trouvé votre réponse&nbsp;?',
+    text: 'Posez votre situation en cinq questions, ou cherchez directement le parquet qui correspond à votre projet.',
+    primaryLabel: 'Analyser mon problème',
+    primaryHref: 'pages/diagnostic.html#pre-diagnostic',
+    secondaryLabel: 'Trouver mon parquet',
+    secondaryHref: 'pages/trouver-mon-parquet.html',
+    lienLabel: 'Demander une expertise',
+    lienHref: 'pages/devis.html',
+  },
+  /* Le pied de la page Diagnostic : le pré-diagnostic vient d'être fait juste
+     au-dessus, le bandeau dit la suite selon ce qu'on en retient. */
+  diagnostic: {
+    title: 'Et ensuite&nbsp;?',
+    text: 'Un remplacement à envisager, une analyse nécessaire, ou simplement mieux comprendre&nbsp;: chaque situation a sa suite.',
+    primaryLabel: 'Trouver mon parquet',
+    primaryHref: 'pages/trouver-mon-parquet.html',
+    secondaryLabel: 'Demander une expertise',
+    secondaryHref: 'pages/devis.html',
+    lienLabel: 'Voir les problèmes fréquents',
+    lienHref: 'pages/problemes.html',
+  },
+  /* L'expertise : les valeurs par défaut de ctaBand. */
+  expertise: {},
+};
 
 /* ---------------------------------------------------------------- processus */
 
@@ -486,301 +307,21 @@ ${steps}
   </section>`;
 }
 
-/* ----------------------------------------------------------------- articles */
-
-export const ARTICLES = [
-  {
-    slug: 'pourquoi-un-parquet-grince',
-    related: ['parquet-qui-grince', 'lames-qui-bougent', 'pose'],
-    tags: ['grincement', 'support', 'pose', 'structure'],
-    title: 'Pourquoi un parquet se met-il à grincer&nbsp;?',
-    category: 'Diagnostic',
-    date: '2026-02-10',
-    dateLabel: '10 février 2026',
-    readingTime: '6 min',
-    image: 'grincement.jpg',
-    excerpt:
-      'Le grincement est un symptôme, pas une cause. Comprendre d’où vient le frottement évite d’engager des travaux inutiles.',
-  },
-  {
-    slug: 'parquet-qui-se-souleve-que-faire',
-    related: ['parquet-gondole', 'lames-qui-secartent', 'degat-des-eaux'],
-    tags: ['deformation', 'humidite', 'pose', 'sinistre'],
-    title: 'Que faire lorsqu’un parquet se soulève&nbsp;?',
-    category: 'Défauts',
-    date: '2026-02-24',
-    dateLabel: '24 février 2026',
-    readingTime: '7 min',
-    image: 'soulevement.jpg',
-    excerpt:
-      'Un parquet qui bombe réagit presque toujours à l’eau ou à un manque de jeu. Les premiers gestes conditionnent la suite.',
-  },
-  {
-    slug: 'humidite-et-parquet-signes-qui-alertent',
-    seoTitle: 'Humidité et parquet&nbsp;: les signes d’alerte',
-    related: ['parquet-gondole', 'degat-des-eaux', 'pose'],
-    tags: ['humidite', 'mesure', 'support', 'sinistre'],
-    title: 'Humidité et parquet&nbsp;: quels signes doivent alerter&nbsp;?',
-    category: 'Humidité',
-    date: '2026-03-09',
-    dateLabel: '9 mars 2026',
-    readingTime: '8 min',
-    image: 'parquet-chevrons.jpg',
-    excerpt:
-      'Certains signaux apparaissent bien avant le désordre visible. Savoir les lire permet d’agir avant la dégradation.',
-  },
-  {
-    sortie: {
-      titre: 'Trop abîmé pour être sauvé&nbsp;?',
-      texte: 'Quand le ponçage n’a plus de matière à prendre, rénover coûte plus cher que remplacer. Premibel réunit le choix, le conseil et deux showrooms — particuliers comme professionnels.',
-      action: 'Voir les parquets chez Premibel',
-      secondaire: null,
-    },
-    slug: 'renover-un-parquet-tres-abime',
-    related: ['parquet-abime', 'renovation', 'choisir-parquet'],
-    tags: ['renovation', 'esthetique', 'choix', 'entretien'],
-    title: 'Peut-on rénover un parquet très abîmé&nbsp;?',
-    category: 'Rénovation',
-    date: '2026-03-23',
-    dateLabel: '23 mars 2026',
-    readingTime: '7 min',
-    image: 'rayures.jpg',
-    excerpt:
-      'Entre patine et dégradation, la frontière n’est pas toujours nette. Trois critères décident de la faisabilité.',
-  },
-  {
-    slug: 'pourquoi-le-support-est-essentiel',
-    seoTitle: 'Le support&nbsp;: ce qui se joue avant la pose',
-    related: ['defaut-de-pose', 'pose', 'parquet-gondole'],
-    tags: ['support', 'pose', 'mesure', 'structure'],
-    title: 'Pourquoi le support est-il essentiel avant la pose&nbsp;?',
-    category: 'Pose',
-    date: '2026-04-07',
-    dateLabel: '7 avril 2026',
-    readingTime: '9 min',
-    image: 'pose-support.jpg',
-    excerpt:
-      'La majorité des désordres se jouent sous le parquet. Planéité, siccité, propreté&nbsp;: les trois contrôles décisifs.',
-  },
-  {
-    slug: 'lames-qui-secartent',
-    seoTitle: 'Lames qui s’écartent&nbsp;: normal ou défaut&nbsp;?',
-    tags: ['deformation', 'humidite', 'structure', 'mesure'],
-    related: ['lames-qui-bougent', 'parquet-qui-sonne-creux', 'humidite'],
-    title: 'Lames qui s’écartent&nbsp;: jeu normal ou défaut&nbsp;?',
-    category: 'Diagnostic',
-    date: '2026-09-11',
-    dateLabel: '11 septembre 2026',
-    readingTime: '7 min',
-    image: 'lames-bougent.jpg',
-    excerpt:
-      'Des joints qui s’ouvrent en hiver et se referment au printemps sont normaux. Trois situations, en revanche, méritent d’être regardées de près.',
-  },
-  {
-    slug: 'parquet-qui-sonne-creux',
-    seoTitle: 'Pourquoi un parquet sonne creux',
-    tags: ['structure', 'support', 'pose', 'grincement'],
-    related: ['lames-qui-bougent', 'defaut-de-pose', 'pourquoi-un-parquet-grince'],
-    title: 'Parquet qui sonne creux&nbsp;: ce que le bruit indique',
-    category: 'Diagnostic',
-    date: '2026-09-11',
-    dateLabel: '11 septembre 2026',
-    readingTime: '6 min',
-    image: 'parquet-detail.jpg',
-    excerpt:
-      'Normal sur une pose flottante, préoccupant sur une pose collée. La première question n’est pas pourquoi ça sonne creux, mais comment le parquet est posé.',
-  },
-  {
-    slug: 'traces-noires-sur-un-parquet',
-    seoTitle: 'Traces noires sur un parquet&nbsp;: les causes',
-    tags: ['esthetique', 'humidite', 'sinistre', 'entretien'],
-    related: ['humidite', 'parquet-abime', 'parquet-salle-de-bain'],
-    title: 'Traces noires sur un parquet&nbsp;: comment les distinguer',
-    category: 'Humidité',
-    date: '2026-09-11',
-    dateLabel: '11 septembre 2026',
-    readingTime: '7 min',
-    image: 'rayures.jpg',
-    excerpt:
-      'Réaction chimique, moisissure ou finition épuisée&nbsp;: trois phénomènes différents, trois réponses différentes. La forme et l’odeur suffisent souvent à trancher.',
-  },
-  {
-    slug: 'reception-chantier-parquet',
-    seoTitle: 'Réception d’un chantier de parquet',
-    tags: ['pose', 'mesure', 'structure', 'support'],
-    related: ['defaut-de-pose', 'pose', 'parquet-et-plancher-chauffant'],
-    title: 'Réception d’un chantier de parquet&nbsp;: ce qu’on contrôle le jour J',
-    category: 'Pose',
-    date: '2026-09-11',
-    dateLabel: '11 septembre 2026',
-    readingTime: '8 min',
-    image: 'inspection.jpg',
-    excerpt:
-      'La plupart des désordres apparaissent des mois après la pose. Ce que la réception peut faire, c’est consigner l’état initial et les conditions de mise en œuvre.',
-  },
-  {
-    sortie: {
-      titre: 'Vous cherchez un parquet compatible plancher chauffant&nbsp;?',
-      texte: 'La compatibilité se lit sur la fiche technique&nbsp;: épaisseur, essence, résistance thermique. Premibel indique ces caractéristiques et peut les vérifier avec vous.',
-      action: 'Voir les parquets compatibles chez Premibel',
-      secondaire: null,
-    },
-    slug: 'parquet-et-plancher-chauffant',
-    seoTitle: 'Parquet et plancher chauffant&nbsp;: à vérifier',
-    tags: ['choix', 'pose', 'support', 'mesure'],
-    related: ['massif-ou-contrecolle', 'parquet-salle-de-bain', 'choisir-parquet'],
-    title: 'Parquet et plancher chauffant&nbsp;: les points à vérifier',
-    category: 'Pose',
-    date: '2026-09-11',
-    dateLabel: '11 septembre 2026',
-    readingTime: '9 min',
-    image: 'pose-support.jpg',
-    excerpt:
-      'Résistance thermique, température de surface, protocole de mise en chauffe&nbsp;: trois conditions cumulatives qui se vérifient avant la commande, jamais après.',
-  },
-  {
-    sortie: {
-      titre: 'Vous savez maintenant lequel vous convient&nbsp;?',
-      texte: 'Massif ou contrecollé, le critère est la structure, pas la gamme. Reste à les voir&nbsp;: Premibel propose les deux familles, toutes épaisseurs et toutes finitions.',
-      action: 'Comparer les deux familles chez Premibel',
-      secondaire: null,
-    },
-    slug: 'massif-ou-contrecolle',
-    seoTitle: 'Massif ou contrecollé&nbsp;: quelles différences',
-    tags: ['choix', 'structure', 'renovation'],
-    related: ['choisir-parquet', 'parquet-et-plancher-chauffant', 'renovation'],
-    title: 'Massif ou contrecollé&nbsp;: ce qui les distingue vraiment',
-    category: 'Choix',
-    date: '2026-09-11',
-    dateLabel: '11 septembre 2026',
-    readingTime: '8 min',
-    image: 'parquet-chevrons.jpg',
-    excerpt:
-      'Deux structures, pas deux gammes. La différence décide de la stabilité, du nombre de rénovations possibles et du type de pose admis.',
-  },
-  {
-    sortie: {
-      titre: 'Reste à choisir la finition sur pièce',
-      texte: 'Huilé, vitrifié ou brut&nbsp;: la différence se voit et se touche mieux qu’elle ne se lit. Premibel présente les finitions posées, en showroom.',
-      action: 'Voir les finitions chez Premibel',
-      secondaire: null,
-    },
-    slug: 'finition-parquet-huile-vitrifie',
-    seoTitle: 'Finition&nbsp;: huilé, vitrifié ou brut',
-    tags: ['choix', 'entretien', 'esthetique'],
-    related: ['entretien', 'traces-noires-sur-un-parquet', 'renovation'],
-    title: 'Huilé, vitrifié ou brut&nbsp;: choisir une finition',
-    category: 'Choix',
-    date: '2026-09-11',
-    dateLabel: '11 septembre 2026',
-    readingTime: '8 min',
-    image: 'interieur-clair.jpg',
-    excerpt:
-      'La finition est la seule couche qui prend l’usure. Elle décide de l’entretien quotidien et de la façon dont les accidents se réparent.',
-  },
-  {
-    sortie: {
-      titre: 'Vous cherchez une essence qui tienne l’humidité&nbsp;?',
-      texte: 'Toutes les essences ne valent pas en pièce humide, et la pose compte autant que le bois. Un conseiller Premibel peut confirmer un choix avant commande.',
-      action: 'Trouver une essence adaptée chez Premibel',
-      secondaire: null,
-    },
-    slug: 'parquet-salle-de-bain',
-    seoTitle: 'Poser du parquet en salle de bain',
-    tags: ['choix', 'humidite', 'pose', 'structure'],
-    related: ['humidite', 'finition-parquet-huile-vitrifie', 'choisir-parquet'],
-    title: 'Parquet en salle de bain&nbsp;: à quelles conditions&nbsp;?',
-    category: 'Choix',
-    date: '2026-09-11',
-    dateLabel: '11 septembre 2026',
-    readingTime: '7 min',
-    image: 'architectural.jpg',
-    excerpt:
-      'Essence durable, mise en œuvre étanche et ventilation qui fonctionne. Si l’une des trois manque, le bois finira par s’en apercevoir.',
-  },
-];
-
-/** Carte article. `variant` : 'default' | 'feature' | 'row'. */
+/** Carte article. `variant` : 'default' | 'feature' | 'row'. `article` vient de l'instantané. */
 export function articleCard(depth, article, index = 0, variant = 'default') {
+  const categorie = (theme(article.theme) || {}).name || '';
   const ratioClass = variant === 'feature' ? 'media--3x2' : 'media--4x3';
   const h = variant === 'feature' ? 933 : 1050;
   return `      <article class="card${variant === 'feature' ? ' card--feature' : ''}${variant === 'row' ? ' card--row' : ''}" data-reveal data-reveal-delay="${index * 70}">
         <div class="card__media ${ratioClass}">
-          ${photo(depth, article.image, { sizes: variant === 'row' ? '(max-width: 520px) 34vw, (max-width: 900px) 30vw, 18vw' : '(min-width: 901px) 40vw, 100vw' })}
+          ${photo(depth, imageDe(article.image), { sizes: variant === 'row' ? '(max-width: 520px) 34vw, (max-width: 900px) 30vw, 18vw' : '(min-width: 901px) 40vw, 100vw' })}
         </div>
         <div class="card__body">
-          <p class="card__meta"><span>${article.category}</span><span>${article.readingTime}</span></p>
+          <p class="card__meta"><span>${categorie}</span><span>${article.readingTime}</span></p>
           <h3 class="card__title"><a class="card__link" href="${rel(depth, `articles/${article.slug}.html`)}">${article.title}</a></h3>
           <p class="card__text">${article.excerpt}</p>
         </div>
       </article>`;
-}
-
-/* ------------------------------------------------------------- carrousel */
-
-export const SHOWCASE = [
-  {
-    title: 'Soulèvement des lames',
-    text: 'Bombement, vagues ou tuilage&nbsp;: ce que la géométrie du désordre indique sur son origine.',
-    image: 'soulevement.jpg',
-    href: 'pages/problemes/parquet-gondole.html',
-  },
-  {
-    title: 'Humidité persistante',
-    text: 'Distinguer une remontée du support, une condensation d’ambiance et une infiltration ponctuelle.',
-    image: 'parquet-chevrons.jpg',
-    href: 'pages/problemes/humidite.html',
-  },
-  {
-    title: 'Défaut de pose',
-    text: 'Jeux périphériques, planéité, siccité, acclimatation&nbsp;: les contrôles que l’on reconstitue après coup.',
-    image: 'pose-support.jpg',
-    href: 'pages/problemes/defaut-de-pose.html',
-  },
-  {
-    title: 'Parquet ancien',
-    text: 'Mesurer l’épaisseur utile restante et l’état des assemblages avant d’arbitrer entre rénover et remplacer.',
-    image: 'parquet-ancien.jpg',
-    href: 'pages/problemes/parquet-abime.html',
-  },
-  {
-    title: 'Après un dégât des eaux',
-    text: 'Documenter, mesurer le support, attendre la stabilisation&nbsp;: la chronologie compte autant que le constat.',
-    image: 'rayures.jpg',
-    href: 'pages/problemes/degat-des-eaux.html',
-  },
-];
-
-export function showcase(depth, { inverse = false } = {}) {
-  const total = String(SHOWCASE.length).padStart(2, '0');
-  const slides = SHOWCASE.map(
-    (item, index) => `          <a class="showcase__slide" href="${rel(depth, item.href)}">
-            <div class="showcase__media">
-              ${photo(depth, item.image, { sizes: '(min-width: 901px) 38vw, 82vw' })}
-            </div>
-            <div class="showcase__body">
-              <span class="showcase__num">${String(index + 1).padStart(2, '0')}</span>
-              <span>
-                <span class="showcase__title">${item.title}</span>
-                <span class="showcase__text">${item.text}</span>
-              </span>
-            </div>
-          </a>`
-  ).join('\n');
-
-  return `      <div class="showcase" data-showcase>
-        <div class="showcase__viewport" data-showcase-viewport tabindex="0" role="group" aria-label="Situations à analyser, faites défiler horizontalement">
-${slides}
-        </div>
-        <div class="showcase__controls">
-          <p class="showcase__counter" aria-live="polite" aria-atomic="true"><span class="visually-hidden">Situation </span><b data-showcase-current>01</b> / ${total}</p>
-          <div class="showcase__progress" aria-hidden="true"><div class="showcase__progress-bar" data-showcase-bar></div></div>
-          <div class="showcase__nav">
-            <button class="showcase__btn" type="button" data-showcase-prev aria-label="Situation précédente">${ICONS.arrowLeft}</button>
-            <button class="showcase__btn" type="button" data-showcase-next aria-label="Situation suivante">${ICONS.arrowRight}</button>
-          </div>
-        </div>
-      </div>`;
 }
 
 /* --------------------------------------------------------------------- FAQ */

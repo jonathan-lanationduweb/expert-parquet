@@ -1,0 +1,10 @@
+/* Généré par tools/cms/theme.mjs depuis la configuration du site (Site → Apparence).
+   Ne pas modifier à la main : relancer le build. Seules les variables d'accent
+   sont redéfinies ici ; tout le reste de la direction artistique vit dans
+   variables.css. */
+:root {
+  --color-terra: #B04A1E;
+  --color-terra-dark: #8E3A16;
+  --color-terra-soft: #F0E5DF;
+  --color-terra-on-dark: #C96A38;
+}

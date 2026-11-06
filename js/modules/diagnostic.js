@@ -18,9 +18,6 @@ import {
   REMPLACEMENT_PLAUSIBLE,
   DISCLAIMER,
 } from '../config/diagnostic-rules.js';
-import { ORIENTATION } from '../config/site.js';
-import { BESOINS } from '../config/orientation-rules.js';
-import { initOrientation } from './orientation.js';
 
 const STEPS = [
   {
@@ -66,6 +63,10 @@ export function initDiagnostic() {
 
 function setupDiagnostic(root) {
   const quotePath = root.dataset.quoteUrl || 'devis.html';
+  /* Le moteur « Trouver mon parquet » : la sortie quand un remplacement peut
+     être envisagé. Les réponses déjà connues (pièce, type) l'accompagnent dans
+     l'URL — il ne les redemande pas. */
+  const finderPath = root.dataset.finderUrl || 'trouver-mon-parquet.html';
   const answers = {};
   let index = 0;
 
@@ -85,7 +86,13 @@ function setupDiagnostic(root) {
     stepper.update(index, STEPS.length);
     stage.innerHTML = '';
     stage.append(step ? buildStep(step) : buildResult());
-    const first = stage.querySelector('input, button');
+    /* Une étape : le premier choix. Le résultat : son titre, pas un bouton
+       secondaire — c'est le résumé qu'on vient d'obtenir qu'il faut annoncer. */
+    let first = stage.querySelector('input, button');
+    if (!step) {
+      const titre = stage.querySelector('.diagnostic__result h3');
+      if (titre) { titre.tabIndex = -1; first = titre; }
+    }
     if (first && root.dataset.autofocus !== 'off') {
       // Ne pas voler le focus au chargement initial de la page.
       if (root.dataset.started === 'true') first.focus();
@@ -249,23 +256,23 @@ function setupDiagnostic(root) {
     function afficherChoix() {
       box.innerHTML = '';
       box.append(
-        el('p', 'callout__title', 'Vous souhaitez maintenant :'),
-        el('p', 'orientation__question', 'Un remplacement est souvent la suite de ce type de désordre. C’est une hypothèse, pas une conclusion — à vous de voir si vous préférez chercher un parquet ou faire vérifier d’abord.')
+        el('p', 'callout__title', 'Un remplacement peut être envisagé'),
+        el('p', 'orientation__question', 'C’est une hypothèse, pas une conclusion. Vous pouvez chercher dès maintenant un parquet adapté — vos réponses sont reprises, rien n’est redemandé — ou faire vérifier avant de décider.')
       );
 
       const groupe = el('div', 'orientation__choix');
 
-      /* L'ORDRE A CHANGÉ, et ce n'est pas cosmétique.
-         « Faire expertiser » était le bouton principal dans tous les cas, y
-         compris après un pré-diagnostic qui vient de conclure que le parquet
-         est probablement perdu. On proposait une expertise pour confirmer une
-         perte : coûteux pour le visiteur, inutile pour tout le monde.
-         Choisir un nouveau parquet passe donc en premier quand le
-         remplacement est plausible ; l'expertise reste offerte juste à côté,
-         pour qui veut une certitude avant de dépenser. */
-      const acheter = button('Choisir un nouveau parquet', 'btn btn--primary');
-      acheter.addEventListener('click', afficherRouteur);
-      groupe.append(acheter);
+      /* Chercher un parquet d'abord : après un pré-diagnostic qui vient de
+         dire que le parquet est probablement perdu, proposer une expertise
+         pour confirmer une perte coûterait au visiteur sans servir personne.
+         L'expertise reste juste à côté, pour qui veut une certitude. */
+      const trouver = document.createElement('a');
+      trouver.className = 'btn btn--primary';
+      trouver.href = buildFinderUrl(finderPath, reponses);
+      trouver.textContent = 'Trouver un parquet adapté';
+      trouver.dataset.event = 'finder_open';
+      trouver.dataset.context = `pre-diagnostic-${reponses.probleme}`;
+      groupe.append(trouver);
 
       const expertise = document.createElement('a');
       expertise.className = 'btn btn--outline';
@@ -274,25 +281,6 @@ function setupDiagnostic(root) {
       groupe.append(expertise);
 
       box.append(groupe);
-    }
-
-    function afficherRouteur() {
-      box.innerHTML = '';
-      box.append(el('p', 'callout__title', ORIENTATION.titre));
-
-      /* Le besoin est déjà connu — choisir un parquet — et le profil ne change
-         rien à la réponse : le routeur ne pose donc AUCUNE question ici et
-         affiche directement l'enseigne. Un clic depuis cet écran, le lien, et
-         c'est tout. */
-      const zone = el('div', 'orientation');
-      zone.dataset.orientationRouteur = `pre-diagnostic-${reponses.probleme}`;
-      zone.dataset.besoin = BESOINS.SELECTION;
-      box.append(zone, el('p', 'disclaimer u-mt-sm', ORIENTATION.mention));
-      initOrientation();
-
-      const retour = button('Revenir', 'btn btn--ghost btn--sm');
-      retour.addEventListener('click', afficherChoix);
-      box.append(retour);
     }
   }
 
@@ -335,6 +323,22 @@ function buildStepper() {
 }
 
 /** Pré-remplit le formulaire de devis avec les réponses du pré-diagnostic. */
+/**
+ * URL du moteur « Trouver mon parquet », avec ce que le pré-diagnostic sait
+ * déjà et qui est FIABLE : la pièce et le type de parquet existant, s'ils ont
+ * été donnés. « Je ne sais pas » et « autre » ne sont pas transmis — ce ne
+ * sont pas des critères. L'ancre arrive en dernier, après les paramètres.
+ */
+function buildFinderUrl(base, answers) {
+  const [chemin, ancre] = base.split('#');
+  const params = new URLSearchParams();
+  if (answers.piece && !['plusieurs', 'autre'].includes(answers.piece)) params.set('piece', answers.piece);
+  if (['massif', 'contrecolle', 'stratifie'].includes(answers.type)) params.set('type', answers.type);
+  if (answers.profil) params.set('profil', answers.profil);
+  params.set('via', 'pre-diagnostic');
+  return `${chemin}?${params.toString()}${ancre ? `#${ancre}` : ''}`;
+}
+
 function buildQuoteUrl(base, answers) {
   const params = new URLSearchParams();
   if (answers.probleme) params.set('probleme', answers.probleme);

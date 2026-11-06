@@ -94,7 +94,6 @@ export const DELAIS = [
 
 export const OBJETS_CONTACT = [
   { value: 'question-technique', label: 'Question technique' },
-  { value: 'demande-expertise', label: 'Demande d’expertise' },
   { value: 'suivi-dossier', label: 'Suivi d’un dossier' },
   { value: 'partenariat', label: 'Partenariat ou presse' },
   { value: 'autre', label: 'Autre' },

@@ -251,7 +251,7 @@
 
 /* ==========================================================================
    Liste éditoriale numérotée (problèmes, expertises)
-   Rangées pleine largeur séparées par un filet, image révélée au survol.
+   Rangées pleine largeur séparées par un filet.
    ========================================================================== */
 .index-list {
   position: relative;
@@ -313,27 +313,6 @@
 
 /* Variante compacte : deux colonnes, pour une liste placée dans une colonne
    étroite (section « Nos expertises »). */
-
-/* Vignette suivant le curseur (desktop uniquement, purement décorative) */
-.index-list__preview {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 300px;
-  height: 380px;
-  pointer-events: none;
-  opacity: 0;
-  z-index: 3;
-  overflow: hidden;
-  background: var(--bg-fill);
-  transition: opacity var(--dur-base) var(--ease-out);
-  will-change: transform;
-}
-.index-list__preview img { width: 100%; height: 100%; object-fit: cover; }
-.index-list__preview.is-visible { opacity: 1; }
-@media (max-width: 1024px), (prefers-reduced-motion: reduce) {
-  .index-list__preview { display: none; }
-}
 
 @media (max-width: 900px) {
   .index-row { grid-template-columns: 3rem minmax(0, 1fr) 1.75rem; }
@@ -1188,6 +1167,26 @@
 }
 
 .solution .btn { min-height: 48px; }
+
+/* Enseigne vedette : une colonne plus large, un nom plus grand, un filet plus
+   appuyé. Rien d'autre — pas d'aplat, pas d'ombre. */
+.solutions--vedette { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: stretch; }
+.solution--vedette { border-top: 2px solid var(--color-ink); }
+.solution--vedette .solution__nom { font-size: var(--fs-d1); line-height: 1; }
+.solution--vedette .solution__texte { font-size: var(--fs-base); color: var(--text-default); }
+
+/* Étiquette « professionnels » : visible avant le clic, sans crier. */
+.solution__pour--pro {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 0.25em 0.6em;
+  border: 1px solid var(--border-strong);
+  color: var(--text-strong);
+}
+
+@media (max-width: 900px) {
+  .solutions--vedette { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+}
 
 @media (max-width: 560px) {
   /* Une carte par ligne, et des cibles qu'un pouce atteint sans viser. */

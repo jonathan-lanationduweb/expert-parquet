@@ -12,6 +12,7 @@ Document technique. Pour l'installation et la personnalisation courante, voir
 | URL | Rôle | Intention de recherche |
 | --- | --- | --- |
 | `/index.html` | Accueil, page de conversion | marque, « problème parquet » |
+| `/pages/trouver-mon-parquet.html` | Moteur « Trouver mon parquet » : critères → produits réels, catégorie, enseigne (§24) | « trouver un parquet », « quel parquet choisir » |
 | `/pages/expertise.html` | Ce qu'est une expertise, quand la demander | « expertise parquet » |
 | `/pages/diagnostic.html` | Méthode + pré-diagnostic guidé | « diagnostic parquet », « pourquoi mon parquet bouge » |
 | `/pages/problemes.html` | Hub des symptômes | « problèmes de parquet » |
@@ -60,9 +61,9 @@ articles associés.
 ## 2. Générateur
 
 Le HTML livré est statique. Il est produit par `tools/build.mjs` (Node ≥ 18, zéro
-dépendance) à partir de modules de contenu. Motif : 26 pages partagent header, footer,
-liste éditoriale, bandeau CTA, carrousel et bloc processus ; les dupliquer à la main
-garantirait des divergences.
+dépendance) à partir de GABARITS (`tools/content/*.mjs`) et d'un INSTANTANÉ ÉDITORIAL
+(`data/content/snapshot.json`) exporté de WordPress — voir §25. Les modules de
+contenu ne contiennent plus de texte : ils lisent l'instantané et le mettent en forme.
 
 ```
 tools/
@@ -70,15 +71,23 @@ tools/
 ├── check.mjs            Contrôle qualité (voir §9)
 ├── make-icons.mjs       Déclinaisons du logo et des favicons (voir §12)
 ├── layout.mjs           <head>, header, footer, breadcrumb, JSON-LD
-├── partials.mjs         Icônes SVG, liste éditoriale, CTA, processus, carrousel,
-│                        catalogue d'articles, accordéon FAQ, en-têtes de page
+├── partials.mjs         Icônes SVG, liste éditoriale, CTA, processus,
+│                        cartes d'articles, accordéon FAQ, en-têtes de page
+├── publish.mjs          Instantané → build → contrôle, avec restauration (§25)
+├── cms/
+│   ├── snapshot.mjs     Lecture typée de l'instantané (conseils, problèmes, FAQ, pages…)
+│   ├── html.mjs         HTML éditorial → conventions du site (liens, icônes, blocs)
+│   ├── fetch-snapshot.mjs  Récupère l'instantané et les médias depuis WordPress
+│   └── migration/contenu-initial.json  Ce qui a été importé dans WordPress (trace)
 └── content/
-    ├── home.mjs         Accueil
+    ├── home.mjs         Accueil (champs de la page « Accueil »)
     ├── core-pages.mjs   Expertise, diagnostic, hubs, à propos, FAQ, légal
     ├── form-pages.mjs   Devis, contact
-    ├── problem-pages.mjs 7 pages symptôme (données → gabarit)
-    ├── advice-pages.mjs  4 pages catégorie
-    └── articles.mjs      5 articles
+    ├── problem-pages.mjs Pages symptôme (type Problème → gabarit)
+    ├── advice-pages.mjs  Pages guide (type Conseil, format guide)
+    ├── articles.mjs      Articles (type Conseil, format article)
+    ├── sortie.mjs        Parcours de sortie → encart et bandeau
+    └── graph.mjs         Contenus associés
 ```
 
 Chaque module exporte une fonction qui renvoie des objets page :
@@ -111,7 +120,8 @@ variables.css → reset.css → base.css → layout.css → components.css → p
 | `base.css` | Titres, texte, liens, listes riches, `.visually-hidden`, `.skip-link`, utilitaires |
 | `layout.css` | `.container`, `.section`, grilles, `.split`, header, drawer mobile, fil d'Ariane, footer |
 | `components.css` | Boutons, badges, media, cartes d'article, encadrés, colonnes d'étapes, liste éditoriale, carrousel, formulaires, bandeau CTA, accordéon, `[data-reveal]` |
-| `pages/home.css` | Hero immersif, en-têtes de page, liste « par symptôme », bloc observation (critères d'expertise), pré-diagnostic, magazine, FAQ |
+| `pages/home.css` | En-têtes de page (`page-hero`), FAQ en deux colonnes, magazine et hub conseils ; le hero d'accueil historique y reste pour les pages qui l'emploient |
+| `pages/hub.css` | Accueil « hub » : hero compact et ses trois parcours, section et interface du moteur, cartes résultat, tuiles problèmes, trio conseils, bandeau expertise |
 | `pages/article.css` | Gabarit éditorial : `.prose`, sommaire, colonne latérale, panneaux symptômes |
 | `pages/diagnostic.css` | Pré-diagnostic, formulaire devis multi-étapes, récapitulatif, page contact |
 
@@ -175,14 +185,15 @@ variables.css → reset.css → base.css → layout.css → components.css → p
 | Module | Point d'ancrage | Rôle |
 | --- | --- | --- |
 | `navigation.js` | `[data-nav-toggle]`, `[data-nav]` | Drawer mobile (piège de focus, `Escape`, `inert`, overlay), état du header au scroll |
-| `index-list.js` | `[data-index-list]` | Vignette suivant le curseur sur la liste éditoriale. Strictement desktop, pointeur fin, hors `prefers-reduced-motion` ; purement décoratif (`aria-hidden`) |
 | `contact-info.js` | `[data-contact="…"]` | Injecte les coordonnées réelles, **ou masque le bloc** si l'information n'est pas fournie (voir §14) |
 | `sticky-cta.js` | `[data-sticky-cta]` | Rappel d'action mobile : visible seulement entre le hero et le bandeau final (voir §15) |
 | `animations.js` | `[data-reveal]` | Apparition au scroll via `IntersectionObserver`, désactivée si `prefers-reduced-motion` |
 | `accordion.js` | `[data-accordion]` | FAQ accessible : `aria-expanded`, flèches haut/bas, `Home`/`End`, ouverture par ancre |
 | `carousel.js` | `[data-showcase]` | Carrousel « Situations à analyser » : scroll natif + `scroll-snap`, boutons, clavier, compteur 01/05, barre de progression. Mesures mises en cache au redimensionnement pour ne pas dépendre de `requestAnimationFrame` |
 | `toc.js` | `[data-toc]` | Génère le sommaire depuis les `h2[id]`/`h3[id]`, surligne la section lue |
-| `diagnostic.js` | `[data-diagnostic]` | Pré-diagnostic (voir §6) |
+| `diagnostic.js` | `[data-diagnostic]` | Pré-diagnostic (voir §6). Quand un remplacement peut être envisagé, sa sortie mène au moteur « Trouver mon parquet » avec la pièce et le type déjà connus (`?piece=…&type=…&via=pre-diagnostic`) |
+| `finder.js` | `[data-finder]`, `[data-finder-start]` | Moteur « Trouver mon parquet » : cinq questions au plus, résultats produits réels, replis catégorie puis enseigne (voir §24). Aucune règle métier dans le module |
+| `tracking.js` | `a[data-event]` | Suivi première partie sans réseau : `recommendation_result`, `product_click`, `partner_click` publiés par `CustomEvent('ep:track')` et dans `window.epTrack` (voir §24) |
 | `forms.js` | `[data-form]`, `[data-options]`, `[data-upload]` | Peuplement, validation, étapes, photos, récapitulatif, soumission (voir §7) |
 
 Tous les modules sont **défensifs** : sans point d'ancrage dans le DOM, ils ne font rien.
@@ -213,34 +224,44 @@ Résumé des tokens (`css/variables.css`) :
 
 Composants disponibles : boutons (7 variantes × 3 tailles), badges, media ratios,
 cartes d'article (standard, vedette, ligne), encadrés (`callout`, `disclaimer`),
-colonnes d'étapes numérotées (`.stages`), liste éditoriale numérotée avec vignette au
-survol (`.index-list`), carrousel plein format (`.showcase`), champs de formulaire
+colonnes d'étapes numérotées (`.stages`), liste éditoriale numérotée
+(`.index-list`), carrousel plein format (`.showcase`), champs de formulaire
 soulignés, tuiles de choix, zone de dépôt de photos, stepper, bandeau CTA, chips de
 filtre, accordéon, rappel d'action mobile (`.sticky-cta`, voir §15).
 
 Le composant `placeholder-value` a été retiré : plus aucune page publique n'affiche
 de valeur à renseigner (voir §14).
 
-### Compositions de page d'accueil (`css/pages/home.css`)
+### Compositions de page d'accueil (`css/pages/hub.css`)
 
-L'accueil suit l'ordre des conversions (README, « Hiérarchie des conversions ») :
+L'accueil est un **hub d'orientation** : il attire par le problème, le diagnostic et
+les conseils ; il qualifie le besoin ; il propose les vrais parquets correspondants ;
+puis il envoie précisément chez Premibel ou Over Parquet. L'expertise n'est gardée
+que pour les situations qui la nécessitent. Tout découle de trois intentions posées
+dans le premier écran (`tools/hub-blocks.mjs`) :
 
-1. `hero` (immersif, prêt pour la vidéo) — deux CTA : « Choisir ou remplacer mon
-   parquet » (`#solutions`) et « J'ai un problème avec mon parquet » (`#comprendre`) ;
-2. `#solutions` — **Trouver la bonne solution** : Premibel et Over Parquet, via
-   `solutionsPartenaires()` (`tools/partials.mjs`) ; placé tout de suite sous le hero ;
-3. `#comprendre` — **Comprendre mon problème** : trois entrées (`.stages--3` :
-   pré-diagnostic, problèmes, conseils) puis la liste « par symptôme » (`.index-list`) ;
-4. `prediag` (section sombre, panneau clair) ;
-5. `observation` (`#expertise`) — **Quand faire appel à une expertise ?** : demi-écran
-   image / demi-écran panneau sombre, quatre critères (`.observation__factors--rows`),
-   CTA devis + lien vers le déroulement ;
-6. `magazine` (un article vedette + deux compacts) ;
-7. `faq-split`, puis le pied de page compact.
+1. `hub-hero` + `parcours` — titre, promesse et trois cartes : **Trouver mon parquet**
+   (ouvre le moteur), **Approvisionner mon chantier** (le même moteur en mode
+   professionnel, étiqueté « Professionnels »), **Analyser mon problème** (le
+   pré-diagnostic). Les cartes tiennent sous 900 px de haut à 1440 px de large ; sur
+   téléphone, la première carte et son bouton sont dans le premier écran ;
+2. `finder-teaser` — une introduction compacte au moteur (§24), qui vit sur sa page
+   `pages/trouver-mon-parquet.html` et n'est jamais ouvert par défaut sur l'accueil ;
+3. `problem-grid` — quatre problèmes fréquents, puis « voir tous les problèmes » ;
+4. `advice-trio` — trois conseils, puis « voir tous les conseils » ;
+5. `expertise-band` — un bandeau court : « Votre situation nécessite une analyse
+   humaine ? », le seul bouton « Demander une expertise » de la page ;
+6. `faq-split` — trois questions ; puis le pied de page compact.
 
-Les compositions `statement`, `domain`, `showcase`, `journey` et `cta-band` ont été
-retirées de l'accueil (et de `home.css`) lors de cette réorganisation ; le carrousel
-(`carousel.js`) reste disponible pour une autre page.
+Ce qui n'y est plus : la section « partenaires » (les enseignes sont les destinations
+des solutions, nommées dans les cartes et les résultats), le pré-diagnostic intégré (il
+vit sur `pages/diagnostic.html`), la liste des huit désordres, le magazine à grande
+image, les compositions `statement`, `domain`, `observation`, `showcase`, `journey`
+et `cta-band`.
+
+Le header suit la même hiérarchie : le menu commence par « Trouver un parquet », son
+unique bouton `HEADER_CTA` mène à `index.html#trouver-mon-parquet`, et le rappel
+collant mobile « Demander une expertise » n'est pas émis sur l'accueil.
 
 ---
 
@@ -650,8 +671,8 @@ Les règles qui encadrent ce repli :
 - sans JavaScript, la liste est déjà entière et le bouton reste masqué.
 
 Ce qui n'est **jamais** replié : le hero, la section Premibel / Over Parquet, les
-trois entrées « Comprendre mon problème », le pré-diagnostic, les critères
-d'expertise et la FAQ. Ce sont les étapes du parcours.
+trois entrées « Comprendre mon problème », les critères d'expertise et la FAQ. Ce
+sont les étapes du parcours.
 
 ## 19. Les contenus associés sont un graphe, pas un `slice(0, 3)`
 
@@ -714,6 +735,88 @@ ici. La seule protection qui fonctionne réellement est donc la balise
 `<meta name="robots">` de chaque page — d'où la notion d'environnement de build
 décrite dans le README.
 
+
+## 24. Catalogue et recommandation — « Trouver mon parquet »
+
+### D'où viennent les produits
+
+Premibel et Over Parquet tournent sous WooCommerce et exposent l'API « Store » de
+WooCommerce Blocks, publique et sans authentification (`/wp-json/wc/store/v1/products`,
+`/products/categories`). Relevé le 05/10/2026 : 783 produits chez Premibel, 877 chez
+Over Parquet, tous avec identifiant, nom, URL canonique, référence, image, catégories
+et attributs (essence, finition, chauffage au sol, épaisseur, largeur, pose…).
+
+`tools/catalog/import-catalog.mjs` télécharge les deux catalogues, **écarte tout ce qui
+n'est pas un parquet** (accessoires, plinthes, colles, isolation, lots de fin de série),
+normalise chaque fiche en facettes lisibles par le moteur à partir des catégories et
+attributs de l'enseigne — jamais du nom —, relie les références communes aux deux
+enseignes (nom et description identiques) et écrit :
+
+| Fichier | Contenu |
+| --- | --- |
+| `data/catalog-premibel.json` | 411 parquets en stock, avec image |
+| `data/catalog-overparquet.json` | 438 parquets en stock, avec image |
+| `data/catalog-index.json` | date de l'instantané, statistiques, **catégories réelles** (slug → nom, URL, effectif) |
+| `js/config/catalog-version.js` | empreinte des JSON, pour le cache |
+
+Les JSON ne sont **jamais embarqués dans les pages** : `js/catalog/load.js` lit celui
+de l'enseigne cherchée quand le moteur en a besoin. Le navigateur ne contacte jamais
+les sites des enseignes. Ni prix ni stock ne sont conservés : figés dans un instantané,
+ils seraient faux dès la première mise à jour ; la date du relevé est affichée sous
+les résultats.
+
+### Trois niveaux, toujours le plus précis qui soit fiable
+
+1. **Produit** — des références exactes sur tous les critères posés ;
+2. **Catégorie** — une catégorie réelle de l'enseigne, la plus spécifique dont on a
+   l'adresse (`js/recommendation/fallbacks.js` lit `catalog-index.json`, ne construit
+   aucune URL) ;
+3. **Enseigne** — l'entrée adaptée au profil (`js/config/site.js`).
+
+### Questions et critères
+
+Cinq questions au plus (`js/config/finder-questions.js`), choisies après l'audit :
+pièce ou usage (+ case « chauffage au sol »), type (+ essence : chêne, bambou, bois
+exotique), motif, teinte, finition. Une question sans objet n'est pas posée (pas de
+type ni de motif pour une terrasse, pas de finition ni d'essence pour un stratifié).
+Les critères venus du pré-diagnostic (`?piece=…&type=…&via=pre-diagnostic`) sont
+repris, affichés, et leurs questions sautées.
+
+### Appariement et score (`js/recommendation/matching.js`)
+
+Critères **durs** — éliminent, et l'inconnu élimine aussi : type, essence, motif,
+pièce humide (seuls les produits que l'enseigne classe « salles de bain et cuisines »),
+terrasse, chauffage au sol (seuls les produits déclarés compatibles). Critères
+**souples** — classent : pièce sèche (+20), teinte (+15, −15 si contraire), finition
+(+10). Poids : type 30, essence 25, motif 25, pièce 20, teinte 15, finition 10,
+chauffage 5. Chaque résultat porte ses `raisons` (affichées sous « Pourquoi ce
+parquet ? ») et ses `ecarts`. Un produit n'est « exact » que s'il satisfait tous les
+critères posés ; sinon la page le dit et propose la catégorie, puis l'enseigne.
+
+### Professionnels
+
+Le parcours « Approvisionner mon chantier » cherche chez Over Parquet et montre, pour
+une référence qui existe aussi chez Premibel (61 références communes), le lien « Aussi
+chez Premibel (choix, conseil) ». **Un particulier n'est jamais envoyé chez Over
+Parquet** — `normalizeCriteria()` ne retient ce périmètre que pour un profil
+professionnel déclaré.
+
+### Suivi
+
+`js/modules/tracking.js` publie `recommendation_result` (critères, niveau, nombre,
+identifiants), `product_click` (avec `data-product-id`, `data-product-name`,
+`data-category`, `data-level`) et `partner_click` — par `CustomEvent('ep:track')` et
+dans `window.epTrack`. Aucune requête réseau, aucun tiers. Ce qu'il faudrait pour
+enregistrer côté serveur est décrit dans `docs/BACKEND-CONTRACT.md` (« Suivi anonyme »).
+
+### Tests
+
+`node tools/catalog/test-scenarios.mjs` joue neuf scénarios sur les instantanés, sans
+navigateur, et échoue si un niveau attendu n'est pas atteint ou si un produit non
+classé « salles de bain » était proposé pour une pièce humide.
+
+---
+
 ## 23. Plus aucun tiers
 
 Les deux familles typographiques venaient de `fonts.googleapis.com` : chaque
@@ -730,3 +833,179 @@ Gain secondaire, non négligeable : la feuille de Google était bloquante et les
 fichiers de police n'étaient découverts qu'après son analyse — deux allers-
 retours vers deux domaines distincts avant la première lettre affichée. Les
 polices sont désormais préchargées depuis le `<head>`, sur la même origine.
+
+---
+
+## 25. CMS éditorial — WordPress écrit, le build lit
+
+### Le principe
+
+```
+WordPress (wp-admin)            instantané                  générateur            site
+Conseils · Problèmes · FAQ  →  data/content/snapshot.json  →  tools/build.mjs  →  HTML statique
+Pages à champs · Médias                                        (gabarits, DA, moteur,
+Navigation · Publication                                        diagnostic : dans le code)
+```
+
+Le DESIGN, les gabarits, le moteur « Trouver mon parquet », le pré-diagnostic, les
+formulaires, la sécurité et les catalogues produits restent dans le code. Le CONTENU —
+textes, images, SEO, mises en avant, parcours de sortie, navigation — est administré
+dans WordPress. Il n'existe plus de texte éditorial dans `tools/`.
+
+### Le modèle dans WordPress (plugin `expert-parquet-leads`, dossier `includes/content/`)
+
+| Objet | Type WordPress | Champs métier (meta) |
+|---|---|---|
+| Conseil | `ep_conseil` (titre, éditeur, extrait, image, révisions) | format article/guide, thème (`ep_theme`, un seul), étiquettes, chapô, titre et libellé courts, temps de lecture, mise en avant + ordre, parcours de sortie + critères du moteur, contenus associés, FAQ liées, SEO |
+| Problème | `ep_probleme` | titre/libellé courts, accroche, introduction, vignette, symptômes, causes, erreurs, vérifications, « quand demander une expertise », remplacement plausible, problème du pré-diagnostic, associés, FAQ, mise en avant, sortie, SEO |
+| Question | `ep_faq` (titre = question, éditeur = réponse, ordre) | groupe (`ep_faq_groupe`) |
+| Page | `page` native, slug parmi `accueil`, `a-propos`, `expertise`, `contact`, `diagnostic`, `conseils`, `problemes` | champs du gabarit (`ep_champs`), SEO, image mise en avant, éditeur quand le gabarit a un corps |
+| Navigation | options `ep_navigation`, `ep_header_cta` | libellé, ordre, visibilité ; destinations fixes |
+
+Les trois types partagent le type de capacité `ep_contenu`. Rôles : `ep_redacteur`
+(écrit, ne publie pas), `ep_editeur` (publie, ordonne, publie le site, maintenance),
+`ep_gestionnaire` (demandes, inchangé). Les blocs autorisés dans l'éditeur sont le
+paragraphe, le titre, la liste, la citation, l'image, le tableau, le séparateur, et le
+bloc classique pour le contenu migré. Les URL ne se saisissent jamais : le parcours de
+sortie est une liste fermée et le build construit le lien.
+
+### L'export
+
+`GET /wp-json/expert-parquet/v1/content/export[?apercu=1]`, protégé par un jeton
+serveur à serveur (`backend-private/build-token.txt`, créé par le plugin ; en-tête
+`X-EP-Build-Token`). Sans `apercu`, seuls les contenus publiés sortent ; avec,
+les brouillons aussi — pour la prévisualisation seulement. La structure est triée et
+déterministe. `tools/cms/fetch-snapshot.mjs` l'écrit dans `data/content/snapshot.json`
+(versionné : le build est reproductible et relisible en diff) et copie les médias.
+
+### Les images
+
+Les images historiques restent dans `assets/images/` avec leurs variantes ; les images
+ajoutées depuis la médiathèque vont dans `assets/images/cms/` avec les tailles 480, 768,
+1200 et 1600 générées par WordPress (`add_image_size`). L'`alt` est celui du média, la
+clarté (90e centile de luminance, pour le voile du hero) est mesurée par le plugin au
+téléversement. Le site public ne dépend jamais de WordPress pour afficher une image.
+Les photographies des demandes d'expertise ne passent pas par la médiathèque.
+
+### Le HTML éditorial (`tools/cms/html.mjs`)
+
+Quatre passes : `[ep_icon nom]` → SVG du jeu d'icônes ; `href="/pages/x.html"` →
+lien relatif à la profondeur de la page ; lien vers premibel.fr ou over-parquet.com →
+`rel="sponsored noopener"` et attributs de mesure ; balisage de l'éditeur de blocs →
+composants du site (tableau → `.table-scroll`, image → pipeline d'images, classes
+`wp-block-*` retirées, titres bornés à H2/H3, `id` posé sur les H2 pour le sommaire).
+
+### Publication et aperçu
+
+`tools/publish.mjs --mode site` : instantané publié → sauvegarde du HTML courant →
+`build.mjs` → `check.mjs` → en cas d'échec, restauration du site précédent. État dans
+`backend-private/build/etat.json`, journal dans `backend-private/logs/build.log`.
+`--mode apercu` : instantané avec brouillons → `_preview/` (ressources copiées), jamais
+la racine.
+
+Depuis WordPress, « Publier le site » et « Prévisualiser » lancent ce script par
+`proc_open` (commande en tableau, aucun argument venu du navigateur, délai de 240 s),
+uniquement si `EP_BUILD_LOCAL` vaut `true` dans wp-config.php ET que l'environnement est
+`local` ou `development`. En production, la mécanique n'existe pas : la publication y
+passera par un déclenchement distant (lot ultérieur) ; l'écran l'explique.
+
+### Mode maintenance
+
+Un bloc dans le `.htaccess` de la racine (entre marqueurs, écrit par le plugin) répond
+`503` + `Retry-After` + `X-Robots-Tag: noindex` avec `/maintenance.html` dès qu'un
+fichier témoin existe (`backend-private/maintenance/active`). Activer, c'est créer ce
+fichier : effet immédiat, aucun rebuild. `/wp-admin`, `/wp-login.php`, `/wp-json`,
+`/wp-content`, `/wp-includes`, `/css`, `/assets` et la page elle-même passent toujours ;
+un cookie de contournement, posé depuis WordPress, laisse passer l'administrateur ; hors
+maintenance, la page n'est servie qu'avec un cookie d'aperçu. La page est écrite par le
+plugin (DA du site, `css/pages/maintenance.css`, image copiée dans
+`assets/maintenance/`) ; `check.mjs` l'ignore, elle n'est pas dans le sitemap.
+
+### Migration
+
+Le contenu historique a été extrait des anciennes constantes vers
+`tools/cms/migration/contenu-initial.json`, importé par
+`backend/scripts/importer-contenu.php` (idempotent : clé technique `_ep_cle` sur chaque
+post, `_ep_legacy_file` sur chaque média). Les URL publiques n'ont pas changé : les
+slugs sont ceux d'avant. Les seules différences de rendu, voulues : les catégories
+d'articles sont devenues les quatre thèmes de la taxonomie ; la liste des problèmes
+compte sept entrées au lieu de huit (le doublon « Parquet ancien » renvoyait à la même
+page) ; les liens relatifs écrits à la main dans quelques réponses de FAQ sont normalisés
+par `rel()` ; les H2 des pages à éditeur portent un `id`.
+
+## 26. Configuration du site — WordPress fournit les valeurs, le front protège la DA
+
+### Le principe
+
+Après le contenu (§25), la couche « site » : identité, apparence, navigation, pied de
+page, SEO. Même mécanique — WordPress écrit, l'instantané transporte, le build lit — et
+une règle de plus : **ce n'est pas un page builder**. Les gabarits, les tailles, les
+marges, les typographies, les rayons et la structure des pages ne sont pas exposés.
+L'administrateur choisit des valeurs dans des listes bornées ; le code décide du dessin.
+
+```
+EP_Site (options ep_site_*)  →  snapshot.site {identity, appearance,   →  tools/cms/site.mjs  →  layout.mjs
+Identité · Apparence ·            navigation, footer, seo}                 (fusion + validation     theme.mjs
+Navigation · Footer · SEO                                                  stricte, défauts = V1)   home.mjs
+```
+
+### Côté WordPress (`includes/content/`)
+
+| Classe | Rôle |
+|---|---|
+| `EP_Projet` | la **fiche du projet** pour l'admin : nom, accent, logo d'administration, libellés. Ses variables CSS (`--ep-accent`, `--ep-accent-sombre`, `--ep-accent-pale`…) sont injectées dans l'admin ; plus aucune couleur en dur dans `admin-*.css`. Surchargeable par la constante `EP_PROJET`. |
+| `EP_Site` | référentiels fermés (pages internes, parcours, partenaires, icônes, réseaux, 4 colonnes max), **valeurs par défaut = V1**, lecture avec compatibilité des anciennes options (`ep_navigation`, `ep_header_cta`), validation (`couleur_valide`, `url_valide`, `media_valide`, `nettoyer_lien`), tailles de favicon, `exporter()`. Un enregistrement marque `ep_site_modifie` : la Publication affiche « configuration en attente ». |
+| `EP_Admin_Site` | hub « Configuration du site » + cinq écrans et leurs actions `admin_post_ep_site_*`. Capacités : `ep_configurer_site` (Identité, Apparence, SEO — administrateur) et `ep_gerer_navigation` (Navigation, Footer — éditeur). |
+
+Les secrets, chemins et commandes ne traversent jamais ces écrans ni l'export : ils
+restent dans `wp-config.php`, `backend-private/` et les réglages techniques.
+
+### Côté build
+
+- `tools/cms/site.mjs` : `DEFAUTS` (la V1, mot pour mot), `site()` fusionne l'instantané
+  sur les défauts et **lève une erreur** sur toute valeur hors référentiel (couleur non
+  hexadécimale, type de lien inconnu, icône hors bibliothèque, plus de quatre colonnes,
+  URL non `https`). Un instantané invalide ne produit pas de site : le précédent reste
+  en ligne (publish.mjs).
+- `tools/cms/theme.mjs` : écrit `css/theme.css` — la seule feuille dérivée d'une valeur
+  administrée. Accent par défaut → valeurs V1 à l'identique ; autre accent → nuances
+  dérivées. Chargée après `variables.css`, avant le reste. Pendant un aperçu, la feuille
+  de la racine est remise telle quelle : l'aperçu ne recolore pas le site en ligne.
+- `tools/partials-icones.mjs` : la bibliothèque fermée d'icônes du pied de page.
+- `layout.mjs` lit logos, favicon, menu (entrées métier + liens personnalisés), CTA,
+  colonnes du pied de page (`footer__cols--N`), réseaux, suffixe et description par
+  défaut, image sociale par défaut ; `home.mjs` émet WebSite + Organization.
+- Indexation : `IS_PROD && seo.indexation`. Hors production, `noindex` et `robots.txt`
+  bloquant, non contournables depuis WordPress.
+
+### Médias
+
+L'export donne à chaque média un `chemin` relatif au site (historique : `assets/…` ;
+médiathèque : `assets/images/cms/…`). Le favicon administré est découpé en 16, 32 et
+180 (`add_image_size`, `ep-favicon-*`), copié dans `assets/icons/cms/` ; sans favicon
+administré, les fichiers historiques d'`assets/icons/` sont servis. Les logos de marque
+ont été importés comme médias historiques (`_ep_legacy_file = brand/…`) : l'identité
+par défaut pointe sur eux, et le header est identique à la V1.
+
+### Conventions réutilisables (socle des prochains projets)
+
+Pas de paquet générique : des conventions, reprises telles quelles projet après projet.
+
+1. **Une fiche projet** (`EP_Projet`) porte le nom, l'accent et le logo de l'admin ;
+   l'interface d'administration n'a aucune couleur ni nom en dur.
+2. **Une structure d'admin commune** : un menu de marque avec rubriques Contenu /
+   Site / Activité / Administration, un tableau de bord qui renvoie vers les écrans
+   sans les dupliquer, un hub « Configuration du site » à cartes.
+3. **Des modules métier** (ici le moteur, le pré-diagnostic, les demandes) séparés de
+   la **configuration commune** (identité, apparence, navigation, footer, SEO,
+   publication, maintenance, rôles), qui est la même d'un site à l'autre.
+4. **WordPress pilote les valeurs, le front protège la DA** : listes fermées,
+   validation des deux côtés, défauts égaux au rendu de référence, aucune taille ni
+   typographie exposée, une seule feuille dérivée (`theme.css`).
+5. **Rôles en quatre niveaux** : rédacteur (écrit), éditeur (publie, navigation,
+   footer, maintenance), administrateur (identité, apparence, SEO, technique),
+   gestionnaire d'activité (demandes). Les secrets ne sont jamais à portée des rôles
+   éditoriaux.
+6. **Tout passe par l'instantané** : une modification de configuration est « en
+   attente » jusqu'à la publication, se prévisualise sans toucher au site en ligne,
+   et un instantané invalide est refusé par le build.

@@ -42,14 +42,14 @@ La V1 acceptée comprend :
 
 | Domaine | Contenu |
 | --- | --- |
-| Frontend | 34 pages, responsive, design validé, pré-diagnostic, formulaires, articles et conseils |
+| Frontend | 35 pages, responsive, design validé, pré-diagnostic, formulaires, articles et conseils |
 | SEO | métadonnées, données structurées, sitemap, maillage interne, contrôle qualité automatique |
 | Backend | WordPress en infrastructure seule, API REST dédiée, 4 tables métier, dépôts de photographies privés |
 | Back-office | gestion des demandes, statuts, notes, historique, export CSV |
 | Sécurité | partie publique fermée, limitation des connexions, secrets hors Git, uploads hors racine web |
 | Exploitation | hôte local unique, thème backend maison, déploiement statique, Git organisé |
 
-Contrôle de référence : **34 pages générées, 34 analysées, 0 erreur**.
+Contrôle de référence : **35 pages générées, 35 analysées, 0 erreur**.
 
 La branche `release/v1-validated` fige cet état.
 
@@ -161,14 +161,27 @@ Puis ouvrir <http://localhost:8477>.
 
 ## 5. Régénérer les pages
 
-Les 34 pages partagent le même header, le même footer et les mêmes blocs. Elles sont
-générées à partir des fichiers de contenu du dossier `tools/` :
+Les pages partagent le même header, le même footer et les mêmes blocs. Les gabarits
+vivent dans `tools/` ; le **contenu éditorial vit dans WordPress** et arrive au build
+par un instantané, `data/content/snapshot.json` (voir `docs/editorial-cms.md` pour
+l'usage côté rédacteur, ARCHITECTURE.md §25 pour la mécanique).
 
 ```bash
-node tools/build.mjs
+node tools/cms/fetch-snapshot.mjs   # récupère l'instantané publié depuis WordPress
+node tools/build.mjs                # régénère le site à partir de l'instantané
+node tools/check.mjs                # contrôle qualité
 ```
 
-La commande réécrit tous les fichiers HTML, `sitemap.xml` et `robots.txt`.
+ou, en une commande qui enchaîne les trois et remet l'ancien site en place si l'une
+échoue — c'est ce que lance le bouton « Publier le site » de WordPress :
+
+```bash
+node tools/publish.mjs --mode site
+```
+
+`node tools/build.mjs` seul suffit tant que l'instantané présent dans le dépôt
+convient : il n'appelle jamais WordPress. La commande réécrit tous les fichiers HTML,
+`sitemap.xml` et `robots.txt`.
 
 ### Préproduction et production
 
@@ -254,9 +267,10 @@ expert-parquet.com/
 │   ├── a-propos.html             Positionnement
 │   ├── faq.html                  FAQ complète
 │   ├── mentions-legales.html     Gabarit légal à compléter
-│   ├── problemes/                7 pages symptôme
-│   └── conseils/                 4 pages catégorie
-├── articles/                     5 articles de fond
+│   ├── problemes/                pages symptôme (WordPress : Problèmes)
+│   └── conseils/                 pages guide (WordPress : Conseils, format guide)
+├── articles/                     articles (WordPress : Conseils, format article)
+├── data/content/snapshot.json    L'instantané éditorial exporté de WordPress
 ├── assets/
 │   ├── brand/                    Logo : masters + déclinaisons générées
 │   ├── images/                   Photographies (+ CREDITS.md)
@@ -354,11 +368,12 @@ via l'attribut `data-options`, ce qui interdit toute divergence entre pages.
 **`js/config/diagnostic-rules.js`** : une entrée par symptôme (titre, résumé, pistes,
 vérifications) plus les notes liées au type de parquet, au support et à l'ancienneté.
 
-### Ajouter une page « problème »
+### Ajouter une page « problème », un conseil, une question de FAQ
 
-Ajouter une entrée dans `PROBLEM_PAGES` (`tools/content/problem-pages.mjs`) puis
-relancer `node tools/build.mjs`. La page, son fil d'Ariane, ses données structurées et
-son entrée de sitemap sont produits automatiquement.
+Dans WordPress : Expert Parquet → Problèmes (ou Conseils, FAQ) → Ajouter, puis
+**Publier le site**. La page, son fil d'Ariane, ses données structurées et son entrée
+de sitemap sont produits automatiquement. Aucun fichier à modifier : le code ne
+contient plus de texte éditorial. Mode d'emploi : `docs/editorial-cms.md`.
 
 ---
 
@@ -367,7 +382,7 @@ son entrée de sitemap sont produits automatiquement.
 | Couche | Où | Quoi |
 | --- | --- | --- |
 | Frontend | racine (`index.html`, `pages/`, `articles/`, `css/`, `js/`) | HTML, CSS et JavaScript natifs, sans dépendance |
-| Génération | `node tools/build.mjs` | produit les 34 pages, `sitemap.xml`, `robots.txt` |
+| Génération | `node tools/build.mjs` | produit les 35 pages, `sitemap.xml`, `robots.txt` |
 | Contrôle qualité | `node tools/check.mjs` | liens, ancres, images, métadonnées, JSON-LD, empreintes, cohérence du sitemap |
 | Backend | `backend/public/` | WordPress comme **infrastructure** : API, stockage, administration — aucune page publiée |
 | Extension métier | `backend/public/wp-content/plugins/expert-parquet-leads/` | API REST, 4 tables dédiées, back-office, courriels, purge RGPD |
@@ -486,37 +501,64 @@ Il lit `data-besoin` et `data-profil` : **ce qui est déjà connu n'est jamais
 redemandé**. Après le pré-diagnostic, le besoin est acquis — aucune question ne
 reste, l'enseigne s'affiche directement.
 
+### Un lead qualifié, c'est un clic vers un produit
+
+Un visiteur qui répond aux critères du moteur « Trouver mon parquet », reçoit une
+recommandation et clique vers un produit Premibel ou Over Parquet **est** un lead
+commercial qualifié. Il n'est pas enregistré dans la table des demandes d'Expert
+Parquet : aucune donnée personnelle ne lui est demandée avant la recommandation ni
+avant la sortie. L'enseigne reçoit un visiteur dont le lien porte `utm_source=expert-parquet`,
+`utm_campaign=trouver-mon-parquet`, et qui arrive **sur la fiche produit** (ou sur la
+catégorie la plus précise) — pas sur la page d'accueil.
+
+- **Premibel** reçoit les particuliers et les professionnels qui choisissent un parquet
+  (fiche produit, catégorie, ou entrée générale / espace pro) ;
+- **Over Parquet** reçoit les professionnels qui approvisionnent un chantier (fiche
+  produit, catégorie, ou entrée), jamais un particulier.
+
+Le catalogue, le moteur et ses trois niveaux de précision sont décrits dans
+[ARCHITECTURE.md §24](ARCHITECTURE.md). Rafraîchir l'instantané :
+`node tools/catalog/import-catalog.mjs` puis `node tools/catalog/test-scenarios.mjs`.
+
 ### Où les leads partenaires se génèrent
 
-Neuf emplacements, tous contextuels — jamais un formulaire avant la sortie.
+Tous contextuels — jamais un formulaire avant la sortie.
 
 | Emplacement | Destination | Poids |
 | --- | --- | --- |
-| Hero de l'accueil | ancre vers `#solutions` | CTA principal |
-| Section `#solutions` de l'accueil, **juste sous le hero** | Premibel **et** Over Parquet, nommés | CTA principal |
-| Pages problème où le remplacement est plausible | Premibel | CTA principal |
-| Sortie du pré-diagnostic (remplacement) | Premibel | CTA principal |
-| Conseils « choisir » et « rénovation » | Premibel | CTA de fin de page |
-| 5 articles proches du choix ou de la rénovation | Premibel | CTA de fin de page |
+| Hero de l'accueil — bouton « Trouver mon parquet » | la page du moteur, puis la fiche produit chez Premibel ou Over Parquet | CTA principal |
+| Page « Trouver mon parquet » (`pages/trouver-mon-parquet.html`), ouverte depuis le hero, le header, l'accueil et le pré-diagnostic | produits réels, catégorie réelle, ou enseigne | CTA principal |
+| Bouton du header, toutes pages | le moteur | CTA principal |
+| Pages problème où le remplacement est plausible | le moteur, avec le contexte de la page | CTA principal |
+| Sortie du pré-diagnostic (remplacement) | le moteur, critères déjà connus repris | CTA principal |
+| Conseils « choisir » et « rénovation » | le moteur | CTA de fin de page |
+| 5 articles proches du choix ou de la rénovation | le moteur, pré-rempli quand la page le permet (pièce humide, chauffage au sol) | CTA de fin de page |
 | Liens dans le corps du texte | Premibel | éditorial, 2 max par page |
 | Pied de page | Premibel et Over Parquet | éditorial |
 | Mini-routeur (pages problème, pré-diagnostic) | selon le besoin exprimé | CTA principal |
 
 **Over Parquet n'est jamais proposé comme destination grand public.** Il apparaît sur
-l'accueil étiqueté « professionnels — chantiers », dans le pied de page avec la même
-étiquette, et via le routeur lorsque le visiteur choisit d'approvisionner un chantier.
-Aucun article grand public ne le propose.
+l'accueil dans la carte étiquetée « Professionnels », dans le pied de page avec la
+mention « pro », et dans le moteur uniquement en mode professionnel. Aucun article
+grand public ne le propose.
 
 ### Mesure des clics sortants — ce qui existe, ce qui manque
 
 Chaque lien commercial porte `rel="sponsored noopener"` et quatre attributs :
 
 ```
-data-event="commercial_orientation"
+data-event="product_click" | "partner_click" | "commercial_orientation"
 data-destination="premibel" | "over-parquet"
 data-besoin="selection" | "supply"
-data-context="accueil" | "probleme-degat-des-eaux" | "article-…" | "pied-de-page" | …
+data-context="trouver-mon-parquet" | "probleme-degat-des-eaux" | "article-…" | "pied-de-page" | …
 ```
+
+Les liens produits du moteur ajoutent `data-product-id`, `data-product-name`,
+`data-category` (type) et `data-level` (1 produit, 2 catégorie, 3 enseigne) — toujours
+des données réelles du catalogue. `js/modules/tracking.js` distingue trois événements,
+`recommendation_result`, `product_click` et `partner_click`, et les publie en
+première partie seulement (`CustomEvent('ep:track')`, `window.epTrack`) : ni Google
+Analytics, ni pixel, ni requête. La navigation ne dépend jamais du suivi.
 
 Les liens de paragraphe portent en plus `data-lien="editorial"`, pour qu'un clic lu dans
 une phrase ne soit pas compté comme un clic sur un bouton de fin de page.

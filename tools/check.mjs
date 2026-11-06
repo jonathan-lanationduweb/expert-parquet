@@ -30,6 +30,12 @@ const warnings = [];
    fois les mêmes pages et à reprocher au sitemap de ne pas lister `dist/…`. */
 const HORS_SITE = ['tools', 'node_modules', 'backend', 'backend-private', 'dist'];
 
+/* Fichiers à la racine qui ne sont pas des pages du site : la page de
+   maintenance est écrite par WordPress et servie par Apache en 503, hors
+   sitemap par construction ; la page 404 est servie pour toute adresse
+   inexistante, `noindex` et hors sitemap elle aussi. */
+const FICHIERS_HORS_SITE = new Set(['maintenance.html', '404.html']);
+
 /**
  * Tout dossier commençant par un point est écarté, pas seulement `.git`.
  *
@@ -43,7 +49,8 @@ const HORS_SITE = ['tools', 'node_modules', 'backend', 'backend-private', 'dist'
  * il n'appartient jamais au site publié.
  */
 function horsSite(name) {
-  return name.startsWith('.') || HORS_SITE.includes(name);
+  /* `_preview`, `_reference`, `_captures` : des dossiers de travail, jamais le site. */
+  return name.startsWith('.') || name.startsWith('_') || HORS_SITE.includes(name);
 }
 
 function walk(dir, out = []) {
@@ -52,7 +59,7 @@ function walk(dir, out = []) {
     const estDossier = statSync(full).isDirectory();
     if (estDossier && horsSite(name)) continue;
     if (estDossier) walk(full, out);
-    else if (name.endsWith('.html')) out.push(full);
+    else if (name.endsWith('.html') && !(dir === ROOT && FICHIERS_HORS_SITE.has(name))) out.push(full);
   }
   return out;
 }

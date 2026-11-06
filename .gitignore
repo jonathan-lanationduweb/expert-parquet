@@ -75,3 +75,23 @@ dist/
 # servies depuis l'hote de developpement. Elles contiennent des adresses
 # locales et n'ont aucune valeur hors de la session qui les a produites.
 .playwright-mcp/
+
+# Captures de verification produites en session (hauteur de page, hierarchie) :
+# adresses locales, aucune valeur hors de la session.
+_captures/
+
+# --------------------------------------------------------------------------
+# CMS éditorial (WordPress → site statique)
+#
+# Ce que WordPress ou le build écrivent sur le disque et qui ne se relit pas en
+# diff : l'aperçu avec brouillons, l'instantané d'aperçu, la page et le bloc
+# .htaccess du mode maintenance, l'image de maintenance copiée depuis la
+# médiathèque. L'instantané publié (data/content/snapshot.json), lui, EST
+# versionné : c'est l'entrée du build, reproductible et relisible.
+# --------------------------------------------------------------------------
+_preview/
+_reference/
+data/content/snapshot-apercu.json
+/.htaccess
+/maintenance.html
+assets/maintenance/

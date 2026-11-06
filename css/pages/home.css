@@ -290,39 +290,6 @@
 }
 
 /* ==========================================================================
-   Pré-diagnostic — section sombre, deux colonnes
-   ========================================================================== */
-.prediag { background: var(--color-ink-2); color: var(--text-inverse); }
-.prediag__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-  gap: clamp(var(--space-xl), 5vw, var(--space-3xl));
-  align-items: start;
-}
-.prediag__intro h2 { color: var(--color-white); max-width: 15ch; }
-.prediag__intro p { color: var(--text-inverse-muted); margin-top: var(--space-md); max-width: 40ch; }
-.prediag__steps {
-  margin-top: var(--space-xl);
-  list-style: none;
-  display: grid;
-  gap: 0;
-  border-top: 1px solid var(--border-inverse);
-}
-.prediag__steps li {
-  display: grid;
-  grid-template-columns: 2.5rem minmax(0, 1fr);
-  gap: var(--space-sm);
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--border-inverse);
-  font-size: var(--fs-sm);
-  color: var(--text-inverse);
-}
-.prediag__steps b { color: var(--color-terra); font-weight: var(--fw-regular); font-variant-numeric: tabular-nums; }
-@media (max-width: 900px) {
-  .prediag__grid { grid-template-columns: minmax(0, 1fr); }
-}
-
-/* ==========================================================================
    Magazine (conseils)
    ========================================================================== */
 .magazine {
@@ -369,13 +336,6 @@
   .observation__body { gap: var(--space-md); }
   .observation__cta,
   .observation__actions { margin-top: var(--space-lg); }
-
-  /* Les cinq questions annoncées juste avant le questionnaire qui les pose :
-     sur une colonne c'était cinq lignes pour une information que l'outil
-     répète immédiatement. Deux colonnes, même contenu, deux fois moins haut. */
-  .prediag__steps { margin-top: var(--space-lg); grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .prediag__steps li { padding-block: 0.55rem; grid-template-columns: 1.6rem minmax(0, 1fr); gap: var(--space-2xs); }
-  .prediag__steps li:nth-child(odd) { padding-right: var(--space-sm); }
 
   .magazine__side { gap: var(--space-md); }
   .magazine__side .card + .card { padding-top: var(--space-md); }

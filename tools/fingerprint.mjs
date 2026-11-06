@@ -137,7 +137,10 @@ export function moduleScripts() {
   return walk(join(ROOT, 'js'))
     .filter((file) => file.endsWith('.js'))
     .map((file) => posix(relative(ROOT, file)))
-    .filter((path) => path !== 'js/main.js');
+    /* `main.js` est cité directement ; `maintenance-admin.js` est un script
+       autonome (barre admin du site statique), chargé par <script src>, pas
+       importé — il n'a donc pas sa place dans la table d'importation. */
+    .filter((path) => path !== 'js/main.js' && path !== 'js/maintenance-admin.js');
 }
 
 /**

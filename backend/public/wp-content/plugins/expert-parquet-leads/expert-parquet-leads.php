@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name:  Expert Parquet — Demandes
- * Description:  Réception, stockage et administration des demandes envoyées par le site statique Expert Parquet. Aucune page publique : ce plugin fournit une API et un back-office, sur des tables dédiées.
- * Version:      2.0.0
+ * Plugin Name:  Expert Parquet
+ * Description:  Contenu éditorial (conseils, problèmes, FAQ, pages, médias, navigation, publication du site) et activité (demandes, contacts, devis, photos, emails) du site statique Expert Parquet. Aucune page publique : WordPress administre, le générateur statique publie.
+ * Version:      3.0.0
  * Requires PHP: 8.0
  * Text Domain:  expert-parquet
  *
@@ -42,7 +42,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EP_VERSION', '2.0.0' );
+define( 'EP_VERSION', '3.0.0' );
 define( 'EP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'EP_PLUGIN_FILE', __FILE__ );
 
@@ -120,6 +120,17 @@ require_once EP_PLUGIN_DIR . 'includes/class-ep-purge.php';
 
 require_once EP_PLUGIN_DIR . 'includes/class-ep-admin.php';
 
+/* Le domaine CONTENU (schéma éditorial 1) : types, rôles, champs, export,
+   publication, maintenance. Voir includes/content/class-ep-contenu.php. */
+require_once EP_PLUGIN_DIR . 'includes/content/class-ep-projet.php';
+require_once EP_PLUGIN_DIR . 'includes/content/class-ep-site.php';
+require_once EP_PLUGIN_DIR . 'includes/content/class-ep-contenu.php';
+require_once EP_PLUGIN_DIR . 'includes/content/class-ep-roles.php';
+require_once EP_PLUGIN_DIR . 'includes/content/class-ep-export.php';
+require_once EP_PLUGIN_DIR . 'includes/content/class-ep-import.php';
+require_once EP_PLUGIN_DIR . 'includes/content/class-ep-publication.php';
+require_once EP_PLUGIN_DIR . 'includes/content/class-ep-maintenance.php';
+
 if ( is_admin() ) {
 	/* Les écrans du back-office : un fichier par écran. Rien de tout cela
 	   n'est chargé sur le front, où seule `EP_Admin::url_fiche()` est utile
@@ -131,7 +142,13 @@ if ( is_admin() ) {
 	require_once EP_PLUGIN_DIR . 'includes/class-ep-admin-photos.php';
 	require_once EP_PLUGIN_DIR . 'includes/class-ep-admin-emails.php';
 	require_once EP_PLUGIN_DIR . 'includes/class-ep-admin-reglages.php';
+	require_once EP_PLUGIN_DIR . 'includes/content/class-ep-champs.php';
+	require_once EP_PLUGIN_DIR . 'includes/content/class-ep-admin-contenu.php';
+	require_once EP_PLUGIN_DIR . 'includes/content/class-ep-admin-site.php';
 	EP_Admin::init();
+	EP_Champs::init();
+	EP_Admin_Contenu::init();
+	EP_Admin_Site::init();
 }
 
 // Redirection après connexion et barre supérieure : `wp-login.php` n'est pas l'administration.
@@ -141,6 +158,11 @@ EP_Lead::init();
 EP_Rest::init();
 EP_Security::init();
 EP_Purge::init();
+EP_Contenu::init();
+EP_Roles::init();
+EP_Export::init();
+EP_Publication::init();
+EP_Maintenance::init();
 
 /**
  * Activation : crée ou met à niveau les tables, le rôle, le dossier privé et

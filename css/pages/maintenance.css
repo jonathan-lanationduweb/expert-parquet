@@ -1,0 +1,131 @@
+/* Expert Parquet — page de maintenance
+
+   Reproduction de la maquette validée : plein écran, 55 % de texte sur fond
+   ivoire à gauche, 45 % de photographie pleine hauteur à droite, l'ivoire se
+   fondant dans la photo ; logotype en tête, long espace, filet terre cuite et
+   surtitre espacé, très grand titre Inter Tight sur deux lignes, texte gris
+   foncé sur trois lignes au plus, date de retour, un seul bouton ; pied de
+   page sombre et compact. Aucune navigation, aucun moteur, aucune promesse.
+
+   Servie par Apache en 503 quand la maintenance est active (voir backend :
+   EP_Maintenance). Elle réutilise les variables, le reset, la base et les
+   boutons du site ; elle n'en modifie rien. */
+
+html, body { min-height: 100%; }
+body.maintenance { background: var(--bg-page); color: var(--text-body); display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ---------------------------------------------------------------- composition */
+
+.maint {
+  position: relative;
+  display: grid;
+  grid-template-columns: 55fr 45fr;
+  flex: 1 0 auto;
+  min-height: calc(100vh - 10rem);
+}
+.maintenance--sans-image .maint { grid-template-columns: minmax(0, 1fr); }
+
+.maint__panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(2rem, 4.4vh, 3rem) clamp(1.5rem, 7.7vw, 7rem) clamp(1.5rem, 3vh, 2.5rem);
+  background: var(--bg-page);
+}
+
+.maint__brand { display: inline-block; width: clamp(130px, 11vw, 160px); flex: none; }
+.maint__brand img { width: 100%; height: auto; }
+
+/* Le texte commence après un long espace, comme la maquette (≈ 90 px sous le logo). */
+.maint__content { margin-top: clamp(2.5rem, 8.3vh, 5.6rem); }
+
+.maint__kicker {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.maint__kicker-line { display: block; width: 2.25rem; height: 1px; background: var(--color-terra); }
+
+.maint__title {
+  margin-top: clamp(1rem, 2.2vh, 1.5rem);
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  letter-spacing: -0.035em;
+  line-height: 0.93;
+  font-size: clamp(3.4rem, 7.9vw, 7.6rem);
+  color: var(--text-strong);
+  max-width: 9ch;
+}
+
+.maint__text {
+  margin-top: clamp(1.25rem, 3vh, 2rem);
+  font-size: clamp(1.05rem, 1.45vw, 1.3rem);
+  line-height: 1.5;
+  max-width: 34ch;
+  color: var(--text-body);
+}
+
+.maint__retour {
+  margin-top: clamp(1rem, 2.6vh, 1.75rem);
+  font-size: 1.05rem;
+  color: var(--text-muted);
+}
+
+.maint__actions { margin-top: clamp(1.5rem, 3.6vh, 2.5rem); }
+.maint__actions .btn { padding-inline: 2.9rem; }
+.maint__fleche { margin-left: 1.5rem; }
+
+/* ---------------------------------------------------------------- photographie */
+
+.maint__media { position: relative; min-height: 100%; background: var(--color-ink); isolation: isolate; }
+.maint__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* L'ivoire se fond dans la photographie sur son bord gauche, comme la maquette. */
+.maint__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(90deg, var(--bg-page) 0%, rgba(246, 245, 243, 0.9) 6%, rgba(246, 245, 243, 0.45) 18%, rgba(246, 245, 243, 0) 36%);
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------- pied de page */
+
+.maint__footer {
+  flex: none;
+  min-height: 10rem;
+  background: var(--color-ink);
+  color: var(--text-inverse-muted);
+  padding: var(--space-md) clamp(1.5rem, 7.7vw, 7rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.6rem;
+}
+.maint__footer img { width: 140px; height: auto; }
+.maint__footer p { font-size: var(--fs-sm); max-width: 32ch; line-height: 1.5; }
+
+/* ---------------------------------------------------------------- téléphone */
+
+@media (max-width: 900px) {
+  .maint { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+  .maint__panel { padding: var(--space-lg) var(--space-md) var(--space-2xl); }
+  .maint__content { margin-top: var(--space-2xl); }
+  .maint__title { font-size: clamp(3rem, 15vw, 4.2rem); max-width: none; }
+  .maint__text { max-width: none; }
+  .maint__media { min-height: 0; aspect-ratio: 4 / 3; }
+  .maint__media img { position: static; display: block; aspect-ratio: 4 / 3; }
+  .maint__media::after { background: linear-gradient(180deg, var(--bg-page) 0%, rgba(246, 245, 243, 0) 22%); }
+  .maint__footer { min-height: 0; padding-block: var(--space-lg); }
+}

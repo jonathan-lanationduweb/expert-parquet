@@ -9,28 +9,37 @@
  * dépend d’aucun runtime, Node n’est nécessaire que pour régénérer les pages.
  *
  * Usage :  node tools/build.mjs
+ *
+ * Le contenu vient de l'instantané éditorial (data/content/snapshot.json, voir
+ * tools/cms/). BUILD_OUT désigne un autre dossier de sortie (prévisualisation) ;
+ * EP_SNAPSHOT un autre instantané (brouillons compris).
  */
 
-import { writeFile, mkdir } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { writeFile, mkdir, readFile, readdir, rm, stat } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { renderPage, SITE, BUILD_ENV, IS_PROD } from './layout.mjs';
+import { seo } from './cms/site.mjs';
 import { exigerConfigurationProduction } from './production-guard.mjs';
 import { homePage } from './content/home.mjs';
+import { notFoundPage } from './content/not-found.mjs';
 import { corePages } from './content/core-pages.mjs';
+import { finderPage } from './content/finder-page.mjs';
 import { formPages } from './content/form-pages.mjs';
 import { problemPages } from './content/problem-pages.mjs';
 import { advicePages } from './content/advice-pages.mjs';
 import { articlePages } from './content/articles.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+/* Dossier de sortie : la racine du projet, sauf prévisualisation. */
+const OUT = process.env.BUILD_OUT ? resolve(process.env.BUILD_OUT) : ROOT;
 
 /** Priorités de sitemap par famille de pages. */
 function priorityFor(path) {
   if (path === 'index.html') return '1.0';
   if (path.startsWith('pages/problemes/') || path.startsWith('articles/')) return '0.7';
-  if (path === 'pages/devis.html' || path === 'pages/expertise.html' || path === 'pages/diagnostic.html') return '0.9';
+  if (path === 'pages/devis.html' || path === 'pages/expertise.html' || path === 'pages/diagnostic.html' || path === 'pages/trouver-mon-parquet.html') return '0.9';
   if (path === 'pages/mentions-legales.html') return '0.2';
   return '0.6';
 }
@@ -43,6 +52,7 @@ async function main() {
   const pages = [
     homePage(),
     ...corePages(),
+    finderPage(),
     ...formPages(),
     ...problemPages(),
     ...advicePages(),
@@ -53,8 +63,17 @@ async function main() {
   for (const page of pages) {
     if (seen.has(page.path)) throw new Error(`Chemin de page dupliqué : ${page.path}`);
     seen.add(page.path);
+  }
 
-    const target = join(ROOT, page.path);
+  /* Aucune adresse historique ne disparaît par accident : dépublier dans
+     WordPress un contenu qui a déjà eu une URL publique arrête le build, avec
+     la marche à suivre. Retirer une URL est une décision de développement
+     (liste + redirection), pas un clic. */
+  await exigerUrlsHistoriques(seen);
+
+  for (const page of pages) {
+
+    const target = join(OUT, page.path);
     await mkdir(dirname(target), { recursive: true });
     await writeFile(target, renderPage(page), 'utf8');
     process.stdout.write(`  ✓ ${page.path}\n`);
@@ -62,6 +81,18 @@ async function main() {
 
   await writeSitemap(pages);
   await writeRobots();
+
+  /* La page 404 est produite À PART : servie pour toute adresse inexistante,
+     elle n'est pas une page de contenu et ne doit donc jamais figurer au
+     sitemap. Elle se déclare `noindex` et porte son propre `base href`. */
+  await writeFile(join(OUT, '404.html'), renderPage(notFoundPage()), 'utf8');
+  process.stdout.write('  ✓ 404.html (hors sitemap)\n');
+
+  /* Les pages que le build ne produit plus (contenu dépublié, slug changé)
+     sont retirées : un fichier orphelin resterait servi, hors sitemap, et
+     ferait échouer le contrôle qualité. */
+  const retirees = await retirerPagesOrphelines(seen);
+  for (const r of retirees) process.stdout.write(`  − ${r} (retirée)\n`);
 
   process.stdout.write(`\n${pages.length} pages générées + sitemap.xml + robots.txt\n`);
   process.stdout.write(
@@ -73,6 +104,48 @@ async function main() {
     IS_PROD ? '' : ' Pour la production : BUILD_ENV=prod node tools/build.mjs'
   );
   process.stdout.write(String.fromCharCode(10));
+}
+
+async function exigerUrlsHistoriques(seen) {
+  let liste;
+  try {
+    liste = JSON.parse(await readFile(join(ROOT, 'data', 'content', 'urls-historiques.json'), 'utf8')).pages || [];
+  } catch {
+    return;
+  }
+  const manquantes = liste.filter((p) => !seen.has(p));
+  if (manquantes.length) {
+    throw new Error(
+      `Adresse(s) historique(s) absente(s) du build : ${manquantes.join(', ')}.\n` +
+        'Un contenu qui a déjà eu une URL publique a été dépublié ou renommé dans WordPress. ' +
+        'Republiez-le, ou retirez l’adresse de data/content/urls-historiques.json en prévoyant une redirection.'
+    );
+  }
+}
+
+/** Les fichiers HTML des dossiers générés qui ne correspondent plus à aucune page. */
+async function retirerPagesOrphelines(seen) {
+  const retirees = [];
+  const marcher = async (dossier, prefixe) => {
+    let entrees;
+    try {
+      entrees = await readdir(join(OUT, dossier));
+    } catch {
+      return;
+    }
+    for (const nom of entrees) {
+      const relatif = `${prefixe}${nom}`;
+      const s = await stat(join(OUT, dossier, nom));
+      if (s.isDirectory()) await marcher(join(dossier, nom), `${relatif}/`);
+      else if (nom.endsWith('.html') && !seen.has(relatif)) {
+        await rm(join(OUT, dossier, nom));
+        retirees.push(relatif);
+      }
+    }
+  };
+  await marcher('pages', 'pages/');
+  await marcher('articles', 'articles/');
+  return retirees;
 }
 
 /**
@@ -107,7 +180,7 @@ async function writeSitemap(pages) {
 ${urls}
 </urlset>
 `;
-  await writeFile(join(ROOT, 'sitemap.xml'), xml, 'utf8');
+  await writeFile(join(OUT, 'sitemap.xml'), xml, 'utf8');
 }
 
 async function writeRobots() {
@@ -129,7 +202,9 @@ User-agent: *
 Disallow: /
 `;
 
-  await writeFile(join(ROOT, 'robots.txt'), IS_PROD ? prod : preprod, 'utf8');
+  /* En production, l'administrateur peut fermer l'indexation (Site → SEO) :
+     le robots.txt suit la balise robots des pages. */
+  await writeFile(join(OUT, 'robots.txt'), IS_PROD && seo().indexation ? prod : preprod, 'utf8');
 }
 
 main().catch((error) => {
