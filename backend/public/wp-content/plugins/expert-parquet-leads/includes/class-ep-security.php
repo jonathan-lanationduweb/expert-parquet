@@ -151,7 +151,10 @@ class EP_Security {
 	public static function epurer_menu(): void {
 		global $submenu;
 
-		foreach ( array( 'edit.php', 'edit.php?post_type=page', 'edit-comments.php' ) as $page ) {
+		/* Articles et commentaires : inutilisés. Pages et Médias : utilisés,
+		   mais rangés sous le menu Expert Parquet (EP_Admin_Contenu) — un seul
+		   chemin pour le rédacteur. */
+		foreach ( array( 'edit.php', 'edit.php?post_type=page', 'edit-comments.php', 'upload.php' ) as $page ) {
 			remove_menu_page( $page );
 			unset( $submenu[ $page ] );
 		}

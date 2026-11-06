@@ -1,0 +1,114 @@
+/*
+ * Menu d'administration Expert Parquet — comme sur la maquette : colonne
+ * presque noire, logotype en tête, entrées du plugin avec icône, entrée
+ * courante en terre cuite. Chargée sur tout wp-admin (le menu est partout) ;
+ * rien d'autre que le menu n'est touché.
+ */
+
+/* Colonne */
+#adminmenuback, #adminmenuwrap, #adminmenu { background: #17181A; }
+#adminmenu .wp-submenu, #adminmenu .wp-has-current-submenu .wp-submenu, #adminmenu .wp-has-current-submenu.opensub .wp-submenu { background: #1F2124; }
+
+/* Logotype en tête de colonne */
+#adminmenu::before {
+	content: "";
+	display: block;
+	height: 56px;
+	margin: 10px 12px 6px;
+	background: url("logo-on-dark.png") no-repeat left center;
+	background-size: contain;
+	border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+/* Entrée courante : terre cuite, comme la maquette (et non le bleu WordPress) */
+#adminmenu li.current a.menu-top,
+#adminmenu li.wp-has-current-submenu a.wp-has-current-submenu,
+#adminmenu .wp-has-current-submenu .wp-submenu .wp-submenu-head,
+#adminmenu .wp-menu-arrow,
+#adminmenu .wp-menu-arrow div { background: var(--ep-accent, #B04A1E); color: #fff; }
+#adminmenu .wp-submenu li.current a,
+#adminmenu .wp-submenu li.current a:hover,
+#adminmenu .wp-submenu li.current a:focus { background: var(--ep-accent, #B04A1E); color: #fff; font-weight: 500; border-radius: 0; }
+#adminmenu .wp-submenu a:hover, #adminmenu .wp-submenu a:focus { color: var(--ep-accent-clair, #F0C8B2); }
+#adminmenu li.menu-top:hover, #adminmenu li.opensub > a.menu-top, #adminmenu li > a.menu-top:focus { color: var(--ep-accent-clair, #F0C8B2); }
+#adminmenu li.menu-top:hover .wp-menu-image:before, #adminmenu li.opensub > a.menu-top .wp-menu-image:before { color: var(--ep-accent-clair, #F0C8B2); }
+
+/* Icônes des entrées du plugin */
+#adminmenu .wp-submenu .ep-menu-icone { font-size: 16px; width: 16px; height: 16px; margin: -2px 8px 0 0; vertical-align: middle; opacity: .85; }
+#adminmenu .wp-submenu li.current .ep-menu-icone { opacity: 1; }
+#adminmenu .wp-submenu li a { padding: 7px 12px; font-size: 13px; }
+
+/* Intitulés de rubrique */
+#adminmenu .wp-submenu li a .ep-menu-section,
+#adminmenu .wp-submenu li .ep-menu-section {
+	display: block;
+	padding: 6px 0 2px;
+	font-size: 10px;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+	color: rgba(240, 246, 252, .5);
+	cursor: default;
+}
+#adminmenu .wp-submenu li.ep-menu-section-item { margin-top: 6px; border-top: 1px solid rgba(255, 255, 255, .06); }
+#adminmenu .wp-submenu li.ep-menu-section-item > a { pointer-events: none; background: transparent !important; }
+#adminmenu .wp-submenu li.ep-menu-section-item:first-of-type { margin-top: 0; border-top: 0; }
+
+/* Barre d'administration : rappel de maintenance */
+#wpadminbar .ep-barre-maintenance > .ab-item { color: var(--ep-accent-clair, #F0C8B2) !important; }
+
+/* ------------------------------------------------------------ deux espaces, une séparation nette */
+
+/* Intitulé de groupe (seule l'administration WordPress native en porte un ;
+   l'espace Expert Parquet suit directement le logo, sans sur-titre). */
+#adminmenu li#menu-dashboard::before {
+	content: "";
+	display: block;
+	padding: 10px 12px 4px;
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: .14em;
+	text-transform: uppercase;
+	color: rgba(240, 246, 252, .45);
+}
+#adminmenu li.toplevel_page_expert-parquet > a.menu-top { font-weight: 600; }
+/* Administration WordPress native : en dessous, secondaire */
+#adminmenu li#menu-dashboard { margin-top: 14px; border-top: 1px solid rgba(255, 255, 255, .08); }
+#adminmenu li#menu-dashboard::before { content: "Administration WordPress"; padding-top: 14px; }
+#adminmenu li.menu-top:not(.toplevel_page_expert-parquet) > a.menu-top { font-size: 13px; color: rgba(240, 246, 252, .72); }
+#adminmenu li.menu-top:not(.toplevel_page_expert-parquet) > a.menu-top .wp-menu-image::before { color: rgba(240, 246, 252, .55); }
+#adminmenu li.menu-top:not(.toplevel_page_expert-parquet).wp-has-current-submenu > a.menu-top,
+#adminmenu li.menu-top:not(.toplevel_page_expert-parquet).current > a.menu-top { color: #fff; }
+#adminmenu li.menu-top:not(.toplevel_page_expert-parquet).wp-has-current-submenu > a.menu-top .wp-menu-image::before,
+#adminmenu li.menu-top:not(.toplevel_page_expert-parquet).current > a.menu-top .wp-menu-image::before { color: #fff; }
+/* les séparateurs natifs restent (ils ferment les flottants des icônes), discrets */
+#adminmenu li.wp-menu-separator { height: 4px; margin: 0; }
+
+/* ------------------------------------------------------------ un seul niveau : « Gestion du site » en tête
+ * WordPress impose un menu parent au plugin ; il reste (pages, capacités, URL
+ * inchangées) mais son entrée n'est plus dessinée : son sous-menu est posé à
+ * plat, toujours ouvert, sous l'intitulé « Espace Expert Parquet ». En colonne
+ * repliée (.folded) et en largeur intermédiaire, WordPress reprend la main. */
+@media (min-width: 961px), (max-width: 782px) {
+	body:not(.folded) #adminmenu li.toplevel_page_expert-parquet > a.menu-top,
+	body:not(.folded) #adminmenu li.toplevel_page_expert-parquet .wp-submenu-head,
+	body:not(.folded) #adminmenu li.toplevel_page_expert-parquet .wp-menu-arrow { display: none !important; }
+	body:not(.folded) #adminmenu li.toplevel_page_expert-parquet .wp-submenu,
+	body:not(.folded) #adminmenu li.toplevel_page_expert-parquet.wp-not-current-submenu .wp-submenu,
+	body:not(.folded) #adminmenu li.toplevel_page_expert-parquet:hover .wp-submenu {
+		display: block !important;
+		position: static;
+		margin: 0;
+		padding: 0 0 6px;
+		box-shadow: none;
+		background: #17181A;
+		min-width: 0;
+		width: auto;
+		top: auto;
+		left: auto;
+	}
+	body:not(.folded) #adminmenu li.toplevel_page_expert-parquet .wp-submenu a { padding: 7px 12px 7px 12px; }
+	/* la première entrée est l'entrée principale de l'espace */
+	body:not(.folded) #adminmenu li.toplevel_page_expert-parquet .wp-submenu .wp-submenu-head + li a { font-size: 14px; font-weight: 600; padding: 9px 12px; margin-bottom: 2px; }
+	body:not(.folded) #adminmenu li.toplevel_page_expert-parquet .wp-submenu .wp-submenu-head + li .ep-menu-icone { font-size: 18px; width: 18px; height: 18px; margin-right: 8px; }
+	body:not(.folded) #adminmenu li.toplevel_page_expert-parquet .wp-submenu li.ep-menu-section-item:first-of-type { margin-top: 6px; border-top: 1px solid rgba(255, 255, 255, .06); }
+}

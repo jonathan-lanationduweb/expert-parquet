@@ -295,3 +295,56 @@ raisons sont dans les commentaires de chaque classe de l’extension, et dans so
 **Aucune clé d’API ni aucun secret ne doit figurer dans le frontend** : tout ce dossier
 est servi au navigateur. `js/config/site.js` ne contient que des URL publiques.
 L’authentification éventuelle du point d’envoi est l’affaire du serveur.
+
+## 7. Suivi anonyme des clics sortants — ce qu'il faudrait
+
+Audit du 05/10/2026. Le front publie déjà trois événements en première partie
+(`js/modules/tracking.js`) : `recommendation_result`, `product_click`,
+`partner_click`. Rien n'est envoyé au serveur, et ce lot n'a créé ni table ni route.
+
+Ce qui existe côté backend et pourquoi ça ne convient pas tel quel :
+
+- la table `{prefix}expert_parquet_lead_events` décrit des événements **sur une
+  demande** (`lead_id NOT NULL`, anciens et nouveaux statuts). Y écrire des clics sans
+  demande fausserait le back-office et le contrôle d'orphelins ;
+- les routes REST ouvertes sont `/contact`, `/quote`, `/quote/{ref}/photos` et
+  `/health` : aucune n'accepte un événement anonyme.
+
+Ce qu'il faudrait, le jour où la mesure est décidée :
+
+1. une table dédiée, sans donnée personnelle : `event_type`, `destination`,
+   `besoin`, `context`, `level`, `product_id`, `product_name`, `category`,
+   `criteria` (JSON court), `page`, `created_at` ;
+2. une route `POST /events` non bloquante, appelée en `navigator.sendBeacon()` par un
+   abonné à `ep:track`, limitée en débit par adresse et par minute, qui répond `202`
+   et ne renvoie rien d'exploitable ;
+3. aucun identifiant de visiteur, aucun cookie, aucune adresse IP conservée ;
+4. le site doit continuer de fonctionner à l'identique si la route tombe.
+
+Le point d'abonnement est déjà en place : `document.addEventListener('ep:track', …)`.
+
+---
+
+## 8. Export éditorial — ce que le build lit dans WordPress
+
+Depuis le lot CMS, WordPress est aussi la source du contenu éditorial. Le build ne lit
+JAMAIS WordPress directement : il lit `data/content/snapshot.json`, écrit par
+`tools/cms/fetch-snapshot.mjs` à partir de deux routes du même espace de noms :
+
+| Méthode | Route | Rôle |
+|---|---|---|
+| GET | `/content/export` | l'instantané des contenus PUBLIÉS ; `?apercu=1` inclut brouillons, en attente et planifiés (prévisualisation) |
+| GET | `/content/media/<id>[?taille=480]` | un média original ou une de ses tailles, pour un build distant |
+
+Authentification : en-tête `X-EP-Build-Token`, comparé en temps constant au jeton de
+`backend-private/build-token.txt` (créé par le plugin au premier appel) ou de la
+constante `EP_BUILD_TOKEN`. Aucune session, aucun cookie, aucun nonce : un appel de
+script. Sans jeton valide : `403`. Les routes restent dans l'espace de noms ouvert, donc
+hors du blocage de `wp/v2`, et répondent `Cache-Control: no-store`.
+
+Forme (version 1) : `navigation`, `headerCta`, `themes`, `groupesFaq`, `faq[]`,
+`conseils[]`, `problemes[]`, `pages{}`, `media{}`. Les listes sont triées (ordre
+éditorial, date, identifiant) ; le HTML des contenus est rendu par `do_blocks()` sans
+autre filtre ; les métadonnées booléennes sont des booléens, les listes des tableaux.
+Les chemins locaux des médias (`path`) ne sortent pas du poste : le script de
+récupération les utilise pour copier les fichiers, puis les retire de l'instantané.

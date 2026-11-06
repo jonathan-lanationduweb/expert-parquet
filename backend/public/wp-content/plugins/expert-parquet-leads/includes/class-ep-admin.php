@@ -112,10 +112,13 @@ class EP_Admin {
 
 		/* Position 3 : juste sous le tableau de bord de WordPress. Ce back-office
 		   n'a qu'un métier, il doit être la première chose qu'on voie. */
-		add_menu_page( 'Expert Parquet', 'Expert Parquet', $cap, self::PAGE_TB, array( 'EP_Admin_Tableau_Bord', 'rendre' ), 'dashicons-clipboard', 3 );
+		/* Le menu est visible de tous les rôles du plugin ; chaque entrée garde sa
+		   propre capacité, et le tableau de bord s'adapte à qui le regarde
+		   (EP_Admin_Contenu::tableau_bord). */
+		add_menu_page( 'Expert Parquet', 'Expert Parquet', 'read', self::PAGE_TB, array( 'EP_Admin_Contenu', 'tableau_bord' ), 'dashicons-admin-home', 3 );
 
 		$pages = array(
-			array( self::PAGE_TB, 'Tableau de bord', array( 'EP_Admin_Tableau_Bord', 'rendre' ) ),
+			array( self::PAGE_TB, 'Tableau de bord', array( 'EP_Admin_Contenu', 'tableau_bord' ) ),
 			array( self::PAGE_LISTE, 'Demandes', array( __CLASS__, 'page_liste' ) ),
 			array( self::PAGE_CONTACTS, 'Contacts', array( __CLASS__, 'page_contacts' ) ),
 			array( self::PAGE_DEVIS, 'Devis', array( __CLASS__, 'page_devis' ) ),
@@ -124,7 +127,7 @@ class EP_Admin {
 			array( self::PAGE_REGLAGES, 'Réglages', array( 'EP_Admin_Reglages', 'rendre' ) ),
 		);
 		foreach ( $pages as $p ) {
-			add_submenu_page( self::PAGE_TB, $p[1] . ' — Expert Parquet', $p[1], $cap, $p[0], $p[2] );
+			add_submenu_page( self::PAGE_TB, $p[1] . ' — Expert Parquet', $p[1], self::PAGE_TB === $p[0] ? 'read' : $cap, $p[0], $p[2] );
 		}
 
 		/* La fiche : une page enregistrée mais absente du menu. Parent VIDE, et
@@ -199,7 +202,7 @@ class EP_Admin {
 	 * (lien profond, session expirée en cours de route).
 	 */
 	public static function apres_connexion( $url, $demande, $utilisateur ) {
-		if ( ! $utilisateur instanceof WP_User || ! $utilisateur->has_cap( EP_Lead::CAP ) ) {
+		if ( ! $utilisateur instanceof WP_User || ! ( $utilisateur->has_cap( EP_Lead::CAP ) || $utilisateur->has_cap( 'edit_ep_contenus' ) ) ) {
 			return $url;
 		}
 		if ( $utilisateur->has_cap( 'manage_options' ) ) {
@@ -223,10 +226,10 @@ class EP_Admin {
 		if ( ! is_object( $barre ) || ! is_user_logged_in() || current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		if ( ! current_user_can( EP_Lead::CAP ) ) {
+		if ( ! current_user_can( EP_Lead::CAP ) && ! current_user_can( 'edit_ep_contenus' ) ) {
 			return;
 		}
-		foreach ( array( 'wp-logo', 'new-content', 'comments' ) as $noeud ) {
+		foreach ( array( 'wp-logo', 'comments' ) as $noeud ) {
 			$barre->remove_node( $noeud );
 		}
 	}
@@ -540,9 +543,13 @@ class EP_Admin {
 			echo '<div class="notice notice-error"><p><strong>Tables manquantes :</strong> ' . esc_html( implode( ', ', $manquantes ) ) . '. Désactivez puis réactivez l’extension.</p></div>';
 		}
 
-		$ecran = (string) get_current_screen()->id;
-		$deja  = static fn( string $page ): bool => str_contains( $ecran, $page );
-		if ( $deja( self::PAGE_REGLAGES ) || $deja( self::PAGE_EMAILS ) || str_ends_with( $ecran, self::PAGE_TB ) ) {
+		/* Les rappels de configuration (envoi d'e-mails, conservation, limites PHP)
+		   ne s'affichent que là où l'on vient les régler : Gestion du site (le
+		   tableau de bord), Emails, Réglages. Ailleurs, ils répéteraient une
+		   information déjà présente sur ces écrans. */
+		$ecran   = (string) get_current_screen()->id;
+		$montrer = str_ends_with( $ecran, self::PAGE_TB ) || str_contains( $ecran, self::PAGE_EMAILS ) || str_contains( $ecran, self::PAGE_REGLAGES );
+		if ( ! $montrer ) {
 			return;
 		}
 

@@ -8,6 +8,12 @@
 
 import { assetStamps, moduleScripts, STAMP_PARAM } from './fingerprint.mjs';
 import { partnerFor, partnerUrl } from '../js/config/site.js';
+import { media } from './cms/snapshot.mjs';
+/* La configuration du site (Site → Identité / Apparence / Navigation / Footer / SEO).
+   theme.mjs est importé AVANT le calcul des empreintes : il écrit css/theme.css. */
+import './cms/theme.mjs';
+import { logos, favicon, ogParDefaut, entreesMenu, navigationSite, footer as footerConfig, seo, PAGES_INTERNES, PARCOURS, PARTENAIRES, cheminMedia } from './cms/site.mjs';
+import { ICONES_LIENS } from './partials-icones.mjs';
 
 export const SITE = {
   name: 'Expert Parquet',
@@ -48,55 +54,74 @@ export const SITE = {
 export const BUILD_ENV = process.env.BUILD_ENV === 'prod' ? 'prod' : 'preprod';
 export const IS_PROD = BUILD_ENV === 'prod';
 
-export const NAV = [
-  { label: 'Expertise', href: 'pages/expertise.html' },
-  { label: 'Diagnostic', href: 'pages/diagnostic.html' },
-  { label: 'Problèmes', href: 'pages/problemes.html' },
-  { label: 'Conseils', href: 'pages/conseils.html' },
-  { label: 'À propos', href: 'pages/a-propos.html' },
-  { label: 'Contact', href: 'pages/contact.html' },
-];
+/* L'ordre dit le positionnement : on entre par le problème (diagnostic,
+   désordres, conseils) ; l'expertise reste accessible mais n'ouvre plus le
+   menu — elle est la troisième conversion, pas la première (README,
+   « Hiérarchie des conversions »). */
+/* Les trois parcours d'abord : problème (Problèmes, Conseils, Diagnostic),
+   expertise, puis À propos. « Trouver mon parquet » est le bouton du header,
+   pas une entrée de menu — un seul lien pour une seule destination. Contact est
+   une fonction utilitaire : il reste dans le pied de page et sur À propos. */
+/* Les destinations possibles du menu : fermées, dans le code. L'ordre, la
+   visibilité et le libellé de chaque entrée se règlent dans WordPress
+   (Contenu → Navigation) et arrivent par l'instantané. */
+export const DESTINATIONS_NAV = {
+  problemes: 'pages/problemes.html',
+  conseils: 'pages/conseils.html',
+  diagnostic: 'pages/diagnostic.html',
+  expertise: 'pages/expertise.html',
+  'a-propos': 'pages/a-propos.html',
+};
 
-/** Footer en quatre colonnes, structuré comme un sommaire de dossier. */
-const FOOTER_COLUMNS = [
-  {
-    title: 'Expertise',
-    links: [
-      { label: 'Diagnostic', href: 'pages/diagnostic.html' },
-      { label: 'Problèmes', href: 'pages/problemes.html' },
-      { label: 'Expertise parquet', href: 'pages/expertise.html' },
-      { label: 'Demande de devis', href: 'pages/devis.html' },
-    ],
-  },
+export const NAV = entreesMenu()
+  .map((n) => {
+    if (n.type === 'custom') return { label: n.label, href: n.url, externe: true };
+    return DESTINATIONS_NAV[n.key] ? { label: n.label, href: DESTINATIONS_NAV[n.key] } : null;
+  })
+  .filter(Boolean);
+
+/* Le bouton du header mène à la résolution du besoin — la section des
+   enseignes de l'accueil — et non plus au formulaire d'expertise. Un seul
+   bouton, partout. */
+/* `#finder` : le bouton ouvre la page SUR le questionnaire, première question
+   et premières réponses visibles, focus sur le titre de la question. */
+const CTA = PARCOURS[navigationSite().cta.destination || 'moteur'] || PARCOURS.moteur;
+export const HEADER_CTA = { label: navigationSite().cta.label || 'Trouver mon parquet', href: CTA.href, hash: CTA.destination === 'moteur' || !CTA.hash ? '#finder' : CTA.hash };
+
+/* Le pied de page vient de la configuration du site (Site → Footer) : colonnes,
+   liens, liens légaux, réseaux, texte de marque, copyright. Le gabarit, les
+   proportions et le nombre maximal de colonnes restent ici. La constante
+   ci-dessous n'est plus lue : elle documente la forme historique. */
+const FOOTER_COLUMNS_V1 = [
   {
     title: 'Comprendre',
     links: [
+      { label: 'Diagnostic', href: 'pages/diagnostic.html' },
+      { label: 'Problèmes', href: 'pages/problemes.html' },
       { label: 'Conseils', href: 'pages/conseils.html' },
-      { label: 'Choisir un parquet', href: 'pages/conseils/choisir-parquet.html' },
-      { label: 'Entretien', href: 'pages/conseils/entretien.html' },
-      { label: 'Rénovation', href: 'pages/conseils/renovation.html' },
-      { label: 'Pose', href: 'pages/conseils/pose.html' },
-      { label: 'FAQ', href: 'pages/faq.html' },
     ],
   },
   {
-    /* Les enseignes ont leur place ici pour la meme raison que le reste du
-       pied de page : c'est la zone ou l'on cherche « ou est-ce que je vais ? »
-       quand on n'a pas trouve ailleurs. Deux liens, etiquetes par audience :
+    /* Les enseignes ont leur place ici pour la même raison que le reste du
+       pied de page : c'est la zone où l'on cherche « où est-ce que je vais ? »
+       quand on n'a pas trouvé ailleurs. Deux liens, étiquetés par audience :
        envoyer un particulier vers une enseigne qui le refuse serait une
-       impasse, alors le pied de page le dit avant le clic. */
-    title: 'Solutions parquet',
+       impasse, alors le pied de page le dit avant le clic. L'expertise vient
+       en troisième, comme partout sur le site. */
+    title: 'Solutions',
     links: [
+      { label: 'Trouver mon parquet', href: 'pages/trouver-mon-parquet.html' },
       { label: 'Choisir son parquet — Premibel', partenaire: 'premibel', besoin: 'selection' },
-      { label: 'Approvisionnement professionnel — Over Parquet', partenaire: 'overparquet', besoin: 'supply', profil: 'professionnel' },
+      { label: 'Approvisionnement pro — Over Parquet', partenaire: 'overparquet', besoin: 'supply', profil: 'professionnel' },
+      { label: 'Expertise', href: 'pages/expertise.html' },
     ],
   },
   {
+    /* Mentions légales : une seule fois, dans la ligne basse. */
     title: 'Informations',
     links: [
       { label: 'À propos', href: 'pages/a-propos.html' },
       { label: 'Contact', href: 'pages/contact.html' },
-      { label: 'Mentions légales', href: 'pages/mentions-legales.html' },
     ],
   },
 ];
@@ -208,9 +233,12 @@ ${entrees}
  * sombre — ailleurs elle serait chargée pour rien. C’est le même fichier que
  * celui du pied de page, donc une seule requête par visite.
  */
-const LOGO = { width: 338, height: 128 };
-const LOGO_ON_LIGHT = 'assets/brand/expert-parquet-logo-on-light.png';
-const LOGO_ON_DARK = 'assets/brand/expert-parquet-logo-on-dark.png';
+/* Les logotypes : Site → Identité. Sur fond clair, le logo sombre (ou le
+   principal) ; sur fond sombre, le logo clair (ou le principal). */
+const LOGOS = logos();
+const LOGO = { width: LOGOS.surClair.width, height: LOGOS.surClair.height };
+const LOGO_ON_LIGHT = LOGOS.surClair.src;
+const LOGO_ON_DARK = LOGOS.surSombre.src;
 
 /**
  * Trois régimes de chargement, et non deux :
@@ -227,10 +255,10 @@ const LOGO_ON_DARK = 'assets/brand/expert-parquet-logo-on-dark.png';
  * avec l'image du hero. Aucun attribut : elle se charge normalement, en file.
  */
 function logoImg(depth, { inverse = false, className, chargement = 'differe' }) {
-  const src = inverse ? LOGO_ON_DARK : LOGO_ON_LIGHT;
+  const l = inverse ? LOGOS.surSombre : LOGOS.surClair;
   const attr =
     chargement === 'haute' ? ' fetchpriority="high"' : chargement === 'differe' ? ' loading="lazy"' : '';
-  return `<img class="${className}" src="${rel(depth, src)}" alt="" width="${LOGO.width}" height="${LOGO.height}"${attr} decoding="async">`;
+  return `<img class="${className}" src="${rel(depth, l.src)}" alt="" width="${l.width}" height="${l.height}"${attr} decoding="async">`;
 }
 
 function brand(depth, { over = false } = {}) {
@@ -259,19 +287,48 @@ function brand(depth, { over = false } = {}) {
  * une colonne plus courte qu'un lien mort.
  */
 function lienPiedDePage(depth, lien) {
-  if (!lien.partenaire) {
-    return `<a href="${rel(depth, lien.href)}">${lien.label}</a>`;
+  const icone = lien.icone && ICONES_LIENS[lien.icone] ? `${ICONES_LIENS[lien.icone]} ` : '';
+  const cible = lien.nouvel_onglet ? ' target="_blank" rel="noopener"' : '';
+  const texte = `${icone}${lien.libelle}`;
+  switch (lien.type) {
+    case 'page':
+      return `<a href="${rel(depth, PAGES_INTERNES[lien.destination])}">${texte}</a>`;
+    case 'parcours': {
+      const p = PARCOURS[lien.destination];
+      return `<a href="${rel(depth, p.href)}${p.query ? `?${p.query}` : ''}${p.hash || ''}">${texte}</a>`;
+    }
+    case 'externe':
+      return `<a href="${escapeAttr(lien.destination)}"${cible || ' rel="noopener"'}>${texte}</a>`;
+    case 'email':
+      return `<a href="mailto:${escapeAttr(lien.destination)}">${texte}</a>`;
+    case 'telephone':
+      return `<a href="tel:${lien.destination.replace(/[^0-9+]/g, '')}">${texte}</a>`;
+    case 'partenaire': {
+      const info = PARTENAIRES[lien.destination];
+      const partenaire = partnerFor(lien.destination);
+      const url = partenaire ? partnerUrl(lien.destination, 'pied-de-page', info.profil || '') : null;
+      /* Une enseigne non configurée ne laisse rien : mieux vaut une colonne plus courte qu'un lien mort. */
+      if (!url) return '';
+      const destination = lien.destination === 'overparquet' ? 'over-parquet' : lien.destination;
+      const profil = info.profil ? ` data-customer-type="${info.profil}"` : '';
+      return `<a href="${url.replace(/&/g, '&amp;')}" rel="sponsored noopener"${lien.nouvel_onglet ? ' target="_blank"' : ''}`
+        + ` data-event="commercial_orientation" data-destination="${destination}"`
+        + ` data-besoin="${info.besoin}"${profil} data-context="pied-de-page">${texte}</a>`;
+    }
+    default:
+      return '';
   }
+}
 
-  const partenaire = partnerFor(lien.partenaire);
-  const url = partenaire ? partnerUrl(lien.partenaire, 'pied-de-page', lien.profil || '') : null;
-  if (!url) return '';
-
-  const destination = lien.partenaire === 'overparquet' ? 'over-parquet' : lien.partenaire;
-  const profil = lien.profil ? ` data-customer-type="${lien.profil}"` : '';
-  return `<a href="${url.replace(/&/g, '&amp;')}" rel="sponsored noopener"`
-    + ` data-event="commercial_orientation" data-destination="${destination}"`
-    + ` data-besoin="${lien.besoin}"${profil} data-context="pied-de-page">${lien.label}</a>`;
+/** Les réseaux sociaux, avec leur icône ; rien si aucun n'est configuré. */
+function reseauxPiedDePage() {
+  const liste = (footerConfig().reseaux || []).filter((r) => r.visible !== false && r.url).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
+  if (!liste.length) return '';
+  const NOMS = { instagram: 'Instagram', facebook: 'Facebook', linkedin: 'LinkedIn', youtube: 'YouTube' };
+  return `
+      <ul class="footer__social" aria-label="Réseaux sociaux">
+${liste.map((r) => `        <li><a href="${escapeAttr(r.url)}" target="_blank" rel="noopener" aria-label="${NOMS[r.reseau] || r.reseau}">${ICONES_LIENS[r.reseau] || ''}</a></li>`).join('\n')}
+      </ul>`;
 }
 
 function footerBrand(depth) {
@@ -288,7 +345,9 @@ const CLOSE_ICON =
 
 function header(depth, current, over) {
   const items = NAV.map(
-    (item) => `          <li><a class="nav__link" href="${rel(depth, item.href)}"${current === item.href ? ' aria-current="page"' : ''}>${item.label}</a></li>`
+    (item) => item.externe
+      ? `          <li><a class="nav__link" href="${escapeAttr(item.href)}" target="_blank" rel="noopener">${item.label}</a></li>`
+      : `          <li><a class="nav__link" href="${rel(depth, item.href)}${item.hash || ''}"${current === item.href ? ' aria-current="page"' : ''}>${item.label}</a></li>`
   ).join('\n');
 
   return `<header class="site-header${over ? ' site-header--over' : ''}" data-header>
@@ -304,10 +363,10 @@ function header(depth, current, over) {
 ${items}
         </ul>
       </div>
-      <a class="btn btn--primary btn--block nav__cta-mobile" href="${rel(depth, 'pages/devis.html')}">Demander une expertise</a>
+      <a class="btn btn--primary btn--block nav__cta-mobile" href="${rel(depth, HEADER_CTA.href)}${HEADER_CTA.hash}">${HEADER_CTA.label}</a>
     </nav>
     <div class="header__actions">
-      <a class="btn btn--primary btn--sm header__cta-desktop" href="${rel(depth, 'pages/devis.html')}">Demander une expertise</a>
+      <a class="btn btn--primary btn--sm header__cta-desktop" href="${rel(depth, HEADER_CTA.href)}${HEADER_CTA.hash}">${HEADER_CTA.label}</a>
       <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">
         <span class="visually-hidden">Ouvrir le menu</span>
         <span class="nav-toggle__bars" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -321,7 +380,11 @@ ${items}
  * Rappel d’action mobile. Non émis sur la page de demande elle-même : y
  * proposer « demander une expertise » n’aurait aucun sens.
  */
-const PAGES_SANS_RAPPEL = new Set(['pages/devis.html', 'pages/contact.html']);
+/* L'accueil non plus : son parcours principal mène aux enseignes, et une
+   barre « Demander une expertise » collée sous chaque écran dirait le
+   contraire de ce que la page raconte. Les pages problème, elles, le gardent :
+   là, l'expertise est la bonne réponse. */
+const PAGES_SANS_RAPPEL = new Set(['index.html', 'pages/trouver-mon-parquet.html', 'pages/devis.html', 'pages/contact.html']);
 
 function stickyCta(depth, path) {
   /* Pas de rappel collant sur une page dont le contenu EST un formulaire : la
@@ -336,32 +399,48 @@ function stickyCta(depth, path) {
 }
 
 function footer(depth) {
-  const columns = FOOTER_COLUMNS.map(
-    (column) => `        <div>
-          <h2 class="footer__title">${column.title}</h2>
+  const config = footerConfig();
+  const colonnes = config.colonnes
+    .filter((c) => c.visible !== false)
+    .sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
+  const columns = colonnes
+    .map((column) => {
+      const liens = (column.liens || [])
+        .filter((l) => l.actif !== false)
+        .sort((a, b) => (a.ordre || 0) - (b.ordre || 0))
+        .map((l) => lienPiedDePage(depth, l))
+        .filter(Boolean);
+      return `        <div>
+          <h2 class="footer__title">${column.titre}</h2>
           <ul class="footer__list">
-${column.links.map((link) => `            <li>${lienPiedDePage(depth, link)}</li>`).join('\n')}
+${liens.map((html) => `            <li>${html}</li>`).join('\n')}
           </ul>
-        </div>`
-  ).join('\n');
+        </div>`;
+    })
+    .join('\n');
+  /* Trois colonnes est le dessin de la V1 ; une, deux ou quatre ont leur variante. */
+  const classeCols = colonnes.length === 3 ? '' : ` footer__cols--${colonnes.length}`;
+  const legaux = (config.legaux || [])
+    .filter((l) => l.actif !== false)
+    .sort((a, b) => (a.ordre || 0) - (b.ordre || 0))
+    .map((l) => lienPiedDePage(depth, l))
+    .filter(Boolean);
 
   return `<footer class="site-footer">
   <div class="container">
     <div class="footer__top">
       <div>
         ${footerBrand(depth)}
-        <p class="footer__pitch">Comprendre l’origine d’un problème de parquet avant de décider comment intervenir.</p>
-        <!-- Plus de bouton « Nous écrire » ici : la colonne Informations porte
-             déjà le lien Contact, et le pied gagne une rangée. -->
+        <p class="footer__pitch">${config.pitch}</p>
       </div>
-      <div class="footer__cols">
+      <div class="footer__cols${classeCols}">
 ${columns}
       </div>
     </div>
     <div class="footer__bottom">
-      <p>&copy; <span data-current-year>2026</span> Expert Parquet — site indépendant.</p>
+      <p>&copy; <span data-current-year>2026</span> ${config.copyright}</p>${reseauxPiedDePage()}
       <ul class="footer__legal-links">
-        <li><a href="${rel(depth, 'pages/mentions-legales.html')}">Mentions légales</a></li>
+${legaux.map((html) => `        <li>${html}</li>`).join('\n')}
       </ul>
     </div>
   </div>
@@ -430,16 +509,38 @@ export function renderPage(page) {
     body,
     css = [],
     jsonLd = [],
-    ogImage = 'assets/images/hero.jpg',
+    ogImage = ogParDefaut(),
     navCurrent = null,
     headerOver = false,
     bodyClass = '',
     fullTitle = null,
+    noindex = false,
+    baseHref = null,
   } = page;
 
   const canonical = `${SITE.baseUrl}/${path === 'index.html' ? '' : path}`;
-  const headTitle = fullTitle || `${title} | Expert Parquet`;
-  const styles = ['fonts.css', 'variables.css', 'reset.css', 'base.css', 'layout.css', 'components.css', ...css]
+  const SEO = seo();
+  /* Le suffixe de marque est toujours séparé du titre par un espace, quelle que
+     soit la saisie côté WordPress (« Titre | Expert Parquet »). */
+  const suffixe = String(SEO.suffixe || '').trim();
+  const headTitle = fullTitle || `${title || SEO.titreDefaut}${suffixe ? ` ${suffixe}` : ''}`;
+  const metaDescription = description || SEO.descriptionDefaut;
+  /* Le `noindex` d'environnement ne se contourne pas : en préproduction et en
+     local, toujours. En production, l'administrateur peut fermer l'indexation.
+     Une page peut aussi se déclarer `noindex` par nature (ex. la page 404), et
+     elle ne s'indexe alors jamais, même en production. */
+  const robots = !noindex && IS_PROD && SEO.indexation ? 'index, follow' : 'noindex, nofollow';
+  const FAV = favicon();
+  const typeFav = FAV && /\.jpe?g$/i.test(FAV.ico32) ? 'image/jpeg' : FAV && /\.webp$/i.test(FAV.ico32) ? 'image/webp' : 'image/png';
+  const favicons = FAV
+    ? `  <link rel="icon" type="${typeFav}" sizes="32x32" href="${rel(depth, FAV.ico32)}">
+  <link rel="icon" type="${typeFav}" sizes="16x16" href="${rel(depth, FAV.ico16)}">
+  <link rel="apple-touch-icon" href="${rel(depth, FAV.apple)}">`
+    : `  <link rel="icon" type="image/png" sizes="32x32" href="${rel(depth, 'assets/icons/favicon-32x32.png')}">
+  <link rel="icon" type="image/png" sizes="16x16" href="${rel(depth, 'assets/icons/favicon-16x16.png')}">
+  <link rel="apple-touch-icon" href="${rel(depth, 'assets/icons/apple-touch-icon.png')}">
+  <link rel="shortcut icon" href="${rel(depth, 'assets/icons/favicon.ico')}">`;
+  const styles = ['fonts.css', 'variables.css', 'theme.css', 'reset.css', 'base.css', 'layout.css', 'components.css', ...css]
     .map((file) => `  <link rel="stylesheet" href="${relAsset(depth, `css/${file}`)}">`)
     .join('\n');
 
@@ -455,27 +556,24 @@ export function renderPage(page) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${headTitle}</title>
-  <meta name="description" content="${escapeAttr(description)}">
+${baseHref ? `  <base href="${baseHref}">\n` : ''}  <title>${headTitle}</title>
+  <meta name="description" content="${escapeAttr(metaDescription)}">
   <link rel="canonical" href="${canonical}">
-  <meta name="robots" content="${IS_PROD ? 'index, follow' : 'noindex, nofollow'}">
+  <meta name="robots" content="${robots}">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Expert Parquet">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:title" content="${escapeAttr(headTitle)}">
-  <meta property="og:description" content="${escapeAttr(description)}">
+  <meta property="og:description" content="${escapeAttr(metaDescription)}">
   <meta property="og:url" content="${canonical}">
   <meta property="og:image" content="${SITE.baseUrl}/${ogImage}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${escapeAttr(headTitle)}">
-  <meta name="twitter:description" content="${escapeAttr(description)}">
+  <meta name="twitter:description" content="${escapeAttr(metaDescription)}">
   <meta name="twitter:image" content="${SITE.baseUrl}/${ogImage}">
 
-  <link rel="icon" type="image/png" sizes="32x32" href="${rel(depth, 'assets/icons/favicon-32x32.png')}">
-  <link rel="icon" type="image/png" sizes="16x16" href="${rel(depth, 'assets/icons/favicon-16x16.png')}">
-  <link rel="apple-touch-icon" href="${rel(depth, 'assets/icons/apple-touch-icon.png')}">
-  <link rel="shortcut icon" href="${rel(depth, 'assets/icons/favicon.ico')}">
+${favicons}
   <meta name="theme-color" content="#17181A">
 
   <link rel="preload" href="${rel(depth, 'assets/fonts/inter-latin-var.woff2')}" as="font" type="font/woff2" crossorigin>
@@ -497,9 +595,27 @@ ${body}
 
 ${footer(depth)}
 ${stickyCta(depth, path)}
+${maintenanceAdminBar(depth)}
 </body>
 </html>
 `;
+}
+
+/**
+ * Barre « vue administrateur » sur le site statique, pendant la maintenance.
+ *
+ * Le site public est du HTML statique : impossible d'y rendre la barre
+ * d'administration de WordPress. Ce petit script, inerte pour les visiteurs,
+ * n'agit que si le marqueur non secret `ep_admin_view` est présent (posé par
+ * WordPress quand un administrateur choisit « Voir le site malgré la
+ * maintenance »). Il confirme alors que la maintenance est bien active
+ * (`/maintenance.html` répond 200) et affiche une barre discrète. Le jeton de
+ * contournement reste httponly ; ce marqueur n'est qu'un drapeau d'affichage.
+ * « Voir comme un visiteur » passe par WordPress pour effacer le cookie
+ * httponly (le JS ne le peut pas), puis la vraie page 503 s'affiche.
+ */
+function maintenanceAdminBar(depth) {
+  return `  <script defer src="${relAsset(depth, 'js/maintenance-admin.js')}"></script>`;
 }
 
 /**

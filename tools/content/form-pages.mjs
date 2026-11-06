@@ -1,5 +1,7 @@
 import { rel, breadcrumb } from '../layout.mjs';
-import { ICONS, pageHero, faqAccordion, faqJsonLd, mentionDemo, champLeurre, formulaireEnDemo } from '../partials.mjs';
+import { ICONS, pageHero, faqAccordion, faqJsonLd, mentionDemo, champLeurre } from '../partials.mjs';
+import { page, champ, faqs } from '../cms/snapshot.mjs';
+import { faqPourPage } from '../cms/html.mjs';
 
 const D = 1;
 
@@ -26,8 +28,8 @@ function quotePage() {
         <div class="form-panel">
           <div class="stepper" data-form-stepper>
             <div class="stepper__meta">
-              <span class="stepper__current" data-stepper-label>Étape 1 / 4</span>
-              <span data-stepper-title>Votre parquet</span>
+              <span class="stepper__current" data-stepper-label>Étape 1 / 3</span>
+              <span data-stepper-title>Votre problème</span>
             </div>
             <div class="stepper__track"><div class="stepper__bar" data-stepper-bar></div></div>
           </div>
@@ -247,34 +249,19 @@ function quotePage() {
 /* Contact                                                                    */
 /* ========================================================================== */
 
-const CONTACT_FAQ = [
-  {
-    q: 'Contact ou demande de devis&nbsp;: lequel choisir&nbsp;?',
-    a: '<p>Le formulaire de contact convient à une question générale ou au suivi d’un échange. Si votre demande concerne un problème précis sur un parquet, le <a href="devis.html">formulaire de demande</a> collecte directement les bonnes informations et vous fera gagner un aller-retour.</p>',
-  },
-  {
-    q: 'Puis-je joindre des photos à un message de contact&nbsp;?',
-    a:
-      '<p>Pas depuis ce formulaire&nbsp;: la sélection de photos est réservée à la <a href="devis.html">demande d’expertise</a>, où elle a un sens.' +
-      (formulaireEnDemo('contact')
-        ? ' Les deux formulaires sont pour l’instant des démonstrations&nbsp;: rien n’est transmis.'
-        : '') +
-      '</p>',
-  },
-  {
-    q: 'Que deviennent les informations envoyées&nbsp;?',
-    a: '<p>Elles servent uniquement à traiter la demande. Dans l’état actuel du site, aucun formulaire n’est relié à un serveur&nbsp;: rien n’est transmis, rien n’est stocké. Voir les <a href="mentions-legales.html">mentions légales</a>.</p>',
-  },
-];
 
 function contactPage() {
-  const crumb = breadcrumb(D, [{ label: 'Accueil', href: 'index.html' }, { label: 'Contact' }]);
+  /* Les textes de l'en-tête et la FAQ viennent de WordPress (page « Contact »,
+     groupe de FAQ « Contact ») ; le formulaire est une fonction du site. */
+  const p = page('contact');
+  const CONTACT_FAQ = faqPourPage(faqs('contact'), D);
+  const crumb = breadcrumb(D, [{ label: 'Accueil', href: 'index.html' }, { label: champ('contact', 'fil_ariane') || p.title }]);
 
   const body = `${pageHero(D, {
     crumbHtml: crumb.html,
-    kicker: 'Contact',
-    title: 'Nous écrire',
-    lead: 'Une question technique, un point à éclaircir, un dossier en cours&nbsp;: ce formulaire est fait pour les échanges courts. Pour décrire un problème de parquet en détail, préférez la demande d’expertise.',
+    kicker: champ('contact', 'kicker'),
+    title: p.title,
+    lead: champ('contact', 'lead'),
   })}
 
   <section class="section">
@@ -383,30 +370,30 @@ function contactPage() {
       </div>
     </div>
   </section>
-
+${CONTACT_FAQ.length ? `
   <section class="section section--alt">
     <div class="container container--text">
       <div class="sec-head" data-reveal>
-        <p class="kicker">Informations utiles</p>
-        <h2>Avant de nous écrire</h2>
+        <p class="kicker">${champ('contact', 'faq_kicker')}</p>
+        <h2>${champ('contact', 'faq_titre')}</h2>
       </div>
       <div class="u-mt-lg" data-reveal>
 ${faqAccordion(CONTACT_FAQ, 'contact-faq')}
       </div>
     </div>
   </section>
-`;
+` : ''}`;
 
   return {
     path: 'pages/contact.html',
     depth: D,
     navCurrent: 'pages/contact.html',
-    title: 'Contact',
-    description:
-      'Contacter Expert Parquet pour une question technique ou le suivi d’un dossier. Pour décrire un problème de parquet, utilisez la demande d’expertise.',
+    title: champ('contact', 'titre_court') || p.title,
+    fullTitle: p.seoTitle ? `${p.seoTitle} | Expert Parquet` : null,
+    description: p.seoDescription || champ('contact', 'lead').replace(/&nbsp;/g, ' '),
     css: ['pages/home.css', 'pages/article.css', 'pages/diagnostic.css'],
     body,
-    jsonLd: [crumb.jsonLd, faqJsonLd(CONTACT_FAQ)],
+    jsonLd: [crumb.jsonLd, CONTACT_FAQ.length ? faqJsonLd(CONTACT_FAQ) : null],
   };
 }
 

@@ -1,0 +1,941 @@
+{
+ "generatedAt": "2026-10-05T08:17:31.381Z",
+ "source": "WooCommerce Store API (wc/store/v1), lecture publique",
+ "enseignes": {
+  "premibel": {
+   "nom": "Premibel",
+   "base": "https://www.premibel.fr",
+   "totalApi": 783,
+   "parquets": 415,
+   "retenus": 411,
+   "ecartesRuptureOuSansImage": 4,
+   "facettes": {
+    "type": 384,
+    "motif": 374,
+    "teinte": 347,
+    "finition": 409,
+    "chauffage": 372,
+    "essence": 410
+   },
+   "pieces": 385,
+   "contreparties": 59,
+   "categories": {
+    "accessoires": {
+     "nom": "Accessoires",
+     "url": "https://www.premibel.fr/accessoires/",
+     "nb": 198
+    },
+    "accessoire-lame-de-terrasse": {
+     "nom": "Accessoires lame de terrasse",
+     "url": "https://www.premibel.fr/accessoire-lame-de-terrasse/",
+     "nb": 2
+    },
+    "accueil": {
+     "nom": "Accueil",
+     "url": "https://www.premibel.fr/accueil/",
+     "nb": 712
+    },
+    "barre-de-seuil": {
+     "nom": "Barre de seuil",
+     "url": "https://www.premibel.fr/barre-de-seuil/",
+     "nb": 57
+    },
+    "baton-rompu": {
+     "nom": "Bâton rompu",
+     "url": "https://www.premibel.fr/baton-rompu/",
+     "nb": 24
+    },
+    "blanc": {
+     "nom": "Blanc",
+     "url": "https://www.premibel.fr/blanc/",
+     "nb": 11
+    },
+    "brun": {
+     "nom": "Brun",
+     "url": "https://www.premibel.fr/brun/",
+     "nb": 32
+    },
+    "brut": {
+     "nom": "Brut",
+     "url": "https://www.premibel.fr/brut/",
+     "nb": 47
+    },
+    "chape-seche-thermo-acoustique": {
+     "nom": "Chape sèche thermo-acoustique",
+     "url": "https://www.premibel.fr/chape-seche-thermo-acoustique/",
+     "nb": 2
+    },
+    "clair": {
+     "nom": "Clair",
+     "url": "https://www.premibel.fr/clair/",
+     "nb": 46
+    },
+    "colle": {
+     "nom": "Colle",
+     "url": "https://www.premibel.fr/colle/",
+     "nb": 9
+    },
+    "colle-pour-parquet": {
+     "nom": "Colle pour Parquet",
+     "url": "https://www.premibel.fr/colle-pour-parquet/",
+     "nb": 3
+    },
+    "collection-alexandrie": {
+     "nom": "Collection Alexandrie",
+     "url": "https://www.premibel.fr/collection-alexandrie/",
+     "nb": 6
+    },
+    "collection-amsterdam": {
+     "nom": "Collection Amsterdam",
+     "url": "https://www.premibel.fr/collection-amsterdam/",
+     "nb": 18
+    },
+    "collection-derniere-chance": {
+     "nom": "Collection Dernière Chance",
+     "url": "https://www.premibel.fr/collection-derniere-chance/",
+     "nb": 3
+    },
+    "collection-milan": {
+     "nom": "Collection Milan",
+     "url": "https://www.premibel.fr/collection-milan/",
+     "nb": 31
+    },
+    "collection-monaco": {
+     "nom": "Collection Monaco",
+     "url": "https://www.premibel.fr/collection-monaco/",
+     "nb": 9
+    },
+    "collection-venise": {
+     "nom": "Collection Venise",
+     "url": "https://www.premibel.fr/collection-venise/",
+     "nb": 3
+    },
+    "collection-vieux-paris": {
+     "nom": "Collection Vieux Paris",
+     "url": "https://www.premibel.fr/collection-vieux-paris/",
+     "nb": 7
+    },
+    "colle-pour-isolation": {
+     "nom": "Colles Mastics",
+     "url": "https://www.premibel.fr/colle-pour-isolation/",
+     "nb": 6
+    },
+    "cuivre": {
+     "nom": "Cuivre",
+     "url": "https://www.premibel.fr/cuivre/",
+     "nb": 8
+    },
+    "exotique": {
+     "nom": "Essences Exotiques",
+     "url": "https://www.premibel.fr/exotique/",
+     "nb": 97
+    },
+    "fonce": {
+     "nom": "Foncé",
+     "url": "https://www.premibel.fr/fonce/",
+     "nb": 37
+    },
+    "gris": {
+     "nom": "Gris",
+     "url": "https://www.premibel.fr/gris/",
+     "nb": 39
+    },
+    "huile": {
+     "nom": "Huilé",
+     "url": "https://www.premibel.fr/huile/",
+     "nb": 86
+    },
+    "huile-de-protection": {
+     "nom": "Huile de protection",
+     "url": "https://www.premibel.fr/huile-de-protection/",
+     "nb": 2
+    },
+    "huile-cire": {
+     "nom": "Huile-cire",
+     "url": "https://www.premibel.fr/huile-cire/",
+     "nb": 20
+    },
+    "isolation": {
+     "nom": "Isolation",
+     "url": "https://www.premibel.fr/isolation/",
+     "nb": 9
+    },
+    "lames-de-terrasse": {
+     "nom": "Lames de Terrasse",
+     "url": "https://www.premibel.fr/lames-de-terrasse/",
+     "nb": 20
+    },
+    "lames-de-terrasse-en-bois-exotique-massif": {
+     "nom": "Lames de Terrasse en Bois Exotique Massif",
+     "url": "https://www.premibel.fr/lames-de-terrasse-en-bois-exotique-massif/",
+     "nb": 18
+    },
+    "lames-de-terrasse-en-composite": {
+     "nom": "Lames de Terrasse en Composite",
+     "url": "https://www.premibel.fr/lames-de-terrasse-en-composite/",
+     "nb": 2
+    },
+    "lames-droites": {
+     "nom": "Lames droites",
+     "url": "https://www.premibel.fr/lames-droites/",
+     "nb": 296
+    },
+    "lots-de-fin-de-serie": {
+     "nom": "Lots de fin de série",
+     "url": "https://www.premibel.fr/lots-de-fin-de-serie/",
+     "nb": 102
+    },
+    "massif-en-bois-exotique": {
+     "nom": "Massif en Bois Exotique",
+     "url": "https://www.premibel.fr/massif-en-bois-exotique/",
+     "nb": 45
+    },
+    "miel": {
+     "nom": "Miel",
+     "url": "https://www.premibel.fr/miel/",
+     "nb": 49
+    },
+    "naturel": {
+     "nom": "Naturel",
+     "url": "https://www.premibel.fr/naturel/",
+     "nb": 115
+    },
+    "nettoyants": {
+     "nom": "Nettoyants",
+     "url": "https://www.premibel.fr/nettoyants/",
+     "nb": 1
+    },
+    "nez-de-marche": {
+     "nom": "Nez de marche",
+     "url": "https://www.premibel.fr/nez-de-marche/",
+     "nb": 11
+    },
+    "non-classe": {
+     "nom": "Non classé",
+     "url": "https://www.premibel.fr/non-classe/",
+     "nb": 3
+    },
+    "panneaux-muraux": {
+     "nom": "Panneaux Muraux",
+     "url": "https://www.premibel.fr/panneaux-muraux/",
+     "nb": 5
+    },
+    "par-couleur": {
+     "nom": "Par couleur",
+     "url": "https://www.premibel.fr/par-couleur/",
+     "nb": 337
+    },
+    "par-essence": {
+     "nom": "Par essence",
+     "url": "https://www.premibel.fr/par-essence/",
+     "nb": 97
+    },
+    "par-finition": {
+     "nom": "Par finition",
+     "url": "https://www.premibel.fr/par-finition/",
+     "nb": 350
+    },
+    "par-motif": {
+     "nom": "Par motif",
+     "url": "https://www.premibel.fr/par-motif/",
+     "nb": 357
+    },
+    "parquet": {
+     "nom": "Parquet",
+     "url": "https://www.premibel.fr/parquet/",
+     "nb": 536
+    },
+    "parquet-bambou-massif": {
+     "nom": "Parquet Bambou Massif",
+     "url": "https://www.premibel.fr/parquet-bambou-massif/",
+     "nb": 23
+    },
+    "parquet-bureau-usage-commercial": {
+     "nom": "Parquet Bureaux Usage commercial",
+     "url": "https://www.premibel.fr/parquet-bureau-usage-commercial/",
+     "nb": 399
+    },
+    "parquet-chambre": {
+     "nom": "Parquet Chambre",
+     "url": "https://www.premibel.fr/parquet-chambre/",
+     "nb": 423
+    },
+    "parquet-entree-couloir": {
+     "nom": "Parquet entrée couloir",
+     "url": "https://www.premibel.fr/parquet-entree-couloir/",
+     "nb": 399
+    },
+    "parquet-flottant": {
+     "nom": "Parquet Flottant",
+     "url": "https://www.premibel.fr/parquet-flottant/",
+     "nb": 93
+    },
+    "parquet-flottant-baton-rompu": {
+     "nom": "Parquet Flottant Bâton Rompu",
+     "url": "https://www.premibel.fr/parquet-flottant-baton-rompu/",
+     "nb": 7
+    },
+    "parquet-flottant-chene-brut": {
+     "nom": "Parquet Flottant Chêne Brut",
+     "url": "https://www.premibel.fr/parquet-flottant-chene-brut/",
+     "nb": 2
+    },
+    "parquet-flottant-chene-huile": {
+     "nom": "Parquet Flottant Chêne Huilé",
+     "url": "https://www.premibel.fr/parquet-flottant-chene-huile/",
+     "nb": 29
+    },
+    "parquet-flottant-chene-verni": {
+     "nom": "Parquet Flottant Chêne Verni",
+     "url": "https://www.premibel.fr/parquet-flottant-chene-verni/",
+     "nb": 29
+    },
+    "parquet-flottant-en-chene": {
+     "nom": "Parquet Flottant en Chêne",
+     "url": "https://www.premibel.fr/parquet-flottant-en-chene/",
+     "nb": 60
+    },
+    "parquet-flottant-exotique": {
+     "nom": "Parquet Flottant Exotique",
+     "url": "https://www.premibel.fr/parquet-flottant-exotique/",
+     "nb": 2
+    },
+    "parquet-flottant-point-de-hongrie": {
+     "nom": "Parquet Flottant Point de Hongrie",
+     "url": "https://www.premibel.fr/parquet-flottant-point-de-hongrie/",
+     "nb": 15
+    },
+    "parquet-flottant-versailles": {
+     "nom": "Parquet Flottant Versailles",
+     "url": "https://www.premibel.fr/parquet-flottant-versailles/",
+     "nb": 9
+    },
+    "parquet-massif": {
+     "nom": "Parquet Massif",
+     "url": "https://www.premibel.fr/parquet-massif/",
+     "nb": 185
+    },
+    "parquet-massif-baton-rompu": {
+     "nom": "Parquet Massif Bâton Rompu",
+     "url": "https://www.premibel.fr/parquet-massif-baton-rompu/",
+     "nb": 10
+    },
+    "parquet-massif-chene-brut-pre-ponce": {
+     "nom": "Parquet Massif Chêne Brut Pré-Poncé",
+     "url": "https://www.premibel.fr/parquet-massif-chene-brut-pre-ponce/",
+     "nb": 2
+    },
+    "parquet-massif-chene-huile": {
+     "nom": "Parquet Massif Chêne Huilé",
+     "url": "https://www.premibel.fr/parquet-massif-chene-huile/",
+     "nb": 43
+    },
+    "parquet-massif-chene-verni": {
+     "nom": "Parquet Massif Chêne Verni",
+     "url": "https://www.premibel.fr/parquet-massif-chene-verni/",
+     "nb": 74
+    },
+    "parquet-massif-chene": {
+     "nom": "Parquet Massif en Chêne",
+     "url": "https://www.premibel.fr/parquet-massif-chene/",
+     "nb": 119
+    },
+    "parquet-massif-pont-de-bateau": {
+     "nom": "Parquet Massif Pont de Bateau",
+     "url": "https://www.premibel.fr/parquet-massif-pont-de-bateau/",
+     "nb": 1
+    },
+    "parquet-pour-salles-de-bain-et-cuisines": {
+     "nom": "Parquet pour salles de bain et cuisines",
+     "url": "https://www.premibel.fr/parquet-pour-salles-de-bain-et-cuisines/",
+     "nb": 104
+    },
+    "parquet-salon": {
+     "nom": "Parquet Salon",
+     "url": "https://www.premibel.fr/parquet-salon/",
+     "nb": 309
+    },
+    "parquet-sol-stratifie": {
+     "nom": "Parquet Sol Stratifié",
+     "url": "https://www.premibel.fr/parquet-sol-stratifie/",
+     "nb": 77
+    },
+    "plancher-massif-exotique-huile": {
+     "nom": "Plancher massif exotique huilé",
+     "url": "https://www.premibel.fr/plancher-massif-exotique-huile/",
+     "nb": 2
+    },
+    "plancher-massif-exotique-verni": {
+     "nom": "Plancher massif exotique verni",
+     "url": "https://www.premibel.fr/plancher-massif-exotique-verni/",
+     "nb": 43
+    },
+    "plinthe-bois": {
+     "nom": "Plinthe Bois",
+     "url": "https://www.premibel.fr/plinthe-bois/",
+     "nb": 9
+    },
+    "plinthe-electrique": {
+     "nom": "Plinthe électrique",
+     "url": "https://www.premibel.fr/plinthe-electrique/",
+     "nb": 4
+    },
+    "plinthe-mdf": {
+     "nom": "Plinthe MDF",
+     "url": "https://www.premibel.fr/plinthe-mdf/",
+     "nb": 70
+    },
+    "plinthe": {
+     "nom": "Plinthes Finitions",
+     "url": "https://www.premibel.fr/plinthe/",
+     "nb": 162
+    },
+    "point-de-hongrie": {
+     "nom": "Point de Hongrie",
+     "url": "https://www.premibel.fr/point-de-hongrie/",
+     "nb": 34
+    },
+    "point-de-hongrie-massif": {
+     "nom": "Point de Hongrie Massif",
+     "url": "https://www.premibel.fr/point-de-hongrie-massif/",
+     "nb": 11
+    },
+    "promotions": {
+     "nom": "Promotions",
+     "url": "https://www.premibel.fr/promotions/",
+     "nb": 35
+    },
+    "quart-de-rond": {
+     "nom": "Quart de rond",
+     "url": "https://www.premibel.fr/quart-de-rond/",
+     "nb": 12
+    },
+    "racine": {
+     "nom": "Racine",
+     "url": "https://www.premibel.fr/racine/",
+     "nb": 712
+    },
+    "saturateur": {
+     "nom": "saturateur",
+     "url": "https://www.premibel.fr/saturateur/",
+     "nb": 1
+    },
+    "sous-chape-ciment": {
+     "nom": "Sous-chape ciment",
+     "url": "https://www.premibel.fr/sous-chape-ciment/",
+     "nb": 1
+    },
+    "sous-couche-dinachoc-s801": {
+     "nom": "Sous-couche Dinachoc S801",
+     "url": "https://www.premibel.fr/sous-couche-dinachoc-s801/",
+     "nb": 3
+    },
+    "sous-couche-dinachoc-s880-chantier": {
+     "nom": "Sous-couche Dinachoc S880 chantier",
+     "url": "https://www.premibel.fr/sous-couche-dinachoc-s880-chantier/",
+     "nb": 3
+    },
+    "sous-couche": {
+     "nom": "Sous-couche Dinachoc®",
+     "url": "https://www.premibel.fr/sous-couche/",
+     "nb": 6
+    },
+    "finition-et-entretien": {
+     "nom": "Traitements",
+     "url": "https://www.premibel.fr/finition-et-entretien/",
+     "nb": 27
+    },
+    "verni": {
+     "nom": "Verni",
+     "url": "https://www.premibel.fr/verni/",
+     "nb": 217
+    },
+    "versailles": {
+     "nom": "Versailles",
+     "url": "https://www.premibel.fr/versailles/",
+     "nb": 10
+    },
+    "vitrificateurs": {
+     "nom": "Vitrificateurs",
+     "url": "https://www.premibel.fr/vitrificateurs/",
+     "nb": 4
+    }
+   }
+  },
+  "overparquet": {
+   "nom": "Over Parquet",
+   "base": "https://over-parquet.com",
+   "totalApi": 877,
+   "parquets": 467,
+   "retenus": 438,
+   "ecartesRuptureOuSansImage": 29,
+   "facettes": {
+    "type": 436,
+    "motif": 399,
+    "teinte": 170,
+    "finition": 436,
+    "chauffage": 400,
+    "essence": 438
+   },
+   "pieces": 403,
+   "contreparties": 59,
+   "categories": {
+    "accessoire-lame-de-terrasse": {
+     "nom": "Accessoire lame de terrasse",
+     "url": "https://over-parquet.com/accessoire-lame-de-terrasse/",
+     "nb": 3
+    },
+    "accessoires": {
+     "nom": "Accessoires Parquet",
+     "url": "https://over-parquet.com/accessoires/",
+     "nb": 184
+    },
+    "barre-de-seuil": {
+     "nom": "Barre de seuil parquet",
+     "url": "https://over-parquet.com/barre-de-seuil/",
+     "nb": 58
+    },
+    "baton-rompu": {
+     "nom": "Baton rompu",
+     "url": "https://over-parquet.com/baton-rompu/",
+     "nb": 33
+    },
+    "chape-seche-thermo-acoustique": {
+     "nom": "Chape sèche thermo-acoustique",
+     "url": "https://over-parquet.com/chape-seche-thermo-acoustique/",
+     "nb": 4
+    },
+    "colle": {
+     "nom": "Colle parquet",
+     "url": "https://over-parquet.com/colle/",
+     "nb": 11
+    },
+    "colle-pour-isolation": {
+     "nom": "Colle pour Isolation",
+     "url": "https://over-parquet.com/colle-pour-isolation/",
+     "nb": 6
+    },
+    "colle-pour-parquet": {
+     "nom": "Colle pour Parquet",
+     "url": "https://over-parquet.com/colle-pour-parquet/",
+     "nb": 5
+    },
+    "collection-derniere-chance": {
+     "nom": "Collection derniere chance",
+     "url": "https://over-parquet.com/collection-derniere-chance/",
+     "nb": 21
+    },
+    "dinachoc-d834-apres-annees-60": {
+     "nom": "Dinachoc D834 (après années 60)",
+     "url": "https://over-parquet.com/dinachoc-d834-apres-annees-60/",
+     "nb": 1
+    },
+    "dinachoc-d834-chambre-musicale": {
+     "nom": "Dinachoc D834 chambre musicale",
+     "url": "https://over-parquet.com/dinachoc-d834-chambre-musicale/",
+     "nb": 1
+    },
+    "dinachoc-d840-avant-annees-60": {
+     "nom": "Dinachoc D840 (avant années 60)",
+     "url": "https://over-parquet.com/dinachoc-d840-avant-annees-60/",
+     "nb": 1
+    },
+    "dinachoc-d868-salle-de-sport": {
+     "nom": "Dinachoc D868 salle de sport",
+     "url": "https://over-parquet.com/dinachoc-d868-salle-de-sport/",
+     "nb": 1
+    },
+    "dinachoc-d898-cinema": {
+     "nom": "Dinachoc D898 cinéma",
+     "url": "https://over-parquet.com/dinachoc-d898-cinema/",
+     "nb": 1
+    },
+    "dinachoc-d898-discotheque": {
+     "nom": "Dinachoc D898 discothèque",
+     "url": "https://over-parquet.com/dinachoc-d898-discotheque/",
+     "nb": 1
+    },
+    "dinachoc-d898-theatre": {
+     "nom": "Dinachoc D898 théâtre",
+     "url": "https://over-parquet.com/dinachoc-d898-theatre/",
+     "nb": 1
+    },
+    "exotique": {
+     "nom": "Exotique",
+     "url": "https://over-parquet.com/exotique/",
+     "nb": 109
+    },
+    "finition-et-entretien": {
+     "nom": "Finition et entretien Parquet",
+     "url": "https://over-parquet.com/finition-et-entretien/",
+     "nb": 9
+    },
+    "huile-de-protection": {
+     "nom": "Huile de protection",
+     "url": "https://over-parquet.com/huile-de-protection/",
+     "nb": 2
+    },
+    "huile-cire": {
+     "nom": "Huile-cire Parquet",
+     "url": "https://over-parquet.com/huile-cire/",
+     "nb": 1
+    },
+    "isolation": {
+     "nom": "Isolation",
+     "url": "https://over-parquet.com/isolation/",
+     "nb": 14
+    },
+    "lames-de-terrasse": {
+     "nom": "Lames de Terrasse",
+     "url": "https://over-parquet.com/lames-de-terrasse/",
+     "nb": 27
+    },
+    "lames-de-terrasse-en-bois-exotique-massif": {
+     "nom": "Lames de Terrasse en Bois Exotique Massif",
+     "url": "https://over-parquet.com/lames-de-terrasse-en-bois-exotique-massif/",
+     "nb": 25
+    },
+    "lames-de-terrasse-en-composite": {
+     "nom": "Lames de Terrasse en Composite",
+     "url": "https://over-parquet.com/lames-de-terrasse-en-composite/",
+     "nb": 4
+    },
+    "lames-droites": {
+     "nom": "Lames droites",
+     "url": "https://over-parquet.com/lames-droites/",
+     "nb": 376
+    },
+    "lots-de-fin-de-serie": {
+     "nom": "Lots de fin de série",
+     "url": "https://over-parquet.com/lots-de-fin-de-serie/",
+     "nb": 126
+    },
+    "nez-de-marche": {
+     "nom": "Nez de marche",
+     "url": "https://over-parquet.com/nez-de-marche/",
+     "nb": 15
+    },
+    "non-classe": {
+     "nom": "Non classé",
+     "url": "https://over-parquet.com/non-classe/",
+     "nb": 447
+    },
+    "panneaux-muraux": {
+     "nom": "Panneaux Muraux",
+     "url": "https://over-parquet.com/panneaux-muraux/",
+     "nb": 5
+    },
+    "parquet": {
+     "nom": "Parquet",
+     "url": "https://over-parquet.com/parquet/",
+     "nb": 448
+    },
+    "parquet-bambou-massif": {
+     "nom": "Parquet bambou massif",
+     "url": "https://over-parquet.com/parquet-bambou-massif/",
+     "nb": 8
+    },
+    "parquet-bureau-usage-commercial": {
+     "nom": "Parquet bureau usage commercial",
+     "url": "https://over-parquet.com/parquet-bureau-usage-commercial/",
+     "nb": 540
+    },
+    "parquet-chambre": {
+     "nom": "Parquet chambre",
+     "url": "https://over-parquet.com/parquet-chambre/",
+     "nb": 564
+    },
+    "parquet-cuisine": {
+     "nom": "Parquet cuisine",
+     "url": "https://over-parquet.com/parquet-cuisine/",
+     "nb": 27
+    },
+    "parquet-entree-couloir": {
+     "nom": "Parquet entree couloir",
+     "url": "https://over-parquet.com/parquet-entree-couloir/",
+     "nb": 540
+    },
+    "parquet-flottant": {
+     "nom": "Parquet Flottant",
+     "url": "https://over-parquet.com/parquet-flottant/",
+     "nb": 63
+    },
+    "parquet-flottant-avec-couche-dusure": {
+     "nom": "Parquet Flottant avec Couche d Usure",
+     "url": "https://over-parquet.com/parquet-flottant-avec-couche-dusure/",
+     "nb": 8
+    },
+    "parquet-flottant-avec-couche-dusure-de-moins-de-4mm": {
+     "nom": "Parquet flottant avec couche d usure 4mm",
+     "url": "https://over-parquet.com/parquet-flottant-avec-couche-dusure-de-moins-de-4mm/",
+     "nb": 1
+    },
+    "parquet-flottant-avec-couche-dusure-4mm": {
+     "nom": "Parquet flottant avec couche d usure 4mm",
+     "url": "https://over-parquet.com/parquet-flottant-avec-couche-dusure-4mm/",
+     "nb": 3
+    },
+    "parquet-flottant-avec-couche-dusure-6mm": {
+     "nom": "Parquet flottant avec couche d usure 6mm",
+     "url": "https://over-parquet.com/parquet-flottant-avec-couche-dusure-6mm/",
+     "nb": 3
+    },
+    "parquet-flottant-baton-rompu": {
+     "nom": "Parquet Flottant Bâton Rompu",
+     "url": "https://over-parquet.com/parquet-flottant-baton-rompu/",
+     "nb": 2
+    },
+    "parquet-flottant-chene-brut": {
+     "nom": "Parquet flottant chene brut",
+     "url": "https://over-parquet.com/parquet-flottant-chene-brut/",
+     "nb": 3
+    },
+    "parquet-flottant-chene-verni": {
+     "nom": "Parquet flottant chene verni",
+     "url": "https://over-parquet.com/parquet-flottant-chene-verni/",
+     "nb": 2
+    },
+    "parquet-flottant-point-de-hongrie": {
+     "nom": "Parquet Flottant Point de Hongrie",
+     "url": "https://over-parquet.com/parquet-flottant-point-de-hongrie/",
+     "nb": 6
+    },
+    "parquet-flottant-versailles": {
+     "nom": "Parquet Flottant Versailles",
+     "url": "https://over-parquet.com/parquet-flottant-versailles/",
+     "nb": 13
+    },
+    "parquet-massif": {
+     "nom": "Parquet Massif",
+     "url": "https://over-parquet.com/parquet-massif/",
+     "nb": 224
+    },
+    "parquet-massif-baton-rompu": {
+     "nom": "Parquet Massif Bâton Rompu",
+     "url": "https://over-parquet.com/parquet-massif-baton-rompu/",
+     "nb": 19
+    },
+    "parquet-massif-chene-brut-pre-ponce": {
+     "nom": "Parquet massif chene brut pre ponce",
+     "url": "https://over-parquet.com/parquet-massif-chene-brut-pre-ponce/",
+     "nb": 3
+    },
+    "parquet-massif-chene-huile": {
+     "nom": "Parquet massif chene huile",
+     "url": "https://over-parquet.com/parquet-massif-chene-huile/",
+     "nb": 49
+    },
+    "parquet-massif-chene-verni": {
+     "nom": "Parquet massif chene verni",
+     "url": "https://over-parquet.com/parquet-massif-chene-verni/",
+     "nb": 89
+    },
+    "parquet-massif-lames-droites": {
+     "nom": "Parquet Massif Lames Droites",
+     "url": "https://over-parquet.com/parquet-massif-lames-droites/",
+     "nb": 157
+    },
+    "parquet-massif-point-de-hongrie": {
+     "nom": "Parquet Massif Point de Hongrie",
+     "url": "https://over-parquet.com/parquet-massif-point-de-hongrie/",
+     "nb": 10
+    },
+    "parquet-massif-pont-de-bateau": {
+     "nom": "Parquet Massif Pont de Bateau",
+     "url": "https://over-parquet.com/parquet-massif-pont-de-bateau/",
+     "nb": 1
+    },
+    "parquet-pour-salles-de-bain-et-cuisines": {
+     "nom": "Parquet pour salles de bain et cuisines",
+     "url": "https://over-parquet.com/parquet-pour-salles-de-bain-et-cuisines/",
+     "nb": 117
+    },
+    "parquet-salle-de-bain": {
+     "nom": "Parquet salle de bain",
+     "url": "https://over-parquet.com/parquet-salle-de-bain/",
+     "nb": 27
+    },
+    "parquet-salon": {
+     "nom": "Parquet salon",
+     "url": "https://over-parquet.com/parquet-salon/",
+     "nb": 420
+    },
+    "parquet-sol-stratifie": {
+     "nom": "Parquet Sol Stratifié",
+     "url": "https://over-parquet.com/parquet-sol-stratifie/",
+     "nb": 116
+    },
+    "plancher-massif-exotique-huile": {
+     "nom": "Plancher massif exotique huile",
+     "url": "https://over-parquet.com/plancher-massif-exotique-huile/",
+     "nb": 3
+    },
+    "plancher-massif-exotique-verni": {
+     "nom": "Plancher massif exotique verni",
+     "url": "https://over-parquet.com/plancher-massif-exotique-verni/",
+     "nb": 45
+    },
+    "plinthe-bois": {
+     "nom": "Plinthe Bois",
+     "url": "https://over-parquet.com/plinthe-bois/",
+     "nb": 9
+    },
+    "plinthe-electrique": {
+     "nom": "Plinthe électrique",
+     "url": "https://over-parquet.com/plinthe-electrique/",
+     "nb": 5
+    },
+    "plinthe-mdf": {
+     "nom": "Plinthe MDF",
+     "url": "https://over-parquet.com/plinthe-mdf/",
+     "nb": 76
+    },
+    "plinthe": {
+     "nom": "Plinthe parquet",
+     "url": "https://over-parquet.com/plinthe/",
+     "nb": 164
+    },
+    "point-de-hongrie": {
+     "nom": "Point de hongrie",
+     "url": "https://over-parquet.com/point-de-hongrie/",
+     "nb": 48
+    },
+    "point-de-hongrie-massif": {
+     "nom": "Point de hongrie massif",
+     "url": "https://over-parquet.com/point-de-hongrie-massif/",
+     "nb": 19
+    },
+    "promotions": {
+     "nom": "Promotions",
+     "url": "https://over-parquet.com/promotions/",
+     "nb": 57
+    },
+    "quart-de-rond": {
+     "nom": "Quart de rond",
+     "url": "https://over-parquet.com/quart-de-rond/",
+     "nb": 14
+    },
+    "saturateur": {
+     "nom": "Saturateur",
+     "url": "https://over-parquet.com/saturateur/",
+     "nb": 1
+    },
+    "collection-alexandrie": {
+     "nom": "Sol Stratifié Collection Alexandrie",
+     "url": "https://over-parquet.com/collection-alexandrie/",
+     "nb": 7
+    },
+    "collection-amsterdam": {
+     "nom": "Sol Stratifié Collection Amsterdam",
+     "url": "https://over-parquet.com/collection-amsterdam/",
+     "nb": 18
+    },
+    "collection-bergame": {
+     "nom": "Sol Stratifié Collection Bergame",
+     "url": "https://over-parquet.com/collection-bergame/",
+     "nb": 2
+    },
+    "collection-bologne": {
+     "nom": "Sol Stratifié Collection Bologne",
+     "url": "https://over-parquet.com/collection-bologne/",
+     "nb": 2
+    },
+    "collection-hanovre": {
+     "nom": "Sol Stratifié Collection Hanovre",
+     "url": "https://over-parquet.com/collection-hanovre/",
+     "nb": 3
+    },
+    "collection-miami": {
+     "nom": "Sol Stratifié Collection Miami",
+     "url": "https://over-parquet.com/collection-miami/",
+     "nb": 1
+    },
+    "collection-milan": {
+     "nom": "Sol Stratifié Collection Milan",
+     "url": "https://over-parquet.com/collection-milan/",
+     "nb": 31
+    },
+    "collection-monaco": {
+     "nom": "Sol Stratifié Collection Monaco",
+     "url": "https://over-parquet.com/collection-monaco/",
+     "nb": 12
+    },
+    "collection-naples": {
+     "nom": "Sol Stratifié Collection Naples",
+     "url": "https://over-parquet.com/collection-naples/",
+     "nb": 11
+    },
+    "collection-rimini": {
+     "nom": "Sol Stratifié Collection Rimini",
+     "url": "https://over-parquet.com/collection-rimini/",
+     "nb": 1
+    },
+    "collection-saint-tropez": {
+     "nom": "Sol Stratifié Collection Saint-Tropez",
+     "url": "https://over-parquet.com/collection-saint-tropez/",
+     "nb": 3
+    },
+    "collection-syracuse": {
+     "nom": "Sol Stratifié Collection Syracuse",
+     "url": "https://over-parquet.com/collection-syracuse/",
+     "nb": 4
+    },
+    "collection-tritty": {
+     "nom": "Sol Stratifié Collection Tritty",
+     "url": "https://over-parquet.com/collection-tritty/",
+     "nb": 6
+    },
+    "collection-venise": {
+     "nom": "Sol Stratifié Collection Venise",
+     "url": "https://over-parquet.com/collection-venise/",
+     "nb": 4
+    },
+    "collection-vieux-paris": {
+     "nom": "Sol Stratifié Collection Vieux Paris",
+     "url": "https://over-parquet.com/collection-vieux-paris/",
+     "nb": 9
+    },
+    "sous-chape-ciment": {
+     "nom": "Sous-chape ciment",
+     "url": "https://over-parquet.com/sous-chape-ciment/",
+     "nb": 1
+    },
+    "sous-couche": {
+     "nom": "Sous-couche",
+     "url": "https://over-parquet.com/sous-couche/",
+     "nb": 10
+    },
+    "sous-couche-dinachoc-s801": {
+     "nom": "Sous-couche Dinachoc S801",
+     "url": "https://over-parquet.com/sous-couche-dinachoc-s801/",
+     "nb": 4
+    },
+    "sous-couche-dinachoc-s880-chantier": {
+     "nom": "Sous-couche Dinachoc S880 chantier",
+     "url": "https://over-parquet.com/sous-couche-dinachoc-s880-chantier/",
+     "nb": 3
+    },
+    "systeme-chape-seche-performance-optimale": {
+     "nom": "Système chape sèche performance optimale",
+     "url": "https://over-parquet.com/systeme-chape-seche-performance-optimale/",
+     "nb": 3
+    },
+    "systeme-chape-seche-renovation": {
+     "nom": "Système chape sèche rénovation",
+     "url": "https://over-parquet.com/systeme-chape-seche-renovation/",
+     "nb": 2
+    },
+    "versailles": {
+     "nom": "Versailles",
+     "url": "https://over-parquet.com/versailles/",
+     "nb": 13
+    },
+    "vitrificateurs": {
+     "nom": "Vitrificateurs Parquet",
+     "url": "https://over-parquet.com/vitrificateurs/",
+     "nb": 4
+    }
+   }
+  }
+ }
+}

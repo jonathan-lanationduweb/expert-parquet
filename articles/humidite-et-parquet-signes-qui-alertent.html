@@ -31,36 +31,45 @@
 
   <link rel="stylesheet" href="../css/fonts.css?v=77d9f050">
   <link rel="stylesheet" href="../css/variables.css?v=8c43b67a">
+  <link rel="stylesheet" href="../css/theme.css?v=04a1fee8">
   <link rel="stylesheet" href="../css/reset.css?v=f14d0489">
   <link rel="stylesheet" href="../css/base.css?v=c4327834">
-  <link rel="stylesheet" href="../css/layout.css?v=1ef60239">
-  <link rel="stylesheet" href="../css/components.css?v=f3719081">
-  <link rel="stylesheet" href="../css/pages/home.css?v=e91f807b">
+  <link rel="stylesheet" href="../css/layout.css?v=183f7213">
+  <link rel="stylesheet" href="../css/components.css?v=96e4b03b">
+  <link rel="stylesheet" href="../css/pages/home.css?v=5c2baecf">
   <link rel="stylesheet" href="../css/pages/article.css?v=7338ad56">
 
   <script type="importmap">
 {
   "imports": {
+    "../js/catalog/load.js": "../js/catalog/load.js?v=532ce1d9",
+    "../js/catalog/normalize.js": "../js/catalog/normalize.js?v=903f5e98",
+    "../js/config/catalog-version.js": "../js/config/catalog-version.js?v=c05a6e35",
     "../js/config/diagnostic-rules.js": "../js/config/diagnostic-rules.js?v=960d869e",
-    "../js/config/options.js": "../js/config/options.js?v=79a7b68e",
+    "../js/config/finder-questions.js": "../js/config/finder-questions.js?v=cdf105ca",
+    "../js/config/options.js": "../js/config/options.js?v=33cc1b87",
     "../js/config/orientation-rules.js": "../js/config/orientation-rules.js?v=698ff403",
     "../js/config/site.js": "../js/config/site.js?v=bf2f3558",
     "../js/modules/accordion.js": "../js/modules/accordion.js?v=0d9356f5",
     "../js/modules/animations.js": "../js/modules/animations.js?v=23735147",
     "../js/modules/carousel.js": "../js/modules/carousel.js?v=34d89c7f",
     "../js/modules/contact-info.js": "../js/modules/contact-info.js?v=a8e4aa07",
-    "../js/modules/diagnostic.js": "../js/modules/diagnostic.js?v=1c242d8d",
-    "../js/modules/forms.js": "../js/modules/forms.js?v=77524f43",
-    "../js/modules/index-list.js": "../js/modules/index-list.js?v=b6e6f231",
+    "../js/modules/diagnostic.js": "../js/modules/diagnostic.js?v=ae577c89",
+    "../js/modules/finder.js": "../js/modules/finder.js?v=f43df339",
+    "../js/modules/forms.js": "../js/modules/forms.js?v=90dbd115",
     "../js/modules/navigation.js": "../js/modules/navigation.js?v=d2d4b4bc",
     "../js/modules/orientation.js": "../js/modules/orientation.js?v=1cce909f",
     "../js/modules/reveal-more.js": "../js/modules/reveal-more.js?v=de47c36c",
     "../js/modules/sticky-cta.js": "../js/modules/sticky-cta.js?v=a40670ca",
-    "../js/modules/toc.js": "../js/modules/toc.js?v=1960687e"
+    "../js/modules/toc.js": "../js/modules/toc.js?v=1960687e",
+    "../js/modules/tracking.js": "../js/modules/tracking.js?v=18781ff1",
+    "../js/recommendation/criteria.js": "../js/recommendation/criteria.js?v=c9e4c7f7",
+    "../js/recommendation/fallbacks.js": "../js/recommendation/fallbacks.js?v=2f85de18",
+    "../js/recommendation/matching.js": "../js/recommendation/matching.js?v=49e564a4"
   }
 }
   </script>
-  <script type="module" src="../js/main.js?v=ced762dc"></script>
+  <script type="module" src="../js/main.js?v=af5509c4"></script>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -97,7 +106,7 @@
   "dateModified": "2026-03-09",
   "inLanguage": "fr-FR",
   "mainEntityOfPage": "https://expert-parquet.com/articles/humidite-et-parquet-signes-qui-alertent.html",
-  "articleSection": "Humidité"
+  "articleSection": "Problèmes &amp; diagnostic"
 }
   </script>
   <script type="application/ld+json">
@@ -139,18 +148,17 @@
       </div>
       <div class="nav__scroll">
         <ul class="nav__list">
-          <li><a class="nav__link" href="../pages/expertise.html">Expertise</a></li>
-          <li><a class="nav__link" href="../pages/diagnostic.html">Diagnostic</a></li>
           <li><a class="nav__link" href="../pages/problemes.html">Problèmes</a></li>
           <li><a class="nav__link" href="../pages/conseils.html" aria-current="page">Conseils</a></li>
+          <li><a class="nav__link" href="../pages/diagnostic.html">Diagnostic</a></li>
+          <li><a class="nav__link" href="../pages/expertise.html">Expertise</a></li>
           <li><a class="nav__link" href="../pages/a-propos.html">À propos</a></li>
-          <li><a class="nav__link" href="../pages/contact.html">Contact</a></li>
         </ul>
       </div>
-      <a class="btn btn--primary btn--block nav__cta-mobile" href="../pages/devis.html">Demander une expertise</a>
+      <a class="btn btn--primary btn--block nav__cta-mobile" href="../pages/trouver-mon-parquet.html#finder">Trouver mon parquet</a>
     </nav>
     <div class="header__actions">
-      <a class="btn btn--primary btn--sm header__cta-desktop" href="../pages/devis.html">Demander une expertise</a>
+      <a class="btn btn--primary btn--sm header__cta-desktop" href="../pages/trouver-mon-parquet.html#finder">Trouver mon parquet</a>
       <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">
         <span class="visually-hidden">Ouvrir le menu</span>
         <span class="nav-toggle__bars" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -172,7 +180,7 @@
       <div class="article-layout u-mt-md">
         <div>
           <header class="article-head">
-            <p class="kicker">Humidité</p>
+            <p class="kicker">Problèmes &amp; diagnostic</p>
             <h1 class="article-head__title">Humidité et parquet&nbsp;: quels signes doivent alerter&nbsp;?</h1>
             <p class="article-head__standfirst">L’humidité annonce presque toujours son arrivée. Encore faut-il lire les bons signaux — et savoir distinguer une remontée d’une condensation, car les réponses n’ont rien à voir.</p>
             <p class="article-head__meta">
@@ -181,6 +189,7 @@
               <span>8 min de lecture</span>
             </p>
           </header>
+
 
           <figure class="media media--16x9 article__cover">
             <img src="../assets/images/parquet-chevrons.jpg" srcset="../assets/images/r/parquet-chevrons-480.jpg 480w, ../assets/images/r/parquet-chevrons-768.jpg 768w, ../assets/images/r/parquet-chevrons-1200.jpg 1200w, ../assets/images/r/parquet-chevrons-1600.jpg 1600w, ../assets/images/parquet-chevrons.jpg 1800w" sizes="(min-width: 901px) 68vw, 100vw" alt="Parquet en damier au ras du sol, à la jonction d’un mur et de sa plinthe, traversé par une bande de lumière" width="1800" height="1200" fetchpriority="high" decoding="async">
@@ -265,12 +274,8 @@
 
 
 
-          <div class="article-foot">
-            <div class="callout callout--neutral">
-              <p class="callout__title"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M6.3 6.3a1.75 1.75 0 1 1 2.4 1.6c-.5.2-.7.6-.7 1.1v.2"/><path d="M8 11.6h.01"/></svg> Et pour votre cas&nbsp;?</p>
-              <p>Cet article décrit des mécanismes généraux. Pour poser votre situation particulière, le <a href="../pages/diagnostic.html#pre-diagnostic">pré-diagnostic</a> prend cinq minutes, ou décrivez-la directement dans la <a href="../pages/devis.html">demande d’expertise</a>.</p>
-            </div>
-          </div>
+          <!-- Plus d'encart « Et pour votre cas ? » : le bandeau final porte la
+               sortie du parcours, l'encart latéral la sortie contextuelle. -->
         </div>
 
         <aside class="article-aside">
@@ -281,9 +286,9 @@
             </details>
           </nav>
           <div class="aside-card aside-card--accent">
-            <p class="aside-card__title">Besoin d’un avis&nbsp;?</p>
-            <p>Décrivez votre parquet et son problème&nbsp;: vous recevrez les éléments à vérifier en priorité.</p>
-            <a class="btn btn--primary btn--sm btn--block" href="../pages/devis.html">Demander une expertise</a>
+            <p class="aside-card__title">Et pour votre cas&nbsp;?</p>
+            <p>Cet article décrit des mécanismes généraux. Le pré-diagnostic pose votre situation en cinq questions.</p>
+            <a class="btn btn--primary btn--sm btn--block" href="../pages/diagnostic.html#pre-diagnostic">Analyser mon problème</a>
           </div>
         </aside>
       </div>
@@ -325,11 +330,12 @@
     <div class="cta-band__inner">
       <div data-reveal>
         <h2 class="cta-band__title">Un doute sur l’origine du problème&nbsp;?</h2>
-        <p>Décrivez votre situation en quelques minutes. Vous recevrez les éléments à vérifier en priorité et, si elle se justifie, une proposition d’expertise.</p>
+        <p>Décrivez votre situation en cinq questions&nbsp;: vous recevrez les vérifications à faire en priorité et la suite logique — réparer, remplacer, ou faire expertiser.</p>
       </div>
       <div class="btn-group" data-reveal data-reveal-delay="90">
-        <a class="btn btn--primary btn--lg" href="../pages/devis.html">Demander une expertise</a>
-        <a class="btn btn--on-dark btn--lg" href="../pages/diagnostic.html#pre-diagnostic">Lancer le pré-diagnostic</a>
+        <a class="btn btn--primary btn--lg" href="../pages/diagnostic.html#pre-diagnostic">Analyser mon problème</a>
+        <a class="btn btn--on-dark btn--lg" href="../pages/devis.html">Demander une expertise</a>
+        
       </div>
     </div>
   </section>
@@ -341,36 +347,24 @@
     <div class="footer__top">
       <div>
         <a class="footer__wordmark" href="../index.html" aria-label="Expert Parquet, retour à l’accueil"><img class="footer__logo" src="../assets/brand/expert-parquet-logo-on-dark.png" alt="" width="338" height="128" loading="lazy" decoding="async"></a>
-        <p class="footer__pitch">Comprendre l’origine d’un problème de parquet avant de décider comment intervenir.</p>
-        <!-- Plus de bouton « Nous écrire » ici : la colonne Informations porte
-             déjà le lien Contact, et le pied gagne une rangée. -->
+        <p class="footer__pitch">Comprendre votre besoin parquet, puis aller à la bonne solution.</p>
       </div>
       <div class="footer__cols">
         <div>
-          <h2 class="footer__title">Expertise</h2>
+          <h2 class="footer__title">Comprendre</h2>
           <ul class="footer__list">
             <li><a href="../pages/diagnostic.html">Diagnostic</a></li>
             <li><a href="../pages/problemes.html">Problèmes</a></li>
-            <li><a href="../pages/expertise.html">Expertise parquet</a></li>
-            <li><a href="../pages/devis.html">Demande de devis</a></li>
-          </ul>
-        </div>
-        <div>
-          <h2 class="footer__title">Comprendre</h2>
-          <ul class="footer__list">
             <li><a href="../pages/conseils.html">Conseils</a></li>
-            <li><a href="../pages/conseils/choisir-parquet.html">Choisir un parquet</a></li>
-            <li><a href="../pages/conseils/entretien.html">Entretien</a></li>
-            <li><a href="../pages/conseils/renovation.html">Rénovation</a></li>
-            <li><a href="../pages/conseils/pose.html">Pose</a></li>
-            <li><a href="../pages/faq.html">FAQ</a></li>
           </ul>
         </div>
         <div>
-          <h2 class="footer__title">Solutions parquet</h2>
+          <h2 class="footer__title">Solutions</h2>
           <ul class="footer__list">
+            <li><a href="../pages/trouver-mon-parquet.html">Trouver mon parquet</a></li>
             <li><a href="https://www.premibel.fr/?utm_source=expert-parquet&amp;utm_medium=referral&amp;utm_campaign=pied-de-page" rel="sponsored noopener" data-event="commercial_orientation" data-destination="premibel" data-besoin="selection" data-context="pied-de-page">Choisir son parquet — Premibel</a></li>
-            <li><a href="https://over-parquet.com/?utm_source=expert-parquet&amp;utm_medium=referral&amp;utm_campaign=pied-de-page" rel="sponsored noopener" data-event="commercial_orientation" data-destination="over-parquet" data-besoin="supply" data-customer-type="professionnel" data-context="pied-de-page">Approvisionnement professionnel — Over Parquet</a></li>
+            <li><a href="https://over-parquet.com/?utm_source=expert-parquet&amp;utm_medium=referral&amp;utm_campaign=pied-de-page" rel="sponsored noopener" data-event="commercial_orientation" data-destination="over-parquet" data-besoin="supply" data-customer-type="professionnel" data-context="pied-de-page">Approvisionnement pro — Over Parquet</a></li>
+            <li><a href="../pages/expertise.html">Expertise</a></li>
           </ul>
         </div>
         <div>
@@ -378,13 +372,12 @@
           <ul class="footer__list">
             <li><a href="../pages/a-propos.html">À propos</a></li>
             <li><a href="../pages/contact.html">Contact</a></li>
-            <li><a href="../pages/mentions-legales.html">Mentions légales</a></li>
           </ul>
         </div>
       </div>
     </div>
     <div class="footer__bottom">
-      <p>&copy; <span data-current-year>2026</span> Expert Parquet — site indépendant.</p>
+      <p>&copy; <span data-current-year>2026</span> Expert Parquet</p>
       <ul class="footer__legal-links">
         <li><a href="../pages/mentions-legales.html">Mentions légales</a></li>
       </ul>
@@ -395,5 +388,6 @@
   <span>Demander une expertise</span>
   <span class="sticky-cta__arrow" aria-hidden="true"></span>
 </a>
+  <script defer src="../js/maintenance-admin.js?v=b6907abd"></script>
 </body>
 </html>

@@ -29,10 +29,10 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist');
 
 /** Dossiers publiés intégralement. */
-const DOSSIERS = ['css', 'js', 'assets', 'pages', 'articles'];
+const DOSSIERS = ['css', 'js', 'assets', 'pages', 'articles', 'data'];
 
 /** Fichiers publiés à la racine. */
-const FICHIERS = ['index.html', 'robots.txt', 'sitemap.xml', '.nojekyll'];
+const FICHIERS = ['index.html', '404.html', 'robots.txt', 'sitemap.xml', '.nojekyll'];
 
 /**
  * Filtre appliqué à l'intérieur des dossiers publiés.
@@ -112,7 +112,9 @@ async function main() {
     /IDENTIFIANTS/i.test(f)
   );
 
-  const pages = relatifs.filter((f) => f.endsWith('.html'));
+  /* La 404 est publiée mais n'est pas une page de contenu : elle n'a pas
+     d'entrée au sitemap, on l'écarte donc de l'égalité pages ↔ sitemap. */
+  const pages = relatifs.filter((f) => f.endsWith('.html') && f !== '404.html');
   const sitemap = await readFile(join(DIST, 'sitemap.xml'), 'utf8');
   const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].length;
 
