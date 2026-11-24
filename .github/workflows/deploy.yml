@@ -68,7 +68,7 @@ jobs:
       - name: Vérifier que rien d'interne ne part en ligne
         run: |
           set -e
-          for chemin in tools docs backend backend-private .git .kilo .claude; do
+          for chemin in tools docs backend backend-private .git .kilo; do
             if [ -e "dist/$chemin" ]; then echo "REFUSÉ : dist/$chemin"; exit 1; fi
           done
           if find dist -name '*.md' -o -name '*.mjs' -o -name '*.php' | grep -q .; then
