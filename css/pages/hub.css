@@ -86,6 +86,19 @@
   .finder-layout--page .finder-panel { order: -1; }
   .finder-intro h2 { max-width: none; }
   .finder-panel { min-height: 0; }
+  /* Le moteur est chargé à la demande : tant qu'il ne s'est pas monté, son
+     conteneur ne contient que le <noscript>. Placé AU-DESSUS de « comment ça
+     marche », il repoussait tout à son arrivée (CLS mesuré : 0,383 en mobile).
+     On réserve la hauteur de la première étape, et SEULEMENT avant le montage :
+     dès que le moteur vide son conteneur, la règle ne s'applique plus et les
+     étapes suivantes gardent leur hauteur naturelle. */
+  .finder-layout--page [data-finder]:has(> noscript:only-child) { min-height: 600px; }
+}
+@media (max-width: 480px) {
+  .finder-layout--page [data-finder]:has(> noscript:only-child) { min-height: 850px; }
+}
+@media (max-width: 400px) {
+  .finder-layout--page [data-finder]:has(> noscript:only-child) { min-height: 900px; }
 }
 
 /* ==========================================================================

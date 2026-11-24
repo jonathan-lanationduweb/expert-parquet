@@ -13,7 +13,7 @@ import { relatedSection } from './graph.mjs';
 import { photo } from '../images.mjs';
 import { articles, faqParIds, imageDe, theme, dateLabel } from '../cms/snapshot.mjs';
 import { htmlPourPage, faqPourPage } from '../cms/html.mjs';
-import { cheminMedia } from '../cms/site.mjs';
+import { cheminMedia, seo } from '../cms/site.mjs';
 import { sortieBloc, bandePourSortie } from './sortie.mjs';
 
 const D = 1;
@@ -51,6 +51,13 @@ function renderArticle(article) {
     { label: 'Conseils', href: 'pages/conseils.html' },
     { label: article.title },
   ]);
+  /* L'éditeur déclaré dans la configuration SEO signe l'article (auteur et
+     éditeur) : pas de personne inventée, la même entité que celle de l'accueil,
+     reliée par son @id. Sans organisation déclarée, rien n'est affirmé. */
+  const org = seo().organisation;
+  const editeur = org && org.nom
+    ? { '@type': 'Organization', '@id': `${SITE.baseUrl}/#organization`, name: org.nom, ...(org.url ? { url: org.url } : {}) }
+    : null;
 
   const body = `  <section class="section section--tight">
     <div class="container">
@@ -124,13 +131,16 @@ ${ctaBand(D, bandePourSortie(article.sortie, BANDES.probleme))}
         '@context': 'https://schema.org',
         '@type': 'Article',
         headline: plainText(article.title),
-        description: article.standfirst.replace(/&nbsp;/g, ' ').replace(/<[^>]+>/g, ''),
+        /* Le contenu d'un <script> n'est pas décodé par le navigateur : une
+           entité HTML (« &amp; ») y serait lue telle quelle par les moteurs. */
+        description: plainText(article.standfirst),
         image: `${SITE.baseUrl}/assets/images/${image || 'hero.jpg'}`,
         datePublished: article.date,
         dateModified: article.date,
         inLanguage: 'fr-FR',
         mainEntityOfPage: `${SITE.baseUrl}/articles/${article.slug}.html`,
-        articleSection: categorie,
+        articleSection: plainText(categorie),
+        ...(editeur ? { author: editeur, publisher: editeur } : {}),
       },
       faq.length ? faqJsonLd(faq) : null,
     ],

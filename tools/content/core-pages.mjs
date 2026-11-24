@@ -317,12 +317,19 @@ ${items
       </article>`
   ).join('\n');
 
+  /* Le nombre de familles suit les guides réellement publiés : un titre
+     « Quatre familles » écrit en dur deviendrait faux au cinquième guide. */
+  const NOMBRES = ['', 'Une', 'Deux', 'Trois', 'Quatre', 'Cinq', 'Six', 'Sept', 'Huit', 'Neuf'];
+  const nbGuides = guides().length;
+  const titreFamilles = nbGuides === 1 ? 'Une famille de questions' : `${NOMBRES[nbGuides] || nbGuides} familles de questions`;
+
   const body = `${hero}
 
   <section class="section">
     <div class="container">
       <div class="sec-head" data-reveal>
-        <h2>Catégories</h2>
+        <p class="kicker">Par où entrer</p>
+        <h2>${titreFamilles}</h2>
       </div>
       <div class="grid grid--4 hub-categories u-mt-lg">
 ${categories}
@@ -334,7 +341,7 @@ ${categories}
     <div class="container">
       <div class="sec-head" data-reveal>
         <p class="kicker">Derniers articles</p>
-        <h2>À lire</h2>
+        <h2>Les conseils publiés récemment</h2>
       </div>
       <div class="grid grid--3 u-mt-lg">
 ${recents.map((article, index) => articleCard(D, article, index)).join('\n')}
@@ -346,8 +353,8 @@ ${recents.map((article, index) => articleCard(D, article, index)).join('\n')}
     <div class="container">
       <div class="sec-head" data-reveal>
         <p class="kicker">Tous les articles</p>
-        <h2 class="sec-head__title">Par thème</h2>
-        <p class="lead">Le même fonds, rangé par question posée plutôt que par date de publication.</p>
+        <h2 class="sec-head__title">Les conseils rangés par question</h2>
+        <p class="lead">Le même fonds, classé par ce qu’on cherche à savoir plutôt que par date de publication. Chaque titre est la question telle qu’elle se pose.</p>
       </div>
 ${groupes}
     </div>
@@ -358,7 +365,7 @@ ${groupes}
       <div class="sec-head" data-reveal>
         <p class="kicker">Par symptôme</p>
         <h2>Vous cherchez une réponse précise&nbsp;?</h2>
-        <p class="lead">Les pages « problèmes » traitent chaque symptôme séparément.</p>
+        <p class="lead">Les conseils expliquent. Les pages « problèmes » traitent chaque symptôme séparément, avec ses causes probables et les vérifications à mener.</p>
       </div>
       <ul class="filter-bar u-mt-lg" data-reveal>
 ${problemesListe().map((problem) => `        <li><a class="filter-chip" href="${rel(D, `pages/problemes/${problem.slug}.html`)}">${problem.label}</a></li>`).join('\n')}
@@ -412,8 +419,8 @@ ${htmlPourPage(p.html, D)}
       <div class="prose u-mt-lg" data-reveal>
         <p>Expert Parquet qualifie votre besoin et le traduit en critères. Il ne vend rien et ne détient aucun stock. Les références proposées par le moteur sont ensuite à consulter chez l’une des deux enseignes externes, selon votre profil et votre projet&nbsp;:</p>
         <ul>
-          <li><strong>Premibel</strong> — choix, conseil et achat, pour les particuliers comme pour les professionnels. <a href="https://www.premibel.fr/" target="_blank" rel="noopener">Voir le site de Premibel</a>.</li>
-          <li><strong>Over Parquet</strong> — approvisionnement professionnel, sur justificatif d’entreprise. <a href="https://over-parquet.com/" target="_blank" rel="noopener">Voir le site d’Over Parquet</a>.</li>
+          <li><strong>Premibel</strong> — choix, conseil et achat, pour les particuliers comme pour les professionnels. <a href="https://www.premibel.fr/" target="_blank" rel="sponsored noopener">Voir le site de Premibel</a>.</li>
+          <li><strong>Over Parquet</strong> — approvisionnement professionnel, sur justificatif d’entreprise. <a href="https://over-parquet.com/" target="_blank" rel="sponsored noopener">Voir le site d’Over Parquet</a>.</li>
         </ul>
         <p>Nous citons leurs catalogues comme sources de recommandation&nbsp;; le choix et l’achat se font sur leur site.</p>
       </div>

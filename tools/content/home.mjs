@@ -81,12 +81,14 @@ ${faqAccordion(FAQ, 'home-faq', { single: true })}
         ? {
             '@context': 'https://schema.org',
             '@type': 'WebSite',
+            '@id': 'https://expert-parquet.com/#website',
             name: seo().nom,
             url: 'https://expert-parquet.com/',
             inLanguage: 'fr-FR',
             description: seo().descriptionSite,
+            /* Même @id que l'auteur et l'éditeur des articles : une seule entité. */
             ...(seo().organisation.nom
-              ? { publisher: { '@type': 'Organization', name: seo().organisation.nom, ...(seo().organisation.url ? { url: seo().organisation.url } : {}) } }
+              ? { publisher: { '@type': 'Organization', '@id': 'https://expert-parquet.com/#organization', name: seo().organisation.nom, ...(seo().organisation.url ? { url: seo().organisation.url } : {}) } }
               : {}),
           }
         : null,
